@@ -85,7 +85,7 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(height: 15),
                         ElevatedButton.icon(
                           onPressed: () {
-                            context.go('/admin');
+                            context.go('/admin/panel');
                           },
                           icon: const Icon(Icons.admin_panel_settings),
                           label: const Text('Access Admin Panel'),

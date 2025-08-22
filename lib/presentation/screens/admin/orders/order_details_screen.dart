@@ -4,8 +4,13 @@ import '../../../../core/network/api_service.dart';
 
 class OrderDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> order;
+  final Function(Map<String, dynamic>)? onOrderUpdated;
 
-  const OrderDetailsScreen({super.key, required this.order});
+  const OrderDetailsScreen({
+    super.key,
+    required this.order,
+    this.onOrderUpdated,
+  });
 
   @override
   State<OrderDetailsScreen> createState() => _OrderDetailsScreenState();
@@ -39,9 +44,18 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
     try {
       final response = await _apiService.get('/orders/${widget.order['id']}');
       if (response.statusCode == 200 && response.data['success']) {
+        final updatedOrder = response.data['data'];
         setState(() {
-          _orderDetails = response.data['data'];
+          _orderDetails = updatedOrder;
         });
+
+        // Update the widget.order with the latest data from API
+        widget.order.addAll(updatedOrder);
+
+        // Notify parent screen about the update
+        if (widget.onOrderUpdated != null) {
+          widget.onOrderUpdated!(widget.order);
+        }
       }
     } catch (e) {
       _showSnackBar('Error loading order details: $e', isError: true);
@@ -54,11 +68,27 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
 
   Future<void> _updateOrderStatus(String newStatus) async {
     try {
-      await _apiService.put('/orders/${widget.order['id']}/status', data: {
+      final response =
+          await _apiService.put('/orders/${widget.order['id']}/status', data: {
         'status': newStatus,
       });
-      _showSnackBar('Order status updated successfully');
-      _loadOrderDetails();
+
+      if (response.statusCode == 200 && response.data['success']) {
+        // Update the local state immediately
+        setState(() {
+          if (_orderDetails != null) {
+            _orderDetails!['status'] = newStatus;
+          }
+          widget.order['status'] = newStatus;
+        });
+
+        // Notify parent screen about the update
+        if (widget.onOrderUpdated != null) {
+          widget.onOrderUpdated!(widget.order);
+        }
+
+        _showSnackBar(response.data['message']);
+      }
     } catch (e) {
       _showSnackBar('Error updating order status: $e', isError: true);
     }
@@ -66,12 +96,27 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
 
   Future<void> _updatePaymentStatus(String newPaymentStatus) async {
     try {
-      await _apiService
+      final response = await _apiService
           .put('/orders/${widget.order['id']}/payment-status', data: {
         'payment_status': newPaymentStatus,
       });
-      _showSnackBar('Payment status updated successfully');
-      _loadOrderDetails();
+
+      if (response.statusCode == 200 && response.data['success']) {
+        // Update the local state immediately
+        setState(() {
+          if (_orderDetails != null) {
+            _orderDetails!['payment_status'] = newPaymentStatus;
+          }
+          widget.order['payment_status'] = newPaymentStatus;
+        });
+
+        // Notify parent screen about the update
+        if (widget.onOrderUpdated != null) {
+          widget.onOrderUpdated!(widget.order);
+        }
+
+        _showSnackBar('Payment status updated successfully');
+      }
     } catch (e) {
       _showSnackBar('Error updating payment status: $e', isError: true);
     }
@@ -93,18 +138,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
     switch (status.toLowerCase()) {
       case 'pending':
         return AppColors.warningColor;
-      case 'confirmed':
-        return AppColors.primaryText;
-      case 'processing':
-        return AppColors.secondaryBackground;
       case 'shipped':
         return Colors.blue;
       case 'delivered':
         return AppColors.successColor;
       case 'cancelled':
         return AppColors.errorColor;
-      case 'refunded':
-        return Colors.purple;
       default:
         return AppColors.textSecondaryColor;
     }
@@ -804,14 +843,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                 contentPadding:
                     EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
-              items: [
-                'pending',
-                'confirmed',
-                'processing',
-                'shipped',
-                'delivered',
-                'cancelled'
-              ]
+              items: ['pending', 'shipped', 'delivered', 'cancelled']
                   .map((status) => DropdownMenuItem(
                         value: status,
                         child: Text(status.toUpperCase()),
@@ -916,9 +948,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
             child: const Text('No'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              _updateOrderStatus('cancelled');
+              await _updateOrderStatus('cancelled');
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Yes, Cancel'),

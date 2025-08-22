@@ -81,8 +81,25 @@ class ApiService {
 
   Future<Response> post(String path, {dynamic data}) async {
     try {
-      final response = await _dio.post(path, data: data);
-      return response;
+      // Check if this is multipart data (FormData)
+      if (data is FormData) {
+        // For multipart data, don't set Content-Type header
+        final response = await _dio.post(
+          path,
+          data: data,
+          options: Options(
+            headers: {
+              'Content-Type':
+                  null, // Let Dio set the correct multipart boundary
+            },
+          ),
+        );
+        return response;
+      } else {
+        // For regular JSON data
+        final response = await _dio.post(path, data: data);
+        return response;
+      }
     } catch (e) {
       rethrow;
     }
@@ -97,9 +114,43 @@ class ApiService {
     }
   }
 
-  Future<Response> delete(String path) async {
+  Future<Response> delete(String path, {dynamic data}) async {
     try {
-      final response = await _dio.delete(path);
+      final response = await _dio.delete(path, data: data);
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Helper method to build query parameters from filters
+  Map<String, dynamic> buildQueryParams(Map<String, dynamic> filters) {
+    final queryParams = <String, dynamic>{};
+
+    for (final entry in filters.entries) {
+      if (entry.value != null && entry.value != '') {
+        if (entry.value is List) {
+          // Handle array filters (e.g., statuses, categories)
+          queryParams[entry.key] = entry.value.join(',');
+        } else if (entry.value is DateTime) {
+          // Handle date filters
+          queryParams[entry.key] = entry.value.toIso8601String();
+        } else {
+          // Handle regular filters
+          queryParams[entry.key] = entry.value.toString();
+        }
+      }
+    }
+
+    return queryParams;
+  }
+
+  // Generic method for filtered GET requests
+  Future<Response> getWithFilters(
+      String path, Map<String, dynamic> filters) async {
+    try {
+      final queryParams = buildQueryParams(filters);
+      final response = await _dio.get(path, queryParameters: queryParams);
       return response;
     } catch (e) {
       rethrow;

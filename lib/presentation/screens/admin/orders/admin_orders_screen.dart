@@ -2,12 +2,24 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/network/api_service.dart';
 import 'order_details_screen.dart';
+import '../../../widgets/admin/auth_wrapper.dart';
 
 class AdminOrdersScreen extends StatefulWidget {
   const AdminOrdersScreen({super.key});
 
   @override
   State<AdminOrdersScreen> createState() => _AdminOrdersScreenState();
+}
+
+class AdminOrdersScreenWithAuth extends StatelessWidget {
+  const AdminOrdersScreenWithAuth({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const AdminAuthWrapper(
+      child: AdminOrdersScreen(),
+    );
+  }
 }
 
 class _AdminOrdersScreenState extends State<AdminOrdersScreen>
@@ -20,18 +32,17 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
   bool _isLoading = false;
   String _searchQuery = '';
   String _selectedStatus = 'All';
+  String _selectedUserFilter = 'All Users';
+  List<String> _availableUsers = [];
   late TabController _tabController;
   int _currentTabIndex = 0;
 
   final List<String> _statusOptions = [
     'All',
     'pending',
-    'confirmed',
-    'processing',
     'shipped',
     'delivered',
     'cancelled',
-    'refunded',
   ];
 
   // Statistics
@@ -47,6 +58,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
         _currentTabIndex = _tabController.index;
       });
     });
+    _apiService.init();
     _loadOrders();
     _loadStatistics();
   }
@@ -67,8 +79,20 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
       final response = await _apiService.get('/orders/admin');
       if (response.statusCode == 200 && response.data['success']) {
         setState(() {
-          _orders = List<Map<String, dynamic>>.from(response.data['data']);
+          _orders =
+              List<Map<String, dynamic>>.from(response.data['orders'] ?? []);
           _filteredOrders = List.from(_orders);
+
+          // Extract unique user names from orders
+          final Set<String> uniqueUsers = {};
+          for (final order in _orders) {
+            final customerName = order['customer_name']?.toString() ?? '';
+            if (customerName.isNotEmpty) {
+              uniqueUsers.add(customerName);
+            }
+          }
+          _availableUsers = uniqueUsers.toList()..sort();
+          print('Available users: $_availableUsers');
         });
       }
     } catch (e) {
@@ -89,7 +113,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
       final response = await _apiService.get('/orders/statistics');
       if (response.statusCode == 200 && response.data['success']) {
         setState(() {
-          _statistics = response.data['data'] ?? {};
+          _statistics = response.data['statistics'] ?? {};
         });
       }
     } catch (e) {
@@ -105,6 +129,23 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
   void _filterOrders(String query) {
     setState(() {
       _searchQuery = query;
+      _applyFilters();
+    });
+  }
+
+  void _resetUserFilter() {
+    setState(() {
+      _selectedUserFilter = 'All Users';
+      _applyFilters();
+    });
+  }
+
+  void _clearAllFilters() {
+    setState(() {
+      _searchQuery = '';
+      _selectedStatus = 'All';
+      _selectedUserFilter = 'All Users';
+      _searchController.clear();
       _applyFilters();
     });
   }
@@ -125,29 +166,59 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
           order['customer_name']?.toString().toLowerCase() ?? '';
       final customerPhone =
           order['customer_phone']?.toString().toLowerCase() ?? '';
+      final customerEmail =
+          order['customer_email']?.toString().toLowerCase() ?? '';
 
       final matchesSearch = _searchQuery.isEmpty ||
           orderId.contains(searchLower) ||
           customerName.contains(searchLower) ||
-          customerPhone.contains(searchLower);
+          customerPhone.contains(searchLower) ||
+          customerEmail.contains(searchLower);
 
       // Status filter
       final matchesStatus = _selectedStatus == 'All' ||
           order['status']?.toString().toLowerCase() ==
               _selectedStatus.toLowerCase();
 
-      return matchesSearch && matchesStatus;
+      // User filter
+      bool matchesUser = true;
+      if (_selectedUserFilter != 'All Users') {
+        matchesUser =
+            customerName.toLowerCase() == _selectedUserFilter.toLowerCase();
+        print(
+            'User filter: "$_selectedUserFilter" vs "$customerName" = $matchesUser');
+      }
+
+      return matchesSearch && matchesStatus && matchesUser;
     }).toList();
   }
 
   Future<void> _updateOrderStatus(int orderId, String newStatus) async {
     try {
-      await _apiService.put('/orders/$orderId/status', data: {
+      final response = await _apiService.put('/orders/$orderId/status', data: {
         'status': newStatus,
       });
-      _showSnackBar('Order status updated successfully');
-      _loadOrders();
-      _loadStatistics();
+
+      if (response.statusCode == 200 && response.data['success']) {
+        // Update the local state immediately
+        setState(() {
+          final orderIndex =
+              _orders.indexWhere((order) => order['id'] == orderId);
+          if (orderIndex != -1) {
+            _orders[orderIndex]['status'] = newStatus;
+            // Also update filtered orders if they exist
+            final filteredIndex =
+                _filteredOrders.indexWhere((order) => order['id'] == orderId);
+            if (filteredIndex != -1) {
+              _filteredOrders[filteredIndex]['status'] = newStatus;
+            }
+          }
+        });
+
+        _showSnackBar(response.data['message']);
+        // Refresh statistics to reflect the change
+        _loadStatistics();
+      }
     } catch (e) {
       _showSnackBar('Error updating order status: $e', isError: true);
     }
@@ -156,12 +227,30 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
   Future<void> _updatePaymentStatus(
       int orderId, String newPaymentStatus) async {
     try {
-      await _apiService.put('/orders/$orderId/payment-status', data: {
+      final response =
+          await _apiService.put('/orders/$orderId/payment-status', data: {
         'payment_status': newPaymentStatus,
       });
-      _showSnackBar('Payment status updated successfully');
-      _loadOrders();
-      _loadStatistics();
+
+      if (response.statusCode == 200 && response.data['success']) {
+        // Update the local state immediately
+        setState(() {
+          final orderIndex =
+              _orders.indexWhere((order) => order['id'] == orderId);
+          if (orderIndex != -1) {
+            _orders[orderIndex]['payment_status'] = newPaymentStatus;
+            // Also update filtered orders if they exist
+            final filteredIndex =
+                _filteredOrders.indexWhere((order) => order['id'] == orderId);
+            if (filteredIndex != -1) {
+              _filteredOrders[filteredIndex]['payment_status'] =
+                  newPaymentStatus;
+            }
+          }
+        });
+
+        _showSnackBar('Payment status updated successfully');
+      }
     } catch (e) {
       _showSnackBar('Error updating payment status: $e', isError: true);
     }
@@ -190,12 +279,31 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
 
     if (confirmed == true) {
       try {
-        await _apiService.post('/orders/$orderId/cancel', data: {
+        final response =
+            await _apiService.post('/orders/$orderId/cancel', data: {
           'reason': 'Cancelled by admin',
         });
-        _showSnackBar('Order cancelled successfully');
-        _loadOrders();
-        _loadStatistics();
+
+        if (response.statusCode == 200 && response.data['success']) {
+          // Update the local state immediately
+          setState(() {
+            final orderIndex =
+                _orders.indexWhere((order) => order['id'] == orderId);
+            if (orderIndex != -1) {
+              _orders[orderIndex]['status'] = 'cancelled';
+              // Also update filtered orders if they exist
+              final filteredIndex =
+                  _filteredOrders.indexWhere((order) => order['id'] == orderId);
+              if (filteredIndex != -1) {
+                _filteredOrders[filteredIndex]['status'] = 'cancelled';
+              }
+            }
+          });
+
+          _showSnackBar('Order cancelled successfully');
+          // Refresh statistics to reflect the change
+          _loadStatistics();
+        }
       } catch (e) {
         _showSnackBar('Error cancelling order: $e', isError: true);
       }
@@ -218,18 +326,12 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
     switch (status.toLowerCase()) {
       case 'pending':
         return AppColors.warningColor;
-      case 'confirmed':
-        return AppColors.primaryText;
-      case 'processing':
-        return AppColors.secondaryBackground;
       case 'shipped':
         return Colors.blue;
       case 'delivered':
         return AppColors.successColor;
       case 'cancelled':
         return AppColors.errorColor;
-      case 'refunded':
-        return Colors.purple;
       default:
         return AppColors.textSecondaryColor;
     }
@@ -328,39 +430,52 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
           ),
 
           // Stats Grid
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            crossAxisSpacing: 15,
-            mainAxisSpacing: 15,
-            childAspectRatio: 1.8,
-            children: [
-              _buildStatCard(
-                'Total Orders',
-                '${_statistics['total_orders'] ?? 0}',
-                Icons.shopping_cart,
-                AppColors.primaryText,
-              ),
-              _buildStatCard(
-                'Pending',
-                '${_statistics['pending_orders'] ?? 0}',
-                Icons.schedule,
-                AppColors.warningColor,
-              ),
-              _buildStatCard(
-                'Processing',
-                '${_statistics['processing_orders'] ?? 0}',
-                Icons.sync,
-                AppColors.secondaryBackground,
-              ),
-              _buildStatCard(
-                'Delivered',
-                '${_statistics['delivered_orders'] ?? 0}',
-                Icons.check_circle,
-                AppColors.successColor,
-              ),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final crossAxisCount = constraints.maxWidth > 600 ? 3 : 2;
+              final childAspectRatio = constraints.maxWidth > 600 ? 1.2 : 1.5;
+
+              return GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: 15,
+                mainAxisSpacing: 15,
+                childAspectRatio: childAspectRatio,
+                children: [
+                  _buildStatCard(
+                    'Total Orders',
+                    '${_statistics['total_orders'] ?? 0}',
+                    Icons.shopping_cart,
+                    AppColors.primaryText,
+                  ),
+                  _buildStatCard(
+                    'Pending',
+                    '${_statistics['pending_orders'] ?? 0}',
+                    Icons.schedule,
+                    AppColors.warningColor,
+                  ),
+                  _buildStatCard(
+                    'Shipped',
+                    '${_statistics['shipped_orders'] ?? 0}',
+                    Icons.local_shipping,
+                    Colors.blue,
+                  ),
+                  _buildStatCard(
+                    'Delivered',
+                    '${_statistics['delivered_orders'] ?? 0}',
+                    Icons.check_circle,
+                    AppColors.successColor,
+                  ),
+                  _buildStatCard(
+                    'Cancelled',
+                    '${_statistics['cancelled_orders'] ?? 0}',
+                    Icons.cancel,
+                    AppColors.errorColor,
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -412,7 +527,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                 fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ],
@@ -462,12 +577,20 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Order #$orderId',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primaryText,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryText.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'Order #$orderId',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primaryText,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -739,7 +862,29 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => OrderDetailsScreen(order: order),
+        builder: (context) => OrderDetailsScreen(
+          order: order,
+          onOrderUpdated: (updatedOrder) {
+            // Update the order in the main list
+            setState(() {
+              final orderIndex =
+                  _orders.indexWhere((o) => o['id'] == updatedOrder['id']);
+              if (orderIndex != -1) {
+                _orders[orderIndex] = updatedOrder;
+              }
+
+              // Also update filtered orders if they exist
+              final filteredIndex = _filteredOrders
+                  .indexWhere((o) => o['id'] == updatedOrder['id']);
+              if (filteredIndex != -1) {
+                _filteredOrders[filteredIndex] = updatedOrder;
+              }
+            });
+
+            // Refresh statistics to reflect the change
+            _loadStatistics();
+          },
+        ),
       ),
     );
   }
@@ -793,24 +938,6 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
                       letterSpacing: 0.5,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {
-                    _loadOrders();
-                    _loadStatistics();
-                  },
-                  icon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.refresh,
-                      color: Colors.white,
-                      size: 20,
                     ),
                   ),
                 ),
@@ -947,22 +1074,10 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                           ),
                           const SizedBox(height: 16),
 
-                          // Status Filter
+                          // Status and User Filters
                           Row(
                             children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryText.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Icon(
-                                  Icons.filter_list,
-                                  color: AppColors.primaryText,
-                                  size: 20,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
+                              // Status Filter
                               Expanded(
                                 child: DropdownButtonFormField<String>(
                                   value: _selectedStatus,
@@ -998,6 +1113,48 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                                     );
                                   }).toList(),
                                   onChanged: _onStatusChanged,
+                                ),
+                              ),
+
+                              const SizedBox(width: 16),
+
+                              // User Filter
+                              Expanded(
+                                child: DropdownButtonFormField<String>(
+                                  value: _selectedUserFilter,
+                                  decoration: InputDecoration(
+                                    hintText: 'Filter by User',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide:
+                                          BorderSide(color: Colors.grey[300]!),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(
+                                          color: AppColors.primaryText,
+                                          width: 2),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 12),
+                                  ),
+                                  items: [
+                                    'All Users',
+                                    ..._availableUsers,
+                                  ].map((String filter) {
+                                    return DropdownMenuItem<String>(
+                                      value: filter,
+                                      child: Text(filter),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    if (newValue != null) {
+                                      setState(() {
+                                        _selectedUserFilter = newValue;
+                                      });
+                                      _applyFilters();
+                                    }
+                                  },
                                 ),
                               ),
                             ],

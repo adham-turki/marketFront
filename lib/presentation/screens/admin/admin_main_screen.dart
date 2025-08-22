@@ -5,6 +5,8 @@ import 'users/admin_users_screen.dart';
 import 'orders/admin_orders_screen.dart';
 import 'promotions/admin_promotions_screen.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
 
 class AdminMainScreen extends StatefulWidget {
   const AdminMainScreen({super.key});
@@ -17,10 +19,10 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = [
-    const AdminProductsScreen(),
-    const AdminUsersScreen(),
-    const AdminOrdersScreen(),
-    const AdminPromotionsScreen(),
+    const AdminProductsScreenWithAuth(),
+    const AdminUsersScreenWithAuth(),
+    const AdminOrdersScreenWithAuth(),
+    const AdminPromotionsScreenWithAuth(),
   ];
 
   final List<BottomNavigationBarItem> _bottomNavItems = [
@@ -51,13 +53,14 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
         backgroundColor: AppColors.primaryText,
         foregroundColor: Colors.white,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              // Navigate back to login
-              context.go('/login');
-            },
-          ),
+                          IconButton(
+                  icon: const Icon(Icons.logout),
+                  onPressed: () {
+                    // Logout and navigate back to login
+                    context.read<AuthProvider>().logout();
+                    context.go('/login');
+                  },
+                ),
         ],
       ),
       body: _screens[_currentIndex],

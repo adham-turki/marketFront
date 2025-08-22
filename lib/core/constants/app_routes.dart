@@ -5,8 +5,8 @@ import '../../presentation/screens/shared/splash_screen.dart';
 import '../../presentation/screens/auth/login_screen.dart';
 import '../../presentation/screens/auth/register_screen.dart';
 import '../../presentation/screens/shared/home_screen.dart';
-import '../../presentation/screens/admin/admin_dashboard_screen.dart';
 import '../../presentation/screens/admin/admin_main_screen.dart';
+import '../../presentation/widgets/admin/auth_wrapper.dart';
 
 class AppRoutes {
   static final router = GoRouter(
@@ -39,12 +39,10 @@ class AppRoutes {
       ),
       // Admin routes
       GoRoute(
-        path: '/admin',
-        builder: (context, state) => const AdminDashboardScreen(),
-      ),
-      GoRoute(
         path: '/admin/panel',
-        builder: (context, state) => const AdminMainScreen(),
+        builder: (context, state) => const AdminAuthWrapper(
+          child: AdminMainScreen(),
+        ),
       ),
     ],
   );

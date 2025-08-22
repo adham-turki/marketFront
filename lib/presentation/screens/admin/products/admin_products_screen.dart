@@ -3,12 +3,24 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/network/api_service.dart';
+import '../../../widgets/admin/auth_wrapper.dart';
 
 class AdminProductsScreen extends StatefulWidget {
   const AdminProductsScreen({super.key});
 
   @override
   State<AdminProductsScreen> createState() => _AdminProductsScreenState();
+}
+
+class AdminProductsScreenWithAuth extends StatelessWidget {
+  const AdminProductsScreenWithAuth({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const AdminAuthWrapper(
+      child: AdminProductsScreen(),
+    );
+  }
 }
 
 class _AdminProductsScreenState extends State<AdminProductsScreen>

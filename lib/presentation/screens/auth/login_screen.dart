@@ -41,8 +41,8 @@ class _LoginScreenState extends State<LoginScreen> {
     if (success && mounted) {
       // Check user role and route accordingly
       if (authProvider.isAdmin) {
-        // Route admin/owner users to admin dashboard
-        context.go('/admin');
+        // Route admin/owner users directly to admin panel (products page)
+        context.go('/admin/panel');
       } else {
         // Route regular users to home
         context.go('/home');
