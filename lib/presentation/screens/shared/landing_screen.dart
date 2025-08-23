@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/arabic_text.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 
@@ -24,7 +25,7 @@ class LandingScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'TradeSuper',
+                ArabicText.appTitle,
                 style: Theme.of(context).textTheme.displayMedium?.copyWith(
                       color: AppTheme.primaryColor,
                       fontWeight: FontWeight.bold,
@@ -32,7 +33,7 @@ class LandingScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'B2B/B2C Wholesale-Retail Platform',
+                'منصة الجملة والتجزئة B2B/B2C',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: AppTheme.textSecondaryColor,
                     ),
@@ -59,7 +60,7 @@ class LandingScreen extends StatelessWidget {
                       const Icon(Icons.person, size: 24),
                       const SizedBox(width: 12),
                       Text(
-                        'Register as Customer',
+                        'سجل كعميل',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
@@ -91,7 +92,7 @@ class LandingScreen extends StatelessWidget {
                       const Icon(Icons.store, size: 24),
                       const SizedBox(width: 12),
                       Text(
-                        'Register as Supermarket',
+                        'سجل كسوبر ماركت',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
@@ -111,7 +112,7 @@ class LandingScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
-                      'OR',
+                      'أو',
                       style: TextStyle(
                         color: Colors.grey.shade600,
                         fontWeight: FontWeight.w500,
@@ -144,7 +145,7 @@ class LandingScreen extends StatelessWidget {
                       const Icon(Icons.login, size: 24),
                       const SizedBox(width: 12),
                       Text(
-                        'Login to Existing Account',
+                        'تسجيل الدخول إلى الحساب الموجود',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: AppTheme.primaryColor,
                               fontWeight: FontWeight.w600,

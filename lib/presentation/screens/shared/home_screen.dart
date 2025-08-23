@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../../../core/constants/arabic_text.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../../core/network/connection_test.dart';
@@ -14,7 +15,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
-        title: const Text('TradeSuper'),
+        title: Text(ArabicText.appTitle),
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
         actions: [
@@ -26,7 +27,7 @@ class HomeScreen extends StatelessWidget {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Check console for connection test results'),
+                    content: Text('تحقق من وحدة التحكم لنتائج اختبار الاتصال'),
                     backgroundColor: AppTheme.primaryColor,
                   ),
                 );
@@ -50,7 +51,7 @@ class HomeScreen extends StatelessWidget {
             children: [
               // Welcome message
               Text(
-                'Welcome to TradeSuper!',
+                'مرحباً بك في ${ArabicText.appTitle}!',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -59,7 +60,7 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                'Your marketplace for quality products',
+                'سوقك للمنتجات عالية الجودة',
                 style: TextStyle(
                   fontSize: 16,
                   color: AppColors.textSecondaryColor,
@@ -75,7 +76,7 @@ class HomeScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Admin Panel',
+                          'لوحة الإدارة',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
@@ -88,7 +89,7 @@ class HomeScreen extends StatelessWidget {
                             context.go('/admin/panel');
                           },
                           icon: const Icon(Icons.admin_panel_settings),
-                          label: const Text('Access Admin Panel'),
+                          label: const Text('الوصول إلى لوحة الإدارة'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primaryText,
                             foregroundColor: Colors.white,
@@ -120,7 +121,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        'Start Shopping',
+                        'ابدأ التسوق',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w600,
@@ -129,7 +130,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Browse our products and place your orders',
+                        'تصفح منتجاتنا واطلب طلباتك',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 16,

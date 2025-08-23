@@ -116,7 +116,7 @@ class ProductSelectionSection extends StatelessWidget {
                   );
                   return ListTile(
                     title: Text(product['name'] ?? 'Unknown Product'),
-                    subtitle: Text('\$${product['price']?.toString() ?? '0'}'),
+                    subtitle: Text('${product['price']?.toString() ?? '0'}₪'),
                     trailing: IconButton(
                       icon: const Icon(Icons.remove_circle, color: Colors.red),
                       onPressed: () => onProductDeselected(productId),

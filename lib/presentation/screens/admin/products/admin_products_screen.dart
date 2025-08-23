@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/arabic_text.dart';
 import '../../../../core/network/api_service.dart';
 import '../../../widgets/admin/auth_wrapper.dart';
+import 'product_details_screen.dart';
 
 class AdminProductsScreen extends StatefulWidget {
   const AdminProductsScreen({super.key});
@@ -33,6 +35,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
   List<Map<String, dynamic>> _categories = [];
   bool _isLoading = false;
   String _searchQuery = '';
+  String? _selectedCategoryFilter; // Add category filter variable
   late TabController _tabController;
   int _currentTabIndex = 0;
 
@@ -40,12 +43,10 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
-  final TextEditingController _brandController = TextEditingController();
+
   final TextEditingController _skuController = TextEditingController();
   final TextEditingController _barcodeController = TextEditingController();
-  final TextEditingController _b2bPriceController = TextEditingController();
-  final TextEditingController _b2cPriceController = TextEditingController();
-  final TextEditingController _costPriceController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
   final TextEditingController _stockQuantityController =
       TextEditingController();
   final TextEditingController _minStockLevelController =
@@ -81,12 +82,10 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
     _nameController.dispose();
     _descriptionController.dispose();
     _categoryController.dispose();
-    _brandController.dispose();
+
     _skuController.dispose();
     _barcodeController.dispose();
-    _b2bPriceController.dispose();
-    _b2cPriceController.dispose();
-    _costPriceController.dispose();
+    _priceController.dispose();
     _stockQuantityController.dispose();
     _minStockLevelController.dispose();
     _maxStockLevelController.dispose();
@@ -135,21 +134,49 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
   void _filterProducts(String query) {
     setState(() {
       _searchQuery = query;
-      if (query.isEmpty) {
+      if (query.isEmpty && _selectedCategoryFilter == null) {
         _filteredProducts = List.from(_products);
       } else {
         _filteredProducts = _products.where((product) {
-          final name = product['name']?.toString().toLowerCase() ?? '';
-          final category = product['category']?.toString().toLowerCase() ?? '';
-          final brand = product['brand']?.toString().toLowerCase() ?? '';
-          final searchLower = query.toLowerCase();
+          // Text search filtering
+          bool matchesSearch = true;
+          if (query.isNotEmpty) {
+            final name = product['name']?.toString().toLowerCase() ?? '';
+            final category =
+                product['category']?['name']?.toString().toLowerCase() ?? '';
+            final searchLower = query.toLowerCase();
 
-          return name.contains(searchLower) ||
-              category.contains(searchLower) ||
-              brand.contains(searchLower);
+            matchesSearch =
+                name.contains(searchLower) || category.contains(searchLower);
+          }
+
+          // Category filtering
+          bool matchesCategory = true;
+          if (_selectedCategoryFilter != null) {
+            matchesCategory =
+                product['category']?['name'] == _selectedCategoryFilter;
+          }
+
+          return matchesSearch && matchesCategory;
         }).toList();
       }
     });
+  }
+
+  void _onCategoryFilterChanged(String? newValue) {
+    setState(() {
+      _selectedCategoryFilter = newValue;
+    });
+    _filterProducts(_searchQuery);
+  }
+
+  void _clearAllFilters() {
+    setState(() {
+      _selectedCategoryFilter = null;
+      _searchQuery = '';
+    });
+    _searchController.clear();
+    _filteredProducts = List.from(_products);
   }
 
   void _showAddProductDialog() {
@@ -166,12 +193,10 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
     _nameController.clear();
     _descriptionController.clear();
     _selectedCategoryId = null;
-    _brandController.clear();
+
     _skuController.clear();
     _barcodeController.clear();
-    _b2bPriceController.clear();
-    _b2cPriceController.clear();
-    _costPriceController.clear();
+    _priceController.clear();
     _stockQuantityController.clear();
     _minStockLevelController.clear();
     _maxStockLevelController.clear();
@@ -188,12 +213,10 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
     _nameController.text = product['name'] ?? '';
     _descriptionController.text = product['description'] ?? '';
     _selectedCategoryId = product['category_id'] ?? product['category']?['id'];
-    _brandController.text = product['brand'] ?? '';
+
     _skuController.text = product['sku'] ?? '';
     _barcodeController.text = product['barcode'] ?? '';
-    _b2bPriceController.text = product['b2b_price']?.toString() ?? '';
-    _b2cPriceController.text = product['b2c_price']?.toString() ?? '';
-    _costPriceController.text = product['cost_price']?.toString() ?? '';
+    _priceController.text = product['price']?.toString() ?? '';
     _stockQuantityController.text = product['stock_quantity']?.toString() ?? '';
     _minStockLevelController.text =
         product['min_stock_level']?.toString() ?? '';
@@ -214,8 +237,12 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: Container(
-          width: MediaQuery.of(context).size.width * 0.95,
-          height: MediaQuery.of(context).size.height * 0.95,
+          width: MediaQuery.of(context).size.width < 600
+              ? MediaQuery.of(context).size.width * 0.98
+              : MediaQuery.of(context).size.width * 0.95,
+          height: MediaQuery.of(context).size.width < 600
+              ? MediaQuery.of(context).size.height * 0.98
+              : MediaQuery.of(context).size.height * 0.95,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24),
             color: AppColors.white,
@@ -224,7 +251,8 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
             children: [
               // Enhanced Header
               Container(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(
+                    MediaQuery.of(context).size.width < 600 ? 16.0 : 24.0),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -256,7 +284,9 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                     const SizedBox(width: 16),
                     Expanded(
                       child: Text(
-                        isEditing ? 'Edit Product' : 'Add New Product',
+                        isEditing
+                            ? ArabicText.editProduct
+                            : ArabicText.addNewProduct,
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w700,
@@ -281,63 +311,62 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
               // Form Content
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(
+                      MediaQuery.of(context).size.width < 600 ? 16.0 : 24.0),
                   child: SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildEnhancedFormSection('Basic Information', [
-                          _buildEnhancedTextField('Product Name',
+                        _buildEnhancedFormSection('المعلومات الأساسية', [
+                          _buildEnhancedTextField(ArabicText.productName,
                               _nameController, Icons.inventory_2),
-                          _buildEnhancedTextField('Description',
+                          _buildEnhancedTextField(ArabicText.description,
                               _descriptionController, Icons.description,
                               maxLines: 3),
                           _buildEnhancedCategoryDropdown(),
-                          _buildEnhancedTextField('Brand', _brandController,
-                              Icons.branding_watermark),
                         ]),
-                        _buildEnhancedFormSection('Product Details', [
+                        _buildEnhancedFormSection('تفاصيل المنتج', [
                           _buildEnhancedTextField(
                               'SKU', _skuController, Icons.qr_code),
                           _buildEnhancedTextField(
-                              'Barcode', _barcodeController, Icons.qr_code_2),
-                          _buildEnhancedTextField(
-                              'Unit', _unitController, Icons.straighten),
-                          _buildEnhancedTextField('Weight (kg)',
+                              'الباركود', _barcodeController, Icons.qr_code_2),
+                          _buildEnhancedTextField(ArabicText.unit,
+                              _unitController, Icons.straighten),
+                          _buildEnhancedTextField('${ArabicText.weight} (كجم)',
                               _weightController, Icons.monitor_weight),
                         ]),
-                        _buildEnhancedFormSection('Pricing', [
-                          _buildEnhancedTextField('B2B Price',
-                              _b2bPriceController, Icons.attach_money,
-                              keyboardType: TextInputType.number),
-                          _buildEnhancedTextField('B2C Price',
-                              _b2cPriceController, Icons.attach_money,
-                              keyboardType: TextInputType.number),
-                          _buildEnhancedTextField('Cost Price',
-                              _costPriceController, Icons.attach_money,
+                        _buildEnhancedFormSection('التسعير', [
+                          _buildEnhancedTextField(ArabicText.price,
+                              _priceController, Icons.attach_money,
                               keyboardType: TextInputType.number),
                         ]),
-                        _buildEnhancedFormSection('Inventory', [
-                          _buildEnhancedTextField('Stock Quantity',
+                        _buildEnhancedFormSection('المخزون', [
+                          _buildEnhancedTextField(ArabicText.productStock,
                               _stockQuantityController, Icons.inventory_2,
                               keyboardType: TextInputType.number),
-                          _buildEnhancedTextField('Min Stock Level',
+                          _buildEnhancedTextField('الحد الأدنى للمخزون',
                               _minStockLevelController, Icons.warning,
                               keyboardType: TextInputType.number),
-                          _buildEnhancedTextField('Max Stock Level',
+                          _buildEnhancedTextField('الحد الأقصى للمخزون',
                               _maxStockLevelController, Icons.trending_up,
                               keyboardType: TextInputType.number),
                         ]),
-                        _buildEnhancedFormSection('Images', [
+                        _buildEnhancedFormSection('الصور', [
                           _buildEnhancedImagePicker(),
                           if (_imageUrls.isNotEmpty) _buildEnhancedImageUrls(),
                         ]),
-                        _buildEnhancedFormSection('Settings', [
-                          _buildEnhancedTextField('Tags (comma separated)',
-                              _tagsController, Icons.tag),
-                          _buildEnhancedSwitch('Featured Product', _isFeatured,
+                        _buildEnhancedFormSection('الإعدادات', [
+                          _buildEnhancedTextField(
+                              '${ArabicText.tags} (مفصولة بفواصل)',
+                              _tagsController,
+                              Icons.tag),
+                          _buildEnhancedSwitch(
+                              ArabicText.featuredProduct,
+                              _isFeatured,
                               (value) => setState(() => _isFeatured = value)),
-                          _buildEnhancedSwitch('Active Product', _isActive,
+                          _buildEnhancedSwitch(
+                              ArabicText.activeProduct,
+                              _isActive,
                               (value) => setState(() => _isActive = value)),
                         ]),
                       ],
@@ -348,7 +377,8 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
 
               // Enhanced Footer
               Container(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(
+                    MediaQuery.of(context).size.width < 600 ? 16.0 : 24.0),
                 decoration: BoxDecoration(
                   color: Colors.grey[50],
                   borderRadius: const BorderRadius.only(
@@ -374,9 +404,9 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                 borderRadius: BorderRadius.circular(16)),
                             elevation: 0,
                           ),
-                          child: const Text(
-                            'Cancel',
-                            style: TextStyle(fontWeight: FontWeight.w600),
+                          child: Text(
+                            ArabicText.cancel,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                         ),
                       ),
@@ -407,7 +437,9 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                             elevation: 0,
                           ),
                           child: Text(
-                            isEditing ? 'Update Product' : 'Add Product',
+                            isEditing
+                                ? ArabicText.updateProduct
+                                : ArabicText.addProduct,
                             style: const TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
@@ -447,8 +479,10 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
 
   Widget _buildEnhancedFormSection(String title, List<Widget> children) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 32),
-      padding: const EdgeInsets.all(24),
+      margin: EdgeInsets.only(
+          bottom: MediaQuery.of(context).size.width < 600 ? 20.0 : 32.0),
+      padding:
+          EdgeInsets.all(MediaQuery.of(context).size.width < 600 ? 16.0 : 24.0),
       decoration: BoxDecoration(
         color: Colors.grey[50],
         borderRadius: BorderRadius.circular(20),
@@ -483,7 +517,8 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(
+              height: MediaQuery.of(context).size.width < 600 ? 16.0 : 20.0),
           ...children,
         ],
       ),
@@ -546,7 +581,8 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
     TextInputType? keyboardType,
   }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
+      margin: EdgeInsets.only(
+          bottom: MediaQuery.of(context).size.width < 600 ? 16.0 : 20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -704,12 +740,29 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
   }
 
   Widget _buildCategoryDropdown() {
+    if (_categories.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 15),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.primaryText),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            ArabicText.loading,
+            style: TextStyle(color: AppColors.textSecondaryColor),
+          ),
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: DropdownButtonFormField<int>(
         value: _selectedCategoryId,
         decoration: InputDecoration(
-          labelText: 'Category',
+          labelText: ArabicText.productCategory,
           prefixIcon: Icon(Icons.category, color: AppColors.primaryText),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
@@ -723,7 +776,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
         items: _categories.map((category) {
           return DropdownMenuItem<int>(
             value: category['id'],
-            child: Text(category['name'] ?? 'Unknown'),
+            child: Text(category['name'] ?? ArabicText.uncategorized),
           );
         }).toList(),
         onChanged: (value) {
@@ -733,7 +786,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
         },
         validator: (value) {
           if (value == null) {
-            return 'Please select a category';
+            return ArabicText.pleaseSelectCategory;
           }
           return null;
         },
@@ -750,7 +803,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Text(
-              'Category',
+              ArabicText.productCategory,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -772,13 +825,14 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
               ],
             ),
             child: DropdownButtonFormField<int>(
-              value: _selectedCategoryId,
+              value: _selectedCategoryId ??
+                  (_categories.isNotEmpty ? _categories.first['id'] : null),
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
               decoration: InputDecoration(
-                hintText: 'Select a category',
+                hintText: ArabicText.selectCategory,
                 hintStyle: TextStyle(
                   color: AppColors.textSecondaryColor.withValues(alpha: 0.6),
                   fontSize: 14,
@@ -806,7 +860,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                 return DropdownMenuItem<int>(
                   value: category['id'],
                   child: Text(
-                    category['name'] ?? 'Unknown',
+                    category['name'] ?? ArabicText.unknownCategory,
                     style: const TextStyle(fontSize: 16),
                   ),
                 );
@@ -948,7 +1002,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Add Product Images',
+                        ArabicText.productImages,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -957,7 +1011,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Click to select multiple images from your gallery',
+                        'انقر لاختيار صور متعددة من معرض الصور',
                         style: TextStyle(
                           fontSize: 14,
                           color: AppColors.textSecondaryColor,
@@ -968,7 +1022,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                       ElevatedButton.icon(
                         onPressed: _pickImages,
                         icon: const Icon(Icons.photo_library, size: 20),
-                        label: const Text('Select Images'),
+                        label: Text(ArabicText.selectImage),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primaryText,
                           foregroundColor: Colors.white,
@@ -998,7 +1052,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Selected Images (${_selectedImages.length})',
+                          '${ArabicText.selectedImages} (${_selectedImages.length})',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -1150,7 +1204,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
-              'Current Images (${_imageUrls.length})',
+              '${ArabicText.currentImages} (${_imageUrls.length})',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -1277,10 +1331,9 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
 
   Future<void> _saveProduct(bool isEditing, int? productId) async {
     if (_nameController.text.isEmpty ||
-        _b2bPriceController.text.isEmpty ||
-        _b2cPriceController.text.isEmpty ||
+        _priceController.text.isEmpty ||
         _selectedCategoryId == null) {
-      _showSnackBar('Please fill in all required fields', isError: true);
+      _showSnackBar(ArabicText.pleaseFillRequired, isError: true);
       return;
     }
 
@@ -1289,14 +1342,9 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
         'name': _nameController.text,
         'description': _descriptionController.text,
         'category_id': _selectedCategoryId,
-        'brand': _brandController.text,
         'sku': _skuController.text,
         'barcode': _barcodeController.text,
-        'b2b_price': double.parse(_b2bPriceController.text),
-        'b2c_price': double.parse(_b2cPriceController.text),
-        'cost_price': _costPriceController.text.isNotEmpty
-            ? double.parse(_costPriceController.text)
-            : null,
+        'price': double.parse(_priceController.text),
         'stock_quantity': int.parse(_stockQuantityController.text),
         'min_stock_level': int.parse(_minStockLevelController.text),
         'max_stock_level': int.parse(_maxStockLevelController.text),
@@ -1315,16 +1363,45 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
 
       if (isEditing && productId != null) {
         await _apiService.put('/products/$productId', data: productData);
-        _showSnackBar('Product updated successfully');
+        _showSnackBar(ArabicText.productUpdated);
       } else {
         await _apiService.post('/products', data: productData);
-        _showSnackBar('Product added successfully');
+        _showSnackBar(ArabicText.productAdded);
       }
 
       Navigator.pop(context);
       _loadProducts();
     } catch (e) {
-      _showSnackBar('Error saving product: $e', isError: true);
+      String errorMessage = ArabicText.errorSavingProduct;
+
+      // Handle DioException for better error parsing
+      if (e.toString().contains('DioException')) {
+        try {
+          // Extract error details from the response
+          final errorString = e.toString();
+          if (errorString.contains('SKU') &&
+              errorString.contains('already exists')) {
+            errorMessage = 'SKU already exists. Please use a different SKU.';
+          } else if (errorString.contains('Barcode') &&
+              errorString.contains('already exists')) {
+            errorMessage =
+                'Barcode already exists. Please use a different barcode.';
+          } else if (errorString.contains('validation')) {
+            errorMessage = 'Please check your input data and try again.';
+          } else if (errorString.contains('400')) {
+            errorMessage = 'Invalid data provided. Please check all fields.';
+          } else if (errorString.contains('500')) {
+            errorMessage = 'Server error occurred. Please try again later.';
+          } else {
+            errorMessage =
+                'Network error. Please check your connection and try again.';
+          }
+        } catch (parseError) {
+          errorMessage = ArabicText.errorSavingProductTryAgain;
+        }
+      }
+
+      _showSnackBar(errorMessage, isError: true);
     }
   }
 
@@ -1458,7 +1535,8 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                 Navigator.pop(context);
                 _loadCategories();
               } catch (e) {
-                _showSnackBar('Error saving category: $e', isError: true);
+                _showSnackBar('${ArabicText.errorSavingCategory}: $e',
+                    isError: true);
               }
             },
             child: Text(isEditing ? 'Update' : 'Add'),
@@ -1556,7 +1634,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    category['name'] ?? 'Unnamed Category',
+                    category['name'] ?? 'فئة بدون اسم',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -1626,74 +1704,6 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
             ),
       body: Column(
         children: [
-          // Enhanced Header with Logout
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.primaryText,
-                  AppColors.primaryText.withValues(alpha: 0.8),
-                ],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primaryText.withValues(alpha: 0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Icon(
-                    Icons.inventory_2,
-                    size: 28,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    'Products',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {
-                    // TODO: Implement logout functionality
-                    Navigator.of(context).pop();
-                  },
-                  icon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.logout,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
           // Enhanced Tabs
           Container(
             decoration: BoxDecoration(
@@ -1725,11 +1735,11 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
               tabs: const [
                 Tab(
                   icon: Icon(Icons.inventory_2, size: 20),
-                  text: 'Products',
+                  text: ArabicText.products,
                 ),
                 Tab(
                   icon: Icon(Icons.category_outlined, size: 20),
-                  text: 'Categories',
+                  text: ArabicText.categories,
                 ),
               ],
             ),
@@ -1745,36 +1755,11 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                   children: [
                     // Enhanced Search and Filters
                     Container(
-                      margin: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.all(10),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 16),
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.08),
-                            blurRadius: 15,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
+                          horizontal: 10, vertical: 0),
                       child: Row(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color:
-                                  AppColors.primaryText.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(
-                              Icons.search,
-                              color: AppColors.primaryText,
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
                           Expanded(
                             child: TextField(
                               controller: _searchController,
@@ -1785,14 +1770,14 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                               ),
                               decoration: InputDecoration(
                                 hintText:
-                                    'Search products by name, category, or brand...',
+                                    '${ArabicText.search} ${ArabicText.products}',
                                 hintStyle: TextStyle(
                                   color: AppColors.textSecondaryColor
                                       .withValues(alpha: 0.7),
                                   fontSize: 14,
                                 ),
                                 border: InputBorder.none,
-                                contentPadding: EdgeInsets.zero,
+                                contentPadding: const EdgeInsets.all(2),
                               ),
                             ),
                           ),
@@ -1802,10 +1787,76 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                 _searchController.clear();
                                 _filterProducts('');
                               },
-                              icon: Icon(
+                              icon: const Icon(
                                 Icons.clear,
                                 color: AppColors.textSecondaryColor,
                               ),
+                            ),
+                          const SizedBox(width: 10),
+                          // Category Filter Dropdown
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 0),
+                            decoration: BoxDecoration(
+                              color:
+                                  AppColors.primaryText.withValues(alpha: 0.05),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: AppColors.primaryText
+                                    .withValues(alpha: 0.2),
+                              ),
+                            ),
+                            child: DropdownButton<String>(
+                              value: _selectedCategoryFilter,
+                              hint: Text(
+                                ArabicText.all,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondaryColor,
+                                ),
+                              ),
+                              underline: Container(),
+                              icon: Icon(
+                                Icons.keyboard_arrow_down,
+                                size: 16,
+                                color: AppColors.primaryText,
+                              ),
+                              items: [
+                                DropdownMenuItem<String>(
+                                  value: null,
+                                  child: Text(
+                                    ArabicText.all,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.textSecondaryColor,
+                                    ),
+                                  ),
+                                ),
+                                ..._categories.map((category) {
+                                  return DropdownMenuItem<String>(
+                                    value: category['name'],
+                                    child: Text(
+                                      category['name'],
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: AppColors.primaryText,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ],
+                              onChanged: _onCategoryFilterChanged,
+                            ),
+                          ),
+                          // Clear Filters Button
+                          if (_selectedCategoryFilter != null)
+                            IconButton(
+                              onPressed: _clearAllFilters,
+                              icon: Icon(
+                                Icons.clear_all,
+                                color: AppColors.textSecondaryColor,
+                              ),
+                              tooltip: 'Clear all filters',
                             ),
                         ],
                       ),
@@ -1828,8 +1879,8 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                       const SizedBox(height: 16),
                                       Text(
                                         _searchQuery.isEmpty
-                                            ? 'No products yet'
-                                            : 'No products found',
+                                            ? ArabicText.noProductsYet
+                                            : ArabicText.noProductsFound,
                                         style: TextStyle(
                                           fontSize: 18,
                                           color: AppColors.textSecondaryColor,
@@ -1838,7 +1889,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                       if (_searchQuery.isEmpty) ...[
                                         const SizedBox(height: 8),
                                         Text(
-                                          'Add your first product to get started',
+                                          '${ArabicText.addYourFirst} ${ArabicText.products} ${ArabicText.toGetStarted}',
                                           style: TextStyle(
                                             color: AppColors.textSecondaryColor,
                                           ),
@@ -1876,7 +1927,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                   ),
                                   SizedBox(height: 16),
                                   Text(
-                                    'No categories yet',
+                                    ArabicText.noCategoriesYet,
                                     style: TextStyle(
                                       fontSize: 18,
                                       color: AppColors.textSecondaryColor,
@@ -1884,7 +1935,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                   ),
                                   SizedBox(height: 8),
                                   Text(
-                                    'Add your first category to get started',
+                                    '${ArabicText.addYourFirst} ${ArabicText.categories} ${ArabicText.toGetStarted}',
                                     style: TextStyle(
                                       color: AppColors.textSecondaryColor,
                                     ),
@@ -1912,159 +1963,171 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
   }
 
   Widget _buildProductCard(Map<String, dynamic> product) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 15),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductDetailsScreen(product: product),
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(15),
-        child: Row(
-          children: [
-            // Product Image
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.grey[200],
-              ),
-              child: product['featured_image_url'] != null
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.network(
-                        product['featured_image_url'],
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.inventory_2,
-                            size: 40,
-                            color: AppColors.textSecondaryColor,
-                          );
-                        },
-                      ),
-                    )
-                  : Icon(
-                      Icons.inventory_2,
-                      size: 40,
-                      color: AppColors.textSecondaryColor,
-                    ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 15),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
             ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child: Row(
+            children: [
+              // Product Image
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.grey[200],
+                ),
+                child: product['featured_image_url'] != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(
+                          product['featured_image_url'],
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(
+                              Icons.inventory_2,
+                              size: 40,
+                              color: AppColors.textSecondaryColor,
+                            );
+                          },
+                        ),
+                      )
+                    : Icon(
+                        Icons.inventory_2,
+                        size: 40,
+                        color: AppColors.textSecondaryColor,
+                      ),
+              ),
 
-            const SizedBox(width: 15),
+              const SizedBox(width: 15),
 
-            // Product Details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              // Product Details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            product['name'] ?? 'منتج بدون اسم',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        if (product['is_featured'] == true)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.secondaryBackground,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              ArabicText.featuredProduct,
+                              style: TextStyle(
+                                color: AppColors.primaryText,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        if (product['is_active'] == false)
+                          Container(
+                            margin: const EdgeInsets.only(left: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              ArabicText.inactiveProduct,
+                              style: TextStyle(
+                                color: AppColors.primaryText,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      '${ArabicText.productCategory}: ${product['category']?['name'] ?? ArabicText.uncategorized}',
+                      style: TextStyle(
+                        color: AppColors.textSecondaryColor,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Row(
+                      children: [
+                        Text(
+                          '${ArabicText.price}: ${(double.tryParse(product['price']?.toString() ?? '0') ?? 0.0).toStringAsFixed(2)}₪',
+                          style: TextStyle(
+                            color: AppColors.primaryText,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 15),
+                        Text(
+                          '${ArabicText.productStock}: ${product['stock_quantity'] ?? 0}',
+                          style: TextStyle(
+                            color: product['stock_quantity'] > 0
+                                ? AppColors.successColor
+                                : AppColors.errorColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // Actions
+              Column(
                 children: [
-                  Text(
-                    product['name'] ?? 'Unnamed Product',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  IconButton(
+                    onPressed: () => _showEditProductDialog(product),
+                    icon: Icon(Icons.edit, color: AppColors.primaryText),
+                    tooltip: 'Edit',
                   ),
-                  const SizedBox(height: 5),
-                  Text(
-                    'Category: ${product['category'] ?? 'Uncategorized'}',
-                    style: TextStyle(
-                      color: AppColors.textSecondaryColor,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Row(
-                    children: [
-                      Text(
-                        'B2C: \$${(double.tryParse(product['b2c_price']?.toString() ?? '0') ?? 0.0).toStringAsFixed(2)}',
-                        style: TextStyle(
-                          color: AppColors.primaryText,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(width: 15),
-                      Text(
-                        'Stock: ${product['stock_quantity'] ?? 0}',
-                        style: TextStyle(
-                          color: product['stock_quantity'] > 0
-                              ? AppColors.successColor
-                              : AppColors.errorColor,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-                  Row(
-                    children: [
-                      if (product['is_featured'] == true)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppColors.secondaryBackground,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            'Featured',
-                            style: TextStyle(
-                              color: AppColors.primaryText,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      if (product['is_active'] == false)
-                        Container(
-                          margin: const EdgeInsets.only(left: 8),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            'Inactive',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                    ],
+                  IconButton(
+                    onPressed: () => _deleteProduct(product['id']),
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    tooltip: 'Delete',
                   ),
                 ],
               ),
-            ),
-
-            // Actions
-            Column(
-              children: [
-                IconButton(
-                  onPressed: () => _showEditProductDialog(product),
-                  icon: Icon(Icons.edit, color: AppColors.primaryText),
-                  tooltip: 'Edit',
-                ),
-                IconButton(
-                  onPressed: () => _deleteProduct(product['id']),
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  tooltip: 'Delete',
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

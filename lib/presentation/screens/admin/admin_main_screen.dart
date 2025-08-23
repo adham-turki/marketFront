@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/arabic_text.dart';
 import 'products/admin_products_screen.dart';
 import 'users/admin_users_screen.dart';
 import 'orders/admin_orders_screen.dart';
@@ -28,39 +29,57 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
   final List<BottomNavigationBarItem> _bottomNavItems = [
     const BottomNavigationBarItem(
       icon: Icon(Icons.inventory),
-      label: 'Products',
+      label: ArabicText.products,
     ),
     const BottomNavigationBarItem(
       icon: Icon(Icons.people),
-      label: 'Users',
+      label: ArabicText.users,
     ),
     const BottomNavigationBarItem(
       icon: Icon(Icons.shopping_cart),
-      label: 'Orders',
+      label: ArabicText.orders,
     ),
     const BottomNavigationBarItem(
       icon: Icon(Icons.local_offer),
-      label: 'Promotions',
+      label: '${ArabicText.promotions} و ${ArabicText.coupons}',
     ),
   ];
+
+  String get _currentPageTitle {
+    switch (_currentIndex) {
+      case 0:
+        return ArabicText.products;
+      case 1:
+        return ArabicText.users;
+      case 2:
+        return ArabicText.orders;
+      case 3:
+        return ArabicText.promotions;
+      default:
+        return 'لوحة الإدارة';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.primaryBackground,
       appBar: AppBar(
-        title: const Text('Admin Panel'),
+        title: Text(
+          _currentPageTitle,
+          style: const TextStyle(color: Colors.white),
+        ),
         backgroundColor: AppColors.primaryText,
         foregroundColor: Colors.white,
         actions: [
-                          IconButton(
-                  icon: const Icon(Icons.logout),
-                  onPressed: () {
-                    // Logout and navigate back to login
-                    context.read<AuthProvider>().logout();
-                    context.go('/login');
-                  },
-                ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              // Logout and navigate back to login
+              context.read<AuthProvider>().logout();
+              context.go('/login');
+            },
+          ),
         ],
       ),
       body: _screens[_currentIndex],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/arabic_text.dart';
 import '../../../../core/network/api_service.dart';
 import '../../../widgets/admin/auth_wrapper.dart';
 
@@ -30,6 +31,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
   List<Map<String, dynamic>> _filteredPromotions = [];
   bool _isLoadingPromotions = false;
   String _searchQuery = '';
+  String _selectedPromotionStatus = ArabicText.all;
 
   // Promotion form controllers (backend field names)
   final TextEditingController _nameController = TextEditingController();
@@ -74,6 +76,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
   List<Map<String, dynamic>> _coupons = [];
   List<Map<String, dynamic>> _filteredCoupons = [];
   bool _isLoadingCoupons = false;
+  String _selectedCouponStatus = ArabicText.all;
 
   // Coupon form controllers
   final TextEditingController _codeController = TextEditingController();
@@ -183,10 +186,13 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
   void _filterPromotions(String query) {
     setState(() {
       _searchQuery = query;
-      if (query.isEmpty) {
-        _filteredPromotions = List.from(_promotions);
-      } else {
-        _filteredPromotions = _promotions.where((promotion) {
+
+      // Start with all promotions
+      var filtered = List<Map<String, dynamic>>.from(_promotions);
+
+      // Apply search filter
+      if (query.isNotEmpty) {
+        filtered = filtered.where((promotion) {
           final name = promotion['name']?.toString().toLowerCase() ?? '';
           final description =
               promotion['description']?.toString().toLowerCase() ?? '';
@@ -196,6 +202,16 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
               description.contains(searchLower);
         }).toList();
       }
+
+      // Apply status filter
+      if (_selectedPromotionStatus != ArabicText.all) {
+        filtered = filtered.where((promotion) {
+          final status = promotion['status'] ?? 'active';
+          return status == _selectedPromotionStatus;
+        }).toList();
+      }
+
+      _filteredPromotions = filtered;
     });
   }
 
@@ -298,7 +314,9 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    isEditing ? 'Edit Promotion' : 'Add New Promotion',
+                    isEditing
+                        ? ArabicText.editPromotion
+                        : ArabicText.addNewPromotion,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -340,7 +358,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                                 child: Text('Percentage (%)')),
                             DropdownMenuItem(
                                 value: 'fixed_amount',
-                                child: Text('Fixed Amount (\$)')),
+                                child: Text('Fixed Amount (₪)')),
                             DropdownMenuItem(
                                 value: 'free_shipping',
                                 child: Text('Free Shipping')),
@@ -378,7 +396,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                         ] else if (_promotionType == 'fixed_amount') ...[
                           const SizedBox(height: 8),
                           Text(
-                            'Enter amount in dollars (e.g., 10 for \$10 off)',
+                            'Enter amount in ILS (e.g., 10 for 10₪ off)',
                             style: TextStyle(
                               color: AppColors.textSecondaryColor,
                               fontSize: 12,
@@ -599,8 +617,9 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: Text(
-                          isEditing ? 'Update Promotion' : 'Add Promotion'),
+                      child: Text(isEditing
+                          ? ArabicText.editPromotion
+                          : ArabicText.addNewPromotion),
                     ),
                   ),
                 ],
@@ -729,11 +748,12 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                   final productId = _selectedProductIds[index];
                   final product = _availableProducts.firstWhere(
                     (p) => p['id'] == productId,
-                    orElse: () => {'name': 'Unknown Product', 'price': 0},
+                    orElse: () =>
+                        {'name': ArabicText.unknownProduct, 'price': 0},
                   );
                   return ListTile(
-                    title: Text(product['name'] ?? 'Unknown Product'),
-                    subtitle: Text('\$${product['price']?.toString() ?? '0'}'),
+                    title: Text(product['name'] ?? ArabicText.unknownProduct),
+                    subtitle: Text('${product['price']?.toString() ?? '0'}₪'),
                     trailing: IconButton(
                       icon: const Icon(Icons.remove_circle, color: Colors.red),
                       onPressed: () {
@@ -767,7 +787,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                 itemBuilder: (context, index) {
                   final category = _selectedCategories[index];
                   return ListTile(
-                    title: Text(category['name'] ?? 'Unknown Category'),
+                    title: Text(category['name'] ?? ArabicText.unknownCategory),
                     trailing: IconButton(
                       icon: const Icon(Icons.remove_circle, color: Colors.red),
                       onPressed: () {
@@ -925,9 +945,10 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                             _selectedProductIds.contains(productId);
 
                         return CheckboxListTile(
-                          title: Text(product['name'] ?? 'Unknown Product'),
+                          title: Text(
+                              product['name'] ?? ArabicText.unknownProduct),
                           subtitle:
-                              Text('\$${product['price']?.toString() ?? '0'}'),
+                              Text('${product['price']?.toString() ?? '0'}₪'),
                           value: isSelected,
                           onChanged: (bool? value) {
                             print(
@@ -1051,7 +1072,8 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                             .any((c) => c['id'] == categoryId);
 
                         return CheckboxListTile(
-                          title: Text(category['name'] ?? 'Unknown Category'),
+                          title: Text(
+                              category['name'] ?? ArabicText.unknownCategory),
                           value: isSelected,
                           onChanged: (bool? value) {
                             print(
@@ -1294,7 +1316,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
       Navigator.pop(context);
       _loadPromotions();
     } catch (e) {
-      _showSnackBar('Error saving promotion: $e', isError: true);
+      _showSnackBar('${ArabicText.errorSavingPromotion}: $e', isError: true);
     }
   }
 
@@ -1380,11 +1402,13 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
   Widget _buildPromotionsTab() {
     return Column(
       children: [
-        // Promotions Header
+        // Search Bar
         Container(
-          padding: const EdgeInsets.all(20),
+          margin: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           decoration: BoxDecoration(
             color: AppColors.white,
+            borderRadius: BorderRadius.circular(15),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.1),
@@ -1393,76 +1417,130 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.local_offer,
-                    size: 32,
-                    color: AppColors.primaryText,
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Promotions',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryText,
-                          ),
-                        ),
-                        Text(
-                          'Manage special offers and events',
-                          style: TextStyle(
-                            color: AppColors.textSecondaryColor,
-                          ),
-                        ),
-                      ],
+              Icon(
+                Icons.search,
+                color: AppColors.primaryText,
+                size: 24,
+              ),
+              const SizedBox(width: 15),
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: _filterPromotions,
+                  decoration: InputDecoration(
+                    hintText: 'Search promotions...',
+                    border: InputBorder.none,
+                    hintStyle: TextStyle(
+                      color: AppColors.textSecondaryColor.withOpacity(0.7),
                     ),
                   ),
-                  ElevatedButton.icon(
-                    onPressed: _showAddPromotionDialog,
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add Promotion'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryText,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ],
           ),
         ),
-        // Promotions Search
+
+        // Status Filter
         Container(
-          padding: const EdgeInsets.all(20),
-          child: TextField(
-            controller: _searchController,
-            onChanged: (q) {
-              _filterPromotions(q);
-            },
-            decoration: InputDecoration(
-              hintText: 'Search promotions...',
-              prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(color: AppColors.primaryText),
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
               ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(color: AppColors.primaryText, width: 2),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                      color: AppColors.primaryText.withValues(alpha: 0.2)),
+                ),
+                child: DropdownButton<String>(
+                  value: _selectedPromotionStatus,
+                  hint: Text(
+                    ArabicText.all,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondaryColor,
+                    ),
+                  ),
+                  underline: Container(),
+                  icon: Icon(
+                    Icons.keyboard_arrow_down,
+                    size: 16,
+                    color: AppColors.primaryText,
+                  ),
+                  items: [
+                    DropdownMenuItem(
+                      value: ArabicText.all,
+                      child: Text(
+                        ArabicText.all,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondaryColor,
+                        ),
+                      ),
+                    ),
+                    const DropdownMenuItem(
+                      value: 'active',
+                      child: Text(
+                        'Active',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondaryColor,
+                        ),
+                      ),
+                    ),
+                    const DropdownMenuItem(
+                      value: 'inactive',
+                      child: Text(
+                        'Inactive',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondaryColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedPromotionStatus = newValue ?? ArabicText.all;
+                    });
+                    _filterPromotions(_searchController.text);
+                  },
+                ),
               ),
-            ),
+              const Spacer(),
+              ElevatedButton.icon(
+                onPressed: _showAddPromotionDialog,
+                icon: const Icon(Icons.add),
+                label: Text(ArabicText.addNewPromotion),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryText,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         // Promotions List
@@ -1538,7 +1616,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
             double.tryParse(promotion['discount_value'].toString()) ?? 0.0;
         final type = promotion['promotion_type'] ?? 'percentage';
         discountDisplay =
-            '${discount.toStringAsFixed(2)}${type == 'percentage' ? '%' : '\$'} OFF';
+            '${discount.toStringAsFixed(2)}${type == 'percentage' ? '%' : '₪'} OFF';
       }
     } catch (e) {
       discountDisplay = 'N/A';
@@ -1688,7 +1766,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                         0) ...[
                   const SizedBox(height: 8),
                   Text(
-                    'Min: \$${promotion['minimum_order_amount']}',
+                    'Min: ${promotion['minimum_order_amount']}₪',
                     style: TextStyle(
                       color: AppColors.textSecondaryColor,
                       fontSize: 12,
@@ -1728,27 +1806,41 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
 
   void _filterCoupons(String query) {
     setState(() {
-      if (query.isEmpty) {
-        _filteredCoupons = List.from(_coupons);
-      } else {
-        _filteredCoupons = _coupons.where((coupon) {
+      // Start with all coupons
+      var filtered = List<Map<String, dynamic>>.from(_coupons);
+
+      // Apply search filter
+      if (query.isNotEmpty) {
+        filtered = filtered.where((coupon) {
           final code = coupon['code']?.toString().toLowerCase() ?? '';
           final name = coupon['name']?.toString().toLowerCase() ?? '';
           final searchLower = query.toLowerCase();
           return code.contains(searchLower) || name.contains(searchLower);
         }).toList();
       }
+
+      // Apply status filter
+      if (_selectedCouponStatus != ArabicText.all) {
+        filtered = filtered.where((coupon) {
+          final status = coupon['status'] ?? 'active';
+          return status == _selectedCouponStatus;
+        }).toList();
+      }
+
+      _filteredCoupons = filtered;
     });
   }
 
   Widget _buildCouponsTab() {
     return Column(
       children: [
-        // Coupons Header
+        // Search Bar
         Container(
-          padding: const EdgeInsets.all(20),
+          margin: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           decoration: BoxDecoration(
             color: AppColors.white,
+            borderRadius: BorderRadius.circular(15),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.1),
@@ -1757,76 +1849,129 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.local_activity,
-                    size: 32,
-                    color: AppColors.primaryText,
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Coupons',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryText,
-                          ),
-                        ),
-                        Text(
-                          'Manage discount coupons and codes',
-                          style: TextStyle(
-                            color: AppColors.textSecondaryColor,
-                          ),
-                        ),
-                      ],
+              Icon(
+                Icons.search,
+                color: AppColors.primaryText,
+                size: 24,
+              ),
+              const SizedBox(width: 15),
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (q) {
+                    _filterCoupons(q);
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Search coupons...',
+                    border: InputBorder.none,
+                    hintStyle: TextStyle(
+                      color: AppColors.textSecondaryColor.withOpacity(0.7),
                     ),
                   ),
-                  ElevatedButton.icon(
-                    onPressed: _showAddCouponDialog,
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add Coupon'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryText,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ],
           ),
         ),
-        // Coupons Search
+
+        // Status Filter
         Container(
-          padding: const EdgeInsets.all(20),
-          child: TextField(
-            controller: _searchController,
-            onChanged: (q) {
-              _filterCoupons(q);
-            },
-            decoration: InputDecoration(
-              hintText: 'Search coupons...',
-              prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(color: AppColors.primaryText),
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
               ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(color: AppColors.primaryText, width: 2),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                      color: AppColors.primaryText.withValues(alpha: 0.2)),
+                ),
+                child: DropdownButton<String>(
+                  value: _selectedCouponStatus,
+                  hint: Text(
+                    ArabicText.all,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondaryColor,
+                    ),
+                  ),
+                  underline: Container(),
+                  icon: Icon(
+                    Icons.keyboard_arrow_down,
+                    size: 16,
+                    color: AppColors.primaryText,
+                  ),
+                  items: [
+                    DropdownMenuItem(
+                      value: ArabicText.all,
+                      child: Text(
+                        ArabicText.all,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondaryColor,
+                        ),
+                      ),
+                    ),
+                    const DropdownMenuItem(
+                      value: 'active',
+                      child: Text(
+                        'Active',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondaryColor,
+                        ),
+                      ),
+                    ),
+                    const DropdownMenuItem(
+                      value: 'inactive',
+                      child: Text(
+                        'Inactive',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondaryColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedCouponStatus = newValue ?? ArabicText.all;
+                      _filterCoupons(_searchController.text);
+                    });
+                  },
+                ),
               ),
-            ),
+              const Spacer(),
+              ElevatedButton.icon(
+                onPressed: _showAddCouponDialog,
+                icon: const Icon(Icons.add),
+                label: Text(ArabicText.addNewCoupon),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryText,
+                  foregroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ],
           ),
         ),
         // Coupons List
@@ -1891,7 +2036,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
             double.tryParse(coupon['discount_value'].toString()) ?? 0.0;
         final type = coupon['discount_type'] ?? 'percentage';
         discountDisplay =
-            '${discount.toStringAsFixed(2)}${type == 'percentage' ? '%' : '\$'} OFF';
+            '${discount.toStringAsFixed(2)}${type == 'percentage' ? '%' : '₪'} OFF';
       }
     } catch (e) {
       discountDisplay = 'N/A';
@@ -2053,7 +2198,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                         0) ...[
                   const SizedBox(height: 8),
                   Text(
-                    'Min: \$${coupon['minimum_order_amount']}',
+                    'Min: ${coupon['minimum_order_amount']}₪',
                     style: TextStyle(
                       color: AppColors.textSecondaryColor,
                       fontSize: 12,
@@ -2176,7 +2321,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                                 child: Text('Percentage (%)')),
                             DropdownMenuItem(
                                 value: 'fixed_amount',
-                                child: Text('Fixed Amount (\$)')),
+                                child: Text('Fixed Amount (₪)')),
                             DropdownMenuItem(
                                 value: 'free_shipping',
                                 child: Text('Free Shipping')),
@@ -2277,7 +2422,9 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: Text(isEditing ? 'Update Coupon' : 'Add Coupon'),
+                      child: Text(isEditing
+                          ? ArabicText.editCoupon
+                          : ArabicText.addNewCoupon),
                     ),
                   ),
                 ],
@@ -2292,7 +2439,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
   Future<void> _saveCoupon(bool isEditing, int? couponId) async {
     if (_codeController.text.isEmpty ||
         _couponDiscountController.text.isEmpty) {
-      _showSnackBar('Please fill in code and discount value', isError: true);
+      _showSnackBar(ArabicText.pleaseFillInCodeAndDiscount, isError: true);
       return;
     }
 
@@ -2333,7 +2480,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
       Navigator.pop(context);
       _loadCoupons();
     } catch (e) {
-      _showSnackBar('Error saving coupon: $e', isError: true);
+      _showSnackBar('${ArabicText.errorSavingCoupon}: $e', isError: true);
     }
   }
 

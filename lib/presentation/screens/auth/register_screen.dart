@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../../../core/theme/app_theme.dart';
+import '../../../core/constants/arabic_text.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/common/custom_text_field.dart';
 import '../../widgets/common/custom_button.dart';
@@ -39,7 +39,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   String _getUserTypeDisplayName() {
-    return widget.userType == 'customer' ? 'Customer' : 'Supermarket';
+    return widget.userType == 'customer'
+        ? ArabicText.customer
+        : ArabicText.supermarket;
   }
 
   String _getUserTypeIcon() {
@@ -146,7 +148,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    'Create ${_getUserTypeDisplayName()} Account',
+                                    'إنشاء حساب ${_getUserTypeDisplayName()}',
                                     style: const TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.w900,
@@ -156,7 +158,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                   const SizedBox(height: 6),
                                   Text(
-                                    'Join TradeSuper as a ${widget.userType}',
+                                    'انضم إلى ${ArabicText.appName} ك${widget.userType == 'customer' ? 'عميل' : 'سوبر ماركت'}',
                                     style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
@@ -167,16 +169,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   const SizedBox(height: 20),
                                   CustomTextField(
                                     controller: _nameController,
-                                    labelText: 'Full Name',
-                                    hintText: 'Enter your full name',
+                                    labelText: ArabicText.fullName,
+                                    hintText: 'أدخل اسمك الكامل',
                                     prefixIcon: Icons.person,
                                     validator: (value) {
                                       if (value == null ||
                                           value.trim().isEmpty) {
-                                        return 'Please enter your name';
+                                        return ArabicText.fieldRequired;
                                       }
                                       if (value.trim().length < 2) {
-                                        return 'Name must be at least 2 characters';
+                                        return 'يجب أن يكون الاسم على الأقل حرفين';
                                       }
                                       return null;
                                     },
@@ -184,17 +186,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   const SizedBox(height: 12),
                                   CustomTextField(
                                     controller: _phoneController,
-                                    labelText: 'Phone Number',
-                                    hintText: 'Enter your phone number',
+                                    labelText: ArabicText.phoneNumber,
+                                    hintText: 'أدخل رقم هاتفك',
                                     keyboardType: TextInputType.phone,
                                     prefixIcon: Icons.phone,
                                     validator: (value) {
                                       if (value == null ||
                                           value.trim().isEmpty) {
-                                        return 'Please enter your phone number';
+                                        return ArabicText.fieldRequired;
                                       }
                                       if (value.trim().length < 10) {
-                                        return 'Please enter a valid phone number';
+                                        return ArabicText.invalidPhone;
                                       }
                                       return null;
                                     },
@@ -202,8 +204,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   const SizedBox(height: 12),
                                   CustomTextField(
                                     controller: _passwordController,
-                                    labelText: 'Password',
-                                    hintText: 'Enter your password',
+                                    labelText: ArabicText.password,
+                                    hintText: 'أدخل كلمة المرور',
                                     obscureText: !_isPasswordVisible,
                                     prefixIcon: Icons.lock,
                                     suffixIcon: IconButton(
@@ -222,10 +224,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return 'Please enter a password';
+                                        return ArabicText.fieldRequired;
                                       }
                                       if (value.length < 8) {
-                                        return 'Password must be at least 8 characters';
+                                        return ArabicText.passwordTooShort;
                                       }
                                       return null;
                                     },
@@ -233,8 +235,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   const SizedBox(height: 12),
                                   CustomTextField(
                                     controller: _confirmPasswordController,
-                                    labelText: 'Confirm Password',
-                                    hintText: 'Confirm your password',
+                                    labelText: ArabicText.confirmPassword,
+                                    hintText: 'أكد كلمة المرور',
                                     obscureText: !_isConfirmPasswordVisible,
                                     prefixIcon: Icons.lock_outline,
                                     suffixIcon: IconButton(
@@ -253,10 +255,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return 'Please confirm your password';
+                                        return ArabicText.fieldRequired;
                                       }
                                       if (value != _passwordController.text) {
-                                        return 'Passwords do not match';
+                                        return ArabicText.passwordsDoNotMatch;
                                       }
                                       return null;
                                     },
@@ -269,9 +271,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             ? null
                                             : _register,
                                         isLoading: authProvider.isLoading,
-                                        child: const Text(
-                                          'Create Account',
-                                          style: TextStyle(
+                                        child: Text(
+                                          ArabicText.signUp,
+                                          style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -316,7 +318,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   TextButton(
                                     onPressed: () => context.go('/login'),
                                     child: Text(
-                                      'Already have an account? Login',
+                                      '${ArabicText.alreadyHaveAccount} ${ArabicText.login}',
                                       style: const TextStyle(
                                         color: AppColors.primaryText,
                                       ),

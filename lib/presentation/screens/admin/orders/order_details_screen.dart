@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/arabic_text.dart';
 import '../../../../core/network/api_service.dart';
 
 class OrderDetailsScreen extends StatefulWidget {
@@ -115,7 +116,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
           widget.onOrderUpdated!(widget.order);
         }
 
-        _showSnackBar('Payment status updated successfully');
+        _showSnackBar(ArabicText.paymentStatusUpdatedSuccessfully);
       }
     } catch (e) {
       _showSnackBar('Error updating payment status: $e', isError: true);
@@ -169,7 +170,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
   Widget _buildHeader() {
     final order = _orderDetails ?? widget.order;
     final orderId = order['id']?.toString() ?? 'N/A';
-    final status = order['status']?.toString() ?? 'unknown';
+    final status = order['status']?.toString() ?? ArabicText.unknownStatus;
     final totalAmount = order['total_amount']?.toString() ?? '0.00';
 
     return Container(
@@ -218,7 +219,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
-                  'Order Details',
+                  ArabicText.orderDetails,
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
@@ -249,7 +250,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Total: \$${double.tryParse(totalAmount)?.toStringAsFixed(2) ?? '0.00'}',
+                      'Total: ${double.tryParse(totalAmount)?.toStringAsFixed(2) ?? '0.00'}₪',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -287,8 +288,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
   Widget _buildCustomerInfo() {
     final order = _orderDetails ?? widget.order;
     final customerName =
-        order['customer_name']?.toString() ?? 'Unknown Customer';
-    final customerPhone = order['customer_phone']?.toString() ?? 'No phone';
+        order['customer_name']?.toString() ?? ArabicText.unknownCustomer;
+    final customerPhone =
+        order['customer_phone']?.toString() ?? ArabicText.noPhone;
 
     return Container(
       margin: const EdgeInsets.all(20),
@@ -323,7 +325,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
               ),
               const SizedBox(width: 16),
               Text(
-                'Customer Information',
+                ArabicText.customerInformation,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -333,8 +335,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
             ],
           ),
           const SizedBox(height: 20),
-          _buildInfoRow('Name', customerName, Icons.person_outline),
-          _buildInfoRow('Phone', customerPhone, Icons.phone_outlined),
+          _buildInfoRow(ArabicText.name, customerName, Icons.person_outline),
+          _buildInfoRow(
+              ArabicText.phoneNumber, customerPhone, Icons.phone_outlined),
         ],
       ),
     );
@@ -444,22 +447,23 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
           ],
 
           // Order Summary
-          _buildSummaryRow('Subtotal', subtotal),
-          _buildSummaryRow('Tax', tax),
-          _buildSummaryRow('Shipping', shipping),
+          _buildSummaryRow(ArabicText.subtotal, subtotal),
+          _buildSummaryRow(ArabicText.tax, tax),
+          _buildSummaryRow(ArabicText.shipping, shipping),
           if (double.tryParse(discount) != null && double.parse(discount) > 0)
-            _buildSummaryRow('Discount', '-$discount', isDiscount: true),
+            _buildSummaryRow(ArabicText.discount, '-$discount',
+                isDiscount: true),
           const SizedBox(height: 16),
           const Divider(height: 1),
           const SizedBox(height: 16),
-          _buildSummaryRow('Total', totalAmount, isTotal: true),
+          _buildSummaryRow(ArabicText.total, totalAmount, isTotal: true),
         ],
       ),
     );
   }
 
   Widget _buildOrderItemCard(Map<String, dynamic> item) {
-    final name = item['product_name']?.toString() ?? 'Unknown Product';
+    final name = item['product_name']?.toString() ?? ArabicText.unknownProduct;
     final quantity = item['quantity']?.toString() ?? '0';
     final price = item['unit_price']?.toString() ?? '0.00';
     final total = item['total_price']?.toString() ?? '0.00';
@@ -532,7 +536,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                     ),
                     const SizedBox(width: 16),
                     Text(
-                      '\$${double.tryParse(price)?.toStringAsFixed(2) ?? '0.00'} each',
+                      '${double.tryParse(price)?.toStringAsFixed(2) ?? '0.00'}₪ each',
                       style: TextStyle(
                         fontSize: 14,
                         color: AppColors.textSecondaryColor,
@@ -546,7 +550,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
 
           // Total Price
           Text(
-            '\$${double.tryParse(total)?.toStringAsFixed(2) ?? '0.00'}',
+            '${double.tryParse(total)?.toStringAsFixed(2) ?? '0.00'}₪',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -578,7 +582,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
           Text(
             isDiscount
                 ? value
-                : '\$${double.tryParse(value)?.toStringAsFixed(2) ?? '0.00'}',
+                : '${double.tryParse(value)?.toStringAsFixed(2) ?? '0.00'}₪',
             style: TextStyle(
               fontSize: isTotal ? 18 : 16,
               fontWeight: isTotal ? FontWeight.w700 : FontWeight.w500,
@@ -596,8 +600,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
     final order = _orderDetails ?? widget.order;
     final shippingAddress = order['shipping_address'];
     final billingAddress = order['billing_address'];
-    final paymentMethod = order['payment_method']?.toString() ?? 'Unknown';
-    final notes = order['notes']?.toString() ?? 'No special notes';
+    final paymentMethod =
+        order['payment_method']?.toString() ?? ArabicText.unknownPaymentMethod;
+    final notes = order['notes']?.toString() ?? ArabicText.noSpecialNotes;
 
     return Container(
       margin: const EdgeInsets.all(20),
@@ -645,24 +650,24 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
 
           // Shipping Address
           if (shippingAddress != null) ...[
-            _buildAddressSection('Shipping Address', shippingAddress),
+            _buildAddressSection(ArabicText.shippingAddress, shippingAddress),
             const SizedBox(height: 20),
           ],
 
           // Billing Address
           if (billingAddress != null) ...[
-            _buildAddressSection('Billing Address', billingAddress),
+            _buildAddressSection(ArabicText.billingAddress, billingAddress),
             const SizedBox(height: 20),
           ],
 
           // Payment Method
-          _buildInfoRow(
-              'Payment Method', paymentMethod.toUpperCase(), Icons.payment),
+          _buildInfoRow(ArabicText.paymentMethod, paymentMethod.toUpperCase(),
+              Icons.payment),
 
           // Notes
-          if (notes.isNotEmpty && notes != 'No special notes') ...[
+          if (notes.isNotEmpty && notes != ArabicText.noSpecialNotes) ...[
             const SizedBox(height: 16),
-            _buildInfoRow('Notes', notes, Icons.note),
+            _buildInfoRow(ArabicText.notes, notes, Icons.note),
           ],
         ],
       ),
@@ -701,7 +706,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
             border: Border.all(color: Colors.grey[200]!),
           ),
           child: Text(
-            fullAddress.isEmpty ? 'No address provided' : fullAddress,
+            fullAddress.isEmpty ? ArabicText.noAddressProvided : fullAddress,
             style: TextStyle(
               fontSize: 14,
               color: fullAddress.isEmpty
@@ -753,7 +758,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
               ),
               const SizedBox(width: 16),
               Text(
-                'Order Actions',
+                ArabicText.orderActions,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -766,7 +771,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
 
           // Status Update
           _buildActionButton(
-            'Update Order Status',
+            ArabicText.updateOrderStatus,
             Icons.update,
             () => _showStatusUpdateDialog(),
             AppColors.primaryText,
@@ -775,7 +780,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
 
           // Payment Status Update
           _buildActionButton(
-            'Update Payment Status',
+            ArabicText.updatePaymentStatus,
             Icons.payment,
             () => _showPaymentStatusUpdateDialog(),
             AppColors.secondaryBackground,
@@ -785,7 +790,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
           // Cancel Order (if not already cancelled)
           if (currentStatus != 'cancelled' && currentStatus != 'delivered')
             _buildActionButton(
-              'Cancel Order',
+              ArabicText.cancelOrder,
               Icons.cancel,
               () => _showCancelOrderDialog(),
               Colors.red,
@@ -830,11 +835,11 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Update Order Status'),
+        title: Text(ArabicText.updateOrderStatus),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Select new status:'),
+            Text(ArabicText.selectNewStatus),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value: selectedStatus,

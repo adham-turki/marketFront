@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/arabic_text.dart';
 import '../../../../core/network/api_service.dart';
 import '../../../widgets/admin/auth_wrapper.dart';
+import 'user_details_screen.dart';
 
 class AdminUsersScreen extends StatefulWidget {
   const AdminUsersScreen({super.key});
@@ -159,15 +161,15 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       if (_editingUser != null) {
         // Update existing user
         await _apiService.put('/users/${_editingUser!['id']}', data: userData);
-        _showSnackBar('User updated successfully');
+        _showSnackBar(ArabicText.userUpdatedSuccessfully);
       } else {
         // Create new user
         if (_passwordController.text.isEmpty) {
-          _showSnackBar('Password is required for new users', isError: true);
+          _showSnackBar(ArabicText.passwordRequiredForNewUsers, isError: true);
           return;
         }
         await _apiService.post('/users', data: userData);
-        _showSnackBar('User created successfully');
+        _showSnackBar(ArabicText.userCreatedSuccessfully);
       }
 
       setState(() {
@@ -176,7 +178,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       _resetForm();
       _loadUsers();
     } catch (e) {
-      _showSnackBar('Error saving user: $e', isError: true);
+              _showSnackBar('${ArabicText.errorSavingUser}: $e', isError: true);
     }
   }
 
@@ -184,18 +186,21 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirm Delete'),
+        title: const Text(ArabicText.confirm),
         content: const Text(
-            'Are you sure you want to delete this user? This action cannot be undone.'),
+          'هل أنت متأكد من حذف هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء.',
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text(ArabicText.cancel),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            onPressed: () {
+              Navigator.of(context).pop();
+              _deleteUser(userId);
+            },
+            child: const Text(ArabicText.delete),
           ),
         ],
       ),
@@ -204,10 +209,10 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     if (confirmed == true) {
       try {
         await _apiService.delete('/users/$userId');
-        _showSnackBar('User deleted successfully');
+        _showSnackBar(ArabicText.userDeletedSuccessfully);
         _loadUsers();
       } catch (e) {
-        _showSnackBar('Error deleting user: $e', isError: true);
+        _showSnackBar(ArabicText.errorDeletingUser, isError: true);
       }
     }
   }
@@ -217,10 +222,10 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       final newStatus = user['status'] == 'active' ? 'suspended' : 'active';
       await _apiService
           .put('/users/${user['id']}/status', data: {'status': newStatus});
-      _showSnackBar('User status updated successfully');
+      _showSnackBar(ArabicText.userStatusUpdatedSuccessfully);
       _loadUsers();
     } catch (e) {
-      _showSnackBar('Error updating user status: $e', isError: true);
+      _showSnackBar(ArabicText.errorUpdatingUserStatus, isError: true);
     }
   }
 
@@ -285,14 +290,14 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: const Text(ArabicText.close),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _showEditUserDialog(user);
             },
-            child: const Text('Edit'),
+            child: const Text(ArabicText.edit),
           ),
         ],
       ),
@@ -348,54 +353,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         children: [
           Column(
             children: [
-              // Compact Header
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.people,
-                      size: 28,
-                      color: AppColors.primaryText,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Customer Management',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primaryText,
-                            ),
-                          ),
-                          Text(
-                            '${_filteredUsers.length} customers',
-                            style: TextStyle(
-                              color: AppColors.textSecondaryColor,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
               // Search and Filters Row
               Container(
                 padding:
@@ -407,7 +364,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         controller: _searchController,
                         onChanged: _filterUsers,
                         decoration: InputDecoration(
-                          hintText: 'Search by name, phone, or company...',
+                          hintText: ArabicText.search,
                           prefixIcon: const Icon(Icons.search, size: 20),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -469,8 +426,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                                 const SizedBox(height: 12),
                                 Text(
                                   _searchQuery.isEmpty
-                                      ? 'No customers yet'
-                                      : 'No customers found',
+                                      ? ArabicText.noCustomersYet
+                                      : ArabicText.noCustomersFound,
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: AppColors.textSecondaryColor,
@@ -479,7 +436,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                                 if (_searchQuery.isEmpty) ...[
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Add your first customer to get started',
+                                    '${ArabicText.addYourFirst} ${ArabicText.users.toLowerCase()} ${ArabicText.toGetStarted}',
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: AppColors.textSecondaryColor,
@@ -513,172 +470,186 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     final isActive = user['status'] == 'active';
     final isPhoneVerified = user['phone_verified'] == true;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade200),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 1),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UserDetailsScreen(user: user),
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            // Avatar and basic info
-            CircleAvatar(
-              radius: 20,
-              backgroundColor:
-                  isActive ? AppColors.primaryColor : Colors.grey.shade300,
-              child: Text(
-                (user['full_name'] ?? 'U')[0].toUpperCase(),
-                style: TextStyle(
-                  color: isActive ? Colors.white : Colors.grey.shade600,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey.shade200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              // Avatar and basic info
+              CircleAvatar(
+                radius: 20,
+                backgroundColor:
+                    isActive ? AppColors.primaryColor : Colors.grey.shade300,
+                child: Text(
+                  (user['full_name'] ?? 'U')[0].toUpperCase(),
+                  style: TextStyle(
+                    color: isActive ? Colors.white : Colors.grey.shade600,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
+              const SizedBox(width: 12),
 
-            // User details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          user['full_name'] ?? 'Unnamed User',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Status badge
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: isActive
-                              ? AppColors.successColor
-                              : Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          isActive ? 'Active' : 'Suspended',
-                          style: TextStyle(
-                            color:
-                                isActive ? Colors.white : Colors.grey.shade600,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(Icons.phone, size: 12, color: Colors.grey.shade600),
-                      const SizedBox(width: 4),
-                      Text(
-                        user['phone'] ?? 'No phone',
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 12,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      if (isPhoneVerified)
-                        Icon(Icons.verified,
-                            size: 12, color: AppColors.successColor),
-                    ],
-                  ),
-                  if (user['company_name'] != null) ...[
-                    const SizedBox(height: 2),
+              // User details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Row(
                       children: [
-                        Icon(Icons.business,
+                        Expanded(
+                          child: Text(
+                            user['full_name'] ?? 'Unnamed User',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // Status badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: isActive
+                                ? AppColors.successColor
+                                : Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            isActive ? ArabicText.active : ArabicText.inactive,
+                            style: TextStyle(
+                              color: isActive
+                                  ? Colors.white
+                                  : Colors.grey.shade600,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(Icons.phone,
                             size: 12, color: Colors.grey.shade600),
                         const SizedBox(width: 4),
                         Text(
-                          user['company_name'],
+                          user['phone'] ?? 'No phone',
                           style: TextStyle(
                             color: Colors.grey.shade600,
                             fontSize: 12,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
+                        const SizedBox(width: 8),
+                        if (isPhoneVerified)
+                          Icon(Icons.verified,
+                              size: 12, color: AppColors.successColor),
                       ],
                     ),
+                    if (user['company_name'] != null) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Icon(Icons.business,
+                              size: 12, color: Colors.grey.shade600),
+                          const SizedBox(width: 4),
+                          Text(
+                            user['company_name'],
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 12,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
+                ),
+              ),
+
+              // Action buttons
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Toggle status button
+                  IconButton(
+                    onPressed: () => _toggleUserStatus(user),
+                    icon: Icon(
+                      isActive ? Icons.block : Icons.check_circle,
+                      size: 18,
+                      color: isActive ? Colors.orange : AppColors.successColor,
+                    ),
+                    tooltip: isActive
+                        ? ArabicText.suspendUser
+                        : ArabicText.activateUser,
+                    padding: const EdgeInsets.all(4),
+                    constraints:
+                        const BoxConstraints(minWidth: 32, minHeight: 32),
+                  ),
+                  // View details button
+                  IconButton(
+                    onPressed: () => _showUserDetails(user),
+                    icon: Icon(Icons.info_outline,
+                        size: 18, color: AppColors.primaryColor),
+                    tooltip: ArabicText.viewDetails,
+                    padding: const EdgeInsets.all(4),
+                    constraints:
+                        const BoxConstraints(minWidth: 32, minHeight: 32),
+                  ),
+                  // Edit button
+                  IconButton(
+                    onPressed: () => _showEditUserDialog(user),
+                    icon: Icon(Icons.edit,
+                        size: 18, color: AppColors.secondaryColor),
+                    tooltip: ArabicText.editUser,
+                    padding: const EdgeInsets.all(4),
+                    constraints:
+                        const BoxConstraints(minWidth: 32, minHeight: 32),
+                  ),
+                  // Delete button
+                  IconButton(
+                    onPressed: () => _deleteUser(user['id']),
+                    icon: Icon(Icons.delete_outline,
+                        size: 18, color: Colors.red.shade400),
+                    tooltip: ArabicText.deleteUser,
+                    padding: const EdgeInsets.all(4),
+                    constraints:
+                        const BoxConstraints(minWidth: 32, minHeight: 32),
+                  ),
                 ],
               ),
-            ),
-
-            // Action buttons
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Toggle status button
-                IconButton(
-                  onPressed: () => _toggleUserStatus(user),
-                  icon: Icon(
-                    isActive ? Icons.block : Icons.check_circle,
-                    size: 18,
-                    color: isActive ? Colors.orange : AppColors.successColor,
-                  ),
-                  tooltip: isActive ? 'Suspend User' : 'Activate User',
-                  padding: const EdgeInsets.all(4),
-                  constraints:
-                      const BoxConstraints(minWidth: 32, minHeight: 32),
-                ),
-                // View details button
-                IconButton(
-                  onPressed: () => _showUserDetails(user),
-                  icon: Icon(Icons.info_outline,
-                      size: 18, color: AppColors.primaryColor),
-                  tooltip: 'View Details',
-                  padding: const EdgeInsets.all(4),
-                  constraints:
-                      const BoxConstraints(minWidth: 32, minHeight: 32),
-                ),
-                // Edit button
-                IconButton(
-                  onPressed: () => _showEditUserDialog(user),
-                  icon: Icon(Icons.edit,
-                      size: 18, color: AppColors.secondaryColor),
-                  tooltip: 'Edit User',
-                  padding: const EdgeInsets.all(4),
-                  constraints:
-                      const BoxConstraints(minWidth: 32, minHeight: 32),
-                ),
-                // Delete button
-                IconButton(
-                  onPressed: () => _deleteUser(user['id']),
-                  icon: Icon(Icons.delete_outline,
-                      size: 18, color: Colors.red.shade400),
-                  tooltip: 'Delete User',
-                  padding: const EdgeInsets.all(4),
-                  constraints:
-                      const BoxConstraints(minWidth: 32, minHeight: 32),
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -718,8 +689,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     const SizedBox(width: 12),
                     Text(
                       _editingUser != null
-                          ? 'Edit Customer'
-                          : 'Add New Customer',
+                          ? ArabicText.editCustomer
+                          : ArabicText.addNewCustomer,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -743,12 +714,12 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         TextFormField(
                           controller: _fullNameController,
                           decoration: const InputDecoration(
-                            labelText: 'Full Name *',
+                            labelText: ArabicText.fullName,
                             border: OutlineInputBorder(),
                           ),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Full name is required';
+                              return ArabicText.fullNameRequired;
                             }
                             return null;
                           },
@@ -759,16 +730,17 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         TextFormField(
                           controller: _phoneController,
                           decoration: const InputDecoration(
-                            labelText: 'Phone Number *',
+                            labelText: ArabicText.phoneNumber,
                             border: OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.phone,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Phone number is required';
+                              return ArabicText.phoneNumberRequired;
                             }
                             if (value.trim().length < 10) {
-                              return 'Phone number must be at least 10 digits';
+                              return ArabicText
+                                  .phoneNumberMustBeAtLeastTenDigits;
                             }
                             return null;
                           },
@@ -782,20 +754,22 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                             controller: _passwordController,
                             decoration: InputDecoration(
                               labelText: _editingUser == null
-                                  ? 'Password *'
-                                  : 'New Password (leave empty to keep current)',
+                                  ? ArabicText.password
+                                  : ArabicText
+                                      .newPasswordLeaveEmptyToKeepCurrent,
                               border: const OutlineInputBorder(),
                             ),
                             obscureText: true,
                             validator: (value) {
                               if (_editingUser == null &&
                                   (value == null || value.trim().isEmpty)) {
-                                return 'Password is required for new users';
+                                return ArabicText.passwordRequiredForNewUsers;
                               }
                               if (value != null &&
                                   value.trim().isNotEmpty &&
                                   value.trim().length < 6) {
-                                return 'Password must be at least 6 characters';
+                                return ArabicText
+                                    .passwordMustBeAtLeastSixCharacters;
                               }
                               return null;
                             },
@@ -808,7 +782,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         TextFormField(
                           controller: _companyNameController,
                           decoration: const InputDecoration(
-                            labelText: 'Company Name (Optional)',
+                            labelText: ArabicText.companyName,
                             border: OutlineInputBorder(),
                           ),
                         ),
@@ -823,15 +797,16 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                               child: DropdownButtonFormField<String>(
                                 value: _selectedRole,
                                 decoration: const InputDecoration(
-                                  labelText: 'Role',
+                                  labelText: ArabicText.role,
                                   border: OutlineInputBorder(),
                                 ),
                                 items: const [
                                   DropdownMenuItem(
                                       value: 'customer',
-                                      child: Text('Customer')),
+                                      child: Text(ArabicText.customer)),
                                   DropdownMenuItem(
-                                      value: 'admin', child: Text('Admin')),
+                                      value: 'admin',
+                                      child: Text(ArabicText.admin)),
                                 ],
                                 onChanged: (value) {
                                   setState(() {
@@ -845,17 +820,19 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                               child: DropdownButtonFormField<String>(
                                 value: _selectedStatus,
                                 decoration: const InputDecoration(
-                                  labelText: 'Status',
+                                  labelText: ArabicText.status,
                                   border: OutlineInputBorder(),
                                 ),
-                                items: const [
+                                items: [
                                   DropdownMenuItem(
-                                      value: 'active', child: Text('Active')),
+                                      value: 'active',
+                                      child: Text(ArabicText.active)),
                                   DropdownMenuItem(
                                       value: 'suspended',
-                                      child: Text('Suspended')),
+                                      child: Text(ArabicText.suspended)),
                                   DropdownMenuItem(
-                                      value: 'pending', child: Text('Pending')),
+                                      value: 'pending',
+                                      child: Text(ArabicText.pending)),
                                 ],
                                 onChanged: (value) {
                                   setState(() {
@@ -870,7 +847,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
 
                         // Phone Verified Checkbox
                         CheckboxListTile(
-                          title: const Text('Phone Verified'),
+                          title: const Text(ArabicText.phoneVerified),
                           value: _phoneVerified,
                           onChanged: (value) {
                             setState(() {
@@ -906,7 +883,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         });
                         _resetForm();
                       },
-                      child: const Text('Cancel'),
+                      child: const Text(ArabicText.cancel),
                     ),
                     const SizedBox(width: 12),
                     ElevatedButton(
@@ -917,7 +894,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24, vertical: 12),
                       ),
-                      child: Text(_editingUser != null ? 'Update' : 'Create'),
+                      child: Text(_editingUser != null
+                          ? ArabicText.update
+                          : ArabicText.create),
                     ),
                   ],
                 ),

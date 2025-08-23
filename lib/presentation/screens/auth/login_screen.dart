@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/arabic_text.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_theme.dart';
@@ -140,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    'Welcome Back!',
+                                    'مرحباً بعودتك!',
                                     style: const TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.w900,
@@ -150,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   const SizedBox(height: 6),
                                   Text(
-                                    'Sign in to your TradeSuper account',
+                                    'سجل دخولك إلى حساب تريد سوبر',
                                     style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
@@ -161,17 +162,17 @@ class _LoginScreenState extends State<LoginScreen> {
                                   const SizedBox(height: 20),
                                   CustomTextField(
                                     controller: _phoneController,
-                                    labelText: 'Phone Number',
-                                    hintText: 'Enter your phone number',
+                                    labelText: ArabicText.phoneNumber,
+                                    hintText: 'أدخل رقم هاتفك',
                                     keyboardType: TextInputType.phone,
                                     prefixIcon: Icons.phone,
                                     validator: (value) {
                                       if (value == null ||
                                           value.trim().isEmpty) {
-                                        return 'Please enter your phone number';
+                                        return 'يرجى إدخال رقم هاتفك';
                                       }
                                       if (value.trim().length < 10) {
-                                        return 'Please enter a valid phone number';
+                                        return 'يرجى إدخال رقم هاتف صحيح';
                                       }
                                       return null;
                                     },
@@ -179,8 +180,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   const SizedBox(height: 12),
                                   CustomTextField(
                                     controller: _passwordController,
-                                    labelText: 'Password',
-                                    hintText: 'Enter your password',
+                                    labelText: ArabicText.password,
+                                    hintText: 'أدخل كلمة المرور',
                                     obscureText: !_isPasswordVisible,
                                     prefixIcon: Icons.lock,
                                     suffixIcon: IconButton(
@@ -199,7 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return 'Please enter a password';
+                                        return 'يرجى إدخال كلمة المرور';
                                       }
                                       return null;
                                     },
@@ -212,9 +213,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                             ? null
                                             : _login,
                                         isLoading: authProvider.isLoading,
-                                        child: const Text(
-                                          'Login',
-                                          style: TextStyle(
+                                        child: Text(
+                                          ArabicText.login,
+                                          style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -259,7 +260,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   TextButton(
                                     onPressed: () => context.go('/'),
                                     child: Text(
-                                      'Don\'t have an account? Register',
+                                      'ليس لديك حساب؟ سجل الآن',
                                       style: const TextStyle(
                                         color: AppColors.primaryText,
                                       ),

@@ -113,7 +113,7 @@ class PromotionSettingsSection extends StatelessWidget {
         ),
         const DropdownMenuItem(
           value: 'fixed_amount',
-          child: Text('Fixed Amount (\$)'),
+          child: Text('Fixed Amount (₪)'),
         ),
         const DropdownMenuItem(
           value: 'free_shipping',
@@ -191,7 +191,7 @@ class PromotionSettingsSection extends StatelessWidget {
         children: [
           SizedBox(height: 8),
           Text(
-            'Enter amount in dollars (e.g., 10 for \$10 off)',
+            'Enter amount in ILS (e.g., 10 for 10₪ off)',
             style: TextStyle(
               color: AppColors.textSecondaryColor,
               fontSize: 12,
