@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/arabic_text.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -20,7 +21,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       backgroundColor: AppColors.primaryBackground,
       appBar: AppBar(
         title: Text(
-          widget.product['name'] ?? 'Product Details',
+          widget.product['name'] ?? ArabicText.productDetails,
           style: const TextStyle(
             color: AppColors.primaryText,
             fontWeight: FontWeight.bold,
@@ -63,7 +64,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black,
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -99,25 +100,25 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   Widget _buildBasicInfoSection() {
     return _buildInfoCard(
-      title: 'Basic Information',
+      title: ArabicText.basicInformation,
       icon: Icons.info_outline,
       children: [
-        _buildInfoRow('Name', widget.product['name'] ?? 'N/A'),
-        _buildInfoRow(
-            'Description', widget.product['description'] ?? 'No description'),
-        _buildInfoRow('SKU', widget.product['sku'] ?? 'N/A'),
-        _buildInfoRow('Category', _getCategoryName()),
+        _buildInfoRow(ArabicText.name, widget.product['name'] ?? 'N/A'),
+        _buildInfoRow(ArabicText.description,
+            widget.product['description'] ?? 'No description'),
+        _buildInfoRow(ArabicText.sku, widget.product['sku'] ?? 'N/A'),
+        _buildInfoRow(ArabicText.category, _getCategoryName()),
       ],
     );
   }
 
   Widget _buildPricingSection() {
     return _buildInfoCard(
-      title: 'Pricing',
+      title: ArabicText.pricing,
       icon: Icons.attach_money,
       children: [
         _buildInfoRow(
-          'Price',
+          ArabicText.price,
           '${(double.tryParse(widget.product['price']?.toString() ?? '0') ?? 0.0).toStringAsFixed(2)}₪',
           valueColor: AppColors.successColor,
         ),
@@ -129,36 +130,37 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     final stockQuantity = widget.product['stock_quantity'] ?? 0;
 
     return _buildInfoCard(
-      title: 'Inventory',
+      title: ArabicText.inventory,
       icon: Icons.inventory_2,
       children: [
         _buildInfoRow(
-          'Stock Quantity',
+          ArabicText.quantity,
           stockQuantity.toString(),
           valueColor:
               stockQuantity > 0 ? AppColors.successColor : AppColors.errorColor,
         ),
-        _buildInfoRow('Min Stock Level',
+        _buildInfoRow(ArabicText.minStockLevel,
             (widget.product['min_stock_level'] ?? 0).toString()),
-        _buildInfoRow('Max Stock Level',
+        _buildInfoRow(ArabicText.maxStockLevel,
             (widget.product['max_stock_level'] ?? 0).toString()),
-        _buildInfoRow('Unit', widget.product['unit'] ?? 'piece'),
+        _buildInfoRow(ArabicText.unit, widget.product['unit'] ?? 'piece'),
       ],
     );
   }
 
   Widget _buildAdditionalDetailsSection() {
     return _buildInfoCard(
-      title: 'Additional Details',
+      title: 'تفاصيل إضافية',
       icon: Icons.settings,
       children: [
+        _buildInfoRow(ArabicText.featured,
+            widget.product['is_featured'] == true ? 'نعم' : 'لا'),
+        _buildInfoRow(ArabicText.active,
+            widget.product['is_active'] == true ? 'نعم' : 'لا'),
         _buildInfoRow(
-            'Featured', widget.product['is_featured'] == true ? 'Yes' : 'No'),
+            ArabicText.created, _formatDate(widget.product['created_at'])),
         _buildInfoRow(
-            'Active', widget.product['is_active'] == true ? 'Yes' : 'No'),
-        _buildInfoRow('Created', _formatDate(widget.product['created_at'])),
-        _buildInfoRow(
-            'Last Updated', _formatDate(widget.product['updated_at'])),
+            ArabicText.lastUpdated, _formatDate(widget.product['updated_at'])),
       ],
     );
   }
@@ -176,7 +178,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black,
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),

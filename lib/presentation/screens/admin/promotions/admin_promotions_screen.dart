@@ -3,6 +3,8 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/arabic_text.dart';
 import '../../../../core/network/api_service.dart';
 import '../../../widgets/admin/auth_wrapper.dart';
+import 'add_promotion_screen.dart';
+import 'edit_promotion_screen.dart';
 
 class AdminPromotionsScreen extends StatefulWidget {
   const AdminPromotionsScreen({super.key});
@@ -175,7 +177,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
         });
       }
     } catch (e) {
-      _showSnackBar('Error loading promotions: $e', isError: true);
+      _showSnackBar('${ArabicText.errorLoadingPromotions}: $e', isError: true);
     } finally {
       setState(() {
         _isLoadingPromotions = false;
@@ -216,13 +218,55 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
   }
 
   void _showAddPromotionDialog() {
-    _clearForm();
-    _showPromotionDialog(isEditing: false);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddPromotionScreen(
+          onPromotionAdded: (newPromotion) {
+            print(
+                'DEBUG: onPromotionAdded callback called with: $newPromotion');
+            setState(() {
+              _promotions.insert(0, newPromotion);
+              _filteredPromotions.insert(0, newPromotion);
+            });
+            // Also refresh from server to ensure data consistency
+            _loadPromotions();
+            // Show success message on the promotions page
+            print('DEBUG: About to show success message');
+            _showSnackBar(ArabicText.promotionAdded, isError: false);
+            print('DEBUG: Success message shown');
+            // Force a rebuild to ensure the UI updates
+            setState(() {});
+          },
+        ),
+      ),
+    );
   }
 
   void _showEditPromotionDialog(Map<String, dynamic> promotion) {
-    _populateForm(promotion);
-    _showPromotionDialog(isEditing: true, promotionId: promotion['id']);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditPromotionScreen(
+          promotion: promotion,
+          onPromotionUpdated: (updatedPromotion) {
+            setState(() {
+              // Find and update the promotion in the list
+              final index = _promotions
+                  .indexWhere((p) => p['id'] == updatedPromotion['id']);
+              if (index != -1) {
+                _promotions[index] = updatedPromotion;
+                _filteredPromotions[index] = updatedPromotion;
+              }
+            });
+            // Also refresh from server to ensure data consistency
+            _loadPromotions();
+            // Show success message
+            _showSnackBar(ArabicText.promotionUpdated, isError: false);
+          },
+        ),
+      ),
+    );
   }
 
   void _clearForm() {
@@ -317,7 +361,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                     isEditing
                         ? ArabicText.editPromotion
                         : ArabicText.addNewPromotion,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: AppColors.primaryText,
@@ -335,36 +379,37 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildFormSection('Basic Information', [
-                        _buildTextField('Name', _nameController, Icons.title),
-                        _buildTextField('Description', _descriptionController,
-                            Icons.description,
+                      _buildFormSection(ArabicText.basicInformation, [
+                        _buildTextField(
+                            ArabicText.name, _nameController, Icons.title),
+                        _buildTextField(ArabicText.description,
+                            _descriptionController, Icons.description,
                             maxLines: 3),
                       ]),
-                      _buildFormSection('Promotion Settings', [
+                      _buildFormSection(ArabicText.promotionSettings, [
                         DropdownButtonFormField<String>(
                           value: _promotionType,
                           decoration: InputDecoration(
-                            labelText: 'Promotion Type',
+                            labelText: ArabicText.promotionType,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide:
                                   BorderSide(color: AppColors.primaryText),
                             ),
                           ),
-                          items: [
+                          items: const [
                             DropdownMenuItem(
                                 value: 'percentage',
-                                child: Text('Percentage (%)')),
+                                child: Text(ArabicText.percentage)),
                             DropdownMenuItem(
                                 value: 'fixed_amount',
-                                child: Text('Fixed Amount (₪)')),
+                                child: Text(ArabicText.fixedAmount)),
                             DropdownMenuItem(
                                 value: 'free_shipping',
-                                child: Text('Free Shipping')),
+                                child: Text(ArabicText.freeShipping)),
                             DropdownMenuItem(
                                 value: 'buy_x_get_y',
-                                child: Text('Buy X Get Y')),
+                                child: Text(ArabicText.buyXGetY)),
                           ],
                           onChanged: (value) {
                             setState(() {
@@ -380,14 +425,14 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                         ),
                         const SizedBox(height: 15),
                         if (_promotionType != 'free_shipping') ...[
-                          _buildTextField('Discount Value', _discountController,
-                              Icons.discount,
+                          _buildTextField(ArabicText.discountValue,
+                              _discountController, Icons.discount,
                               keyboardType: TextInputType.number),
                         ],
                         if (_promotionType == 'percentage') ...[
                           const SizedBox(height: 8),
-                          Text(
-                            'Enter percentage (e.g., 20 for 20% off)',
+                          const Text(
+                            ArabicText.percentageHelpText,
                             style: TextStyle(
                               color: AppColors.textSecondaryColor,
                               fontSize: 12,
@@ -395,8 +440,8 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                           ),
                         ] else if (_promotionType == 'fixed_amount') ...[
                           const SizedBox(height: 8),
-                          Text(
-                            'Enter amount in ILS (e.g., 10 for 10₪ off)',
+                          const Text(
+                            ArabicText.fixedAmountHelpText,
                             style: TextStyle(
                               color: AppColors.textSecondaryColor,
                               fontSize: 12,
@@ -404,8 +449,8 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                           ),
                         ] else if (_promotionType == 'buy_x_get_y') ...[
                           const SizedBox(height: 8),
-                          Text(
-                            'Buy X Get Y promotion - select products below',
+                          const Text(
+                            ArabicText.buyXGetYHelpText,
                             style: TextStyle(
                               color: AppColors.textSecondaryColor,
                               fontSize: 12,
@@ -413,47 +458,47 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                           ),
                         ],
                         if (_promotionType != 'free_shipping') ...[
-                          _buildTextField('Minimum Order Amount',
+                          _buildTextField(ArabicText.minimumOrderAmount,
                               _minAmountController, Icons.attach_money,
                               keyboardType: TextInputType.number),
                         ],
                         _buildMinOrderHelpText(),
                         if (_promotionType != 'free_shipping') ...[
-                          _buildTextField('Maximum Discount Amount',
+                          _buildTextField(ArabicText.maximumDiscountAmount,
                               _maxDiscountController, Icons.attach_money,
                               keyboardType: TextInputType.number),
                         ],
                         if (_promotionType != 'free_shipping') ...[
-                          _buildTextField(
-                              'Usage Limit', _usageLimitController, Icons.block,
+                          _buildTextField(ArabicText.usageLimit,
+                              _usageLimitController, Icons.block,
                               keyboardType: TextInputType.number),
-                          _buildTextField('Usage Limit Per User',
+                          _buildTextField(ArabicText.usageLimitPerUser,
                               _usagePerUserController, Icons.person,
                               keyboardType: TextInputType.number),
                           if (_scopeType == 'category' ||
                               _scopeType == 'brand') ...[
                             _buildTextField(
-                                'Max Quantity Per Product',
+                                ArabicText.maxQuantityPerProduct,
                                 _maxQuantityPerProductController,
                                 Icons.shopping_cart,
                                 keyboardType: TextInputType.number),
-                            _buildTextField('Usage Limit Per Product',
+                            _buildTextField(ArabicText.usageLimitPerProduct,
                                 _usageLimitPerProductController, Icons.block,
                                 keyboardType: TextInputType.number),
                           ],
                         ],
                         if (_promotionType == 'buy_x_get_y') ...[
                           const SizedBox(height: 15),
-                          _buildTextField('Buy Quantity (X)', _buyXController,
-                              Icons.shopping_cart,
+                          _buildTextField(ArabicText.buyQuantity,
+                              _buyXController, Icons.shopping_cart,
                               keyboardType: TextInputType.number),
-                          _buildTextField('Get Quantity (Y)', _getYController,
-                              Icons.card_giftcard,
+                          _buildTextField(ArabicText.getQuantity,
+                              _getYController, Icons.card_giftcard,
                               keyboardType: TextInputType.number),
                         ],
                         const SizedBox(height: 15),
-                        Text(
-                          'This promotion applies to all customers',
+                        const Text(
+                          ArabicText.allCustomersText,
                           style: TextStyle(
                             color: AppColors.textSecondaryColor,
                             fontSize: 14,
@@ -463,22 +508,23 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                         DropdownButtonFormField<String>(
                           value: _scopeType,
                           decoration: InputDecoration(
-                            labelText: 'Scope',
+                            labelText: ArabicText.scope,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(color: AppColors.primaryText),
+                              borderSide: const BorderSide(
+                                  color: AppColors.primaryText),
                             ),
                           ),
                           items: const [
                             DropdownMenuItem(
                                 value: 'all_products',
-                                child: Text('All Products')),
+                                child: Text(ArabicText.allProducts)),
                             DropdownMenuItem(
                                 value: 'specific_products',
-                                child: Text('Specific Products')),
+                                child: Text(ArabicText.specificProducts)),
                             DropdownMenuItem(
-                                value: 'category', child: Text('Category')),
+                                value: 'category',
+                                child: Text(ArabicText.category)),
                           ],
                           onChanged: (value) {
                             // Clean, single setState call
@@ -505,30 +551,31 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                           },
                         ),
                       ]),
-                      _buildFormSection('Product Selection', [
+                      _buildFormSection(ArabicText.productSelection, [
                         _buildProductSelectionWidget(),
                       ]),
-                      _buildFormSection('Date Range', [
-                        _buildDateField('Start Date', _startDate, (date) {
+                      _buildFormSection(ArabicText.dateRange, [
+                        _buildDateField(ArabicText.startDate, _startDate,
+                            (date) {
                           setState(() {
                             _startDate = date;
                           });
                         }),
                         const SizedBox(height: 15),
-                        _buildDateField('End Date', _endDate, (date) {
+                        _buildDateField(ArabicText.endDate, _endDate, (date) {
                           setState(() {
                             _endDate = date;
                           });
                         }),
                       ]),
-                      _buildFormSection('Settings', [
-                        _buildSwitch('Active Promotion', _isActive,
+                      _buildFormSection(ArabicText.settings, [
+                        _buildSwitch(ArabicText.activePromotion, _isActive,
                             (value) => setState(() => _isActive = value)),
-                        _buildSwitch('Featured', _isFeatured,
+                        _buildSwitch(ArabicText.featured, _isFeatured,
                             (value) => setState(() => _isFeatured = value)),
-                        _buildSwitch('Stackable', _isStackable,
+                        _buildSwitch(ArabicText.stackable, _isStackable,
                             (value) => setState(() => _isStackable = value)),
-                        _buildSwitch('Requires Coupon', _requiresCoupon,
+                        _buildSwitch(ArabicText.requiresCoupon, _requiresCoupon,
                             (value) => setState(() => _requiresCoupon = value)),
                         const SizedBox(height: 15),
                         Container(
@@ -539,44 +586,44 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                             border: Border.all(
                                 color: AppColors.primaryText.withOpacity(0.2)),
                           ),
-                          child: Column(
+                          child: const Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Help & Information',
+                                ArabicText.helpAndInformation,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: AppColors.primaryText,
                                 ),
                               ),
-                              const SizedBox(height: 10),
+                              SizedBox(height: 10),
                               Text(
-                                '• Featured: Promotions marked as featured will be highlighted to customers and appear first in lists',
+                                '• ${ArabicText.featured}: ${ArabicText.featuredDescription}',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: AppColors.textSecondaryColor,
                                 ),
                               ),
-                              const SizedBox(height: 5),
+                              SizedBox(height: 5),
                               Text(
-                                '• Stackable: When enabled, this promotion can be combined with other promotions and coupons',
+                                '• ${ArabicText.stackable}: ${ArabicText.stackableDescription}',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: AppColors.textSecondaryColor,
                                 ),
                               ),
-                              const SizedBox(height: 5),
+                              SizedBox(height: 5),
                               Text(
-                                '• Max Quantity Per Product: Limits how many of each product a customer can buy with this promotion',
+                                '• ${ArabicText.maxQuantityPerProduct}: ${ArabicText.maxQuantityPerProductDescription}',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: AppColors.textSecondaryColor,
                                 ),
                               ),
-                              const SizedBox(height: 5),
+                              SizedBox(height: 5),
                               Text(
-                                '• Usage Limit Per Product: When reached, that specific product will no longer be eligible for the promotion',
+                                '• ${ArabicText.usageLimitPerProduct}: ${ArabicText.usageLimitPerProductDescription}',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: AppColors.textSecondaryColor,
@@ -603,7 +650,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: const Text('Cancel'),
+                      child: const Text(ArabicText.cancel),
                     ),
                   ),
                   const SizedBox(width: 15),
@@ -637,7 +684,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
       children: [
         Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: AppColors.primaryText,
@@ -668,11 +715,12 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
           prefixIcon: Icon(icon, color: AppColors.primaryText),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: AppColors.primaryText),
+            borderSide: const BorderSide(color: AppColors.primaryText),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: AppColors.primaryText, width: 2),
+            borderSide:
+                const BorderSide(color: AppColors.primaryText, width: 2),
           ),
         ),
       ),
@@ -697,9 +745,10 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
           controller: dateController,
           readOnly: true,
           decoration: InputDecoration(
-            hintText: 'Select Date',
+            hintText: ArabicText.selectDate,
             suffixIcon: IconButton(
-              icon: Icon(Icons.calendar_today, color: AppColors.primaryText),
+              icon: const Icon(Icons.calendar_today,
+                  color: AppColors.primaryText),
               onPressed: () async {
                 final selectedDate = await showDatePicker(
                   context: context,
@@ -716,11 +765,12 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: AppColors.primaryText),
+              borderSide: const BorderSide(color: AppColors.primaryText),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: AppColors.primaryText, width: 2),
+              borderSide:
+                  const BorderSide(color: AppColors.primaryText, width: 2),
             ),
           ),
         ),
@@ -804,8 +854,8 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
         ],
       );
     } else {
-      return Text(
-        'This promotion applies to all products',
+      return const Text(
+        ArabicText.thisPromotionAppliesToAllProducts,
         style: TextStyle(
           color: AppColors.textSecondaryColor,
           fontSize: 14,
@@ -816,8 +866,8 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
 
   Widget _buildCategoryDropdown() {
     return _buildCustomDropdown(
-      label: 'Select Categories',
-      hint: 'Choose categories for this promotion',
+      label: ArabicText.selectCategories,
+      hint: ArabicText.chooseCategoriesForPromotion,
       selectedCount: _selectedCategories.length,
       onTap: () => _showCategorySelectionDialog(),
     );
@@ -825,8 +875,8 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
 
   Widget _buildProductSearchDropdown() {
     return _buildCustomDropdown(
-      label: 'Select Products',
-      hint: 'Choose products for this promotion',
+      label: ArabicText.selectProducts,
+      hint: ArabicText.chooseProductsForPromotion,
       selectedCount: _selectedProductIds.length,
       onTap: () => _showProductSelectionDialog(),
     );
@@ -838,13 +888,12 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
     required int selectedCount,
     required VoidCallback onTap,
   }) {
-    print('Building dropdown: $label, count: $selectedCount'); // Debug print
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
             color: AppColors.primaryText,
@@ -864,7 +913,9 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    selectedCount == 0 ? hint : '$selectedCount selected',
+                    selectedCount == 0
+                        ? hint
+                        : '$selectedCount ${ArabicText.selected}',
                     style: TextStyle(
                       color: selectedCount == 0
                           ? AppColors.textSecondaryColor
@@ -873,7 +924,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                     ),
                   ),
                 ),
-                Icon(
+                const Icon(
                   Icons.arrow_drop_down,
                   color: AppColors.primaryText,
                 ),
@@ -892,7 +943,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           return AlertDialog(
-            title: const Text('Select Products'),
+            title: const Text(ArabicText.selectProducts),
             content: SizedBox(
               width: double.maxFinite,
               height: 400,
@@ -903,7 +954,8 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                     controller:
                         TextEditingController(text: _productSearchQuery),
                     decoration: InputDecoration(
-                      hintText: 'Search products...',
+                      hintText:
+                          '${ArabicText.search} ${ArabicText.products}...',
                       prefixIcon: const Icon(Icons.search),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -951,21 +1003,14 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                               Text('${product['price']?.toString() ?? '0'}₪'),
                           value: isSelected,
                           onChanged: (bool? value) {
-                            print(
-                                'Product checkbox changed: $productId, value: $value'); // Debug print
                             if (value == true) {
                               if (!_selectedProductIds.contains(productId)) {
                                 _selectedProductIds.add(productId);
-                                print(
-                                    'Added product: $productId, total: ${_selectedProductIds.length}'); // Debug print
                               }
                             } else {
                               _selectedProductIds.remove(productId);
-                              print(
-                                  'Removed product: $productId, total: ${_selectedProductIds.length}'); // Debug print
                             }
-                            print(
-                                'Updated _selectedProductIds: $_selectedProductIds'); // Debug print
+
                             // Update both dialog and main widget state
                             setDialogState(() {});
                             setState(() {});
@@ -984,7 +1029,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                   // Force main form to rebuild when dialog closes
                   setState(() {});
                 },
-                child: const Text('Cancel'),
+                child: const Text(ArabicText.cancel),
               ),
               TextButton(
                 onPressed: () {
@@ -995,7 +1040,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                   // Force main form to rebuild when dialog closes
                   setState(() {});
                 },
-                child: const Text('Clear All'),
+                child: const Text(ArabicText.clearAll),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -1003,7 +1048,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                   // Force main form to rebuild when dialog closes
                   setState(() {});
                 },
-                child: const Text('Done'),
+                child: const Text(ArabicText.done),
               ),
             ],
           );
@@ -1019,7 +1064,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           return AlertDialog(
-            title: const Text('Select Categories'),
+            title: Text(ArabicText.selectCategories),
             content: SizedBox(
               width: double.maxFinite,
               height: 400,
@@ -1030,7 +1075,8 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                     controller:
                         TextEditingController(text: _categorySearchQuery),
                     decoration: InputDecoration(
-                      hintText: 'Search categories...',
+                      hintText:
+                          '${ArabicText.search} ${ArabicText.categories}...',
                       prefixIcon: const Icon(Icons.search),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -1076,23 +1122,16 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                               category['name'] ?? ArabicText.unknownCategory),
                           value: isSelected,
                           onChanged: (bool? value) {
-                            print(
-                                'Category checkbox changed: $categoryId, value: $value'); // Debug print
                             if (value == true) {
                               if (!_selectedCategories
                                   .any((c) => c['id'] == categoryId)) {
                                 _selectedCategories.add(category);
-                                print(
-                                    'Added category: $categoryId, total: ${_selectedCategories.length}'); // Debug print
                               }
                             } else {
                               _selectedCategories
                                   .removeWhere((c) => c['id'] == categoryId);
-                              print(
-                                  'Removed category: $categoryId, total: ${_selectedCategories.length}'); // Debug print
                             }
-                            print(
-                                'Updated _selectedCategories: $_selectedCategories'); // Debug print
+
                             // Update both dialog and main widget state
                             setDialogState(() {});
                             setState(() {});
@@ -1111,7 +1150,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                   // Force main form to rebuild when dialog closes
                   setState(() {});
                 },
-                child: const Text('Cancel'),
+                child: const Text(ArabicText.cancel),
               ),
               TextButton(
                 onPressed: () {
@@ -1122,7 +1161,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                   // Force main form to rebuild when dialog closes
                   setState(() {});
                 },
-                child: const Text('Clear All'),
+                child: const Text(ArabicText.clearAll),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -1130,7 +1169,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                   // Force main form to rebuild when dialog closes
                   setState(() {});
                 },
-                child: const Text('Done'),
+                child: const Text(ArabicText.done),
               ),
             ],
           );
@@ -1161,19 +1200,18 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
 
   Future<void> _savePromotion(bool isEditing, int? promotionId) async {
     if (_nameController.text.isEmpty) {
-      _showSnackBar('Please enter a promotion name', isError: true);
+      _showSnackBar(ArabicText.pleaseEnterPromotionName, isError: true);
       return;
     }
 
     if (_promotionType != 'free_shipping' && _discountController.text.isEmpty) {
-      _showSnackBar('Please enter a discount value', isError: true);
+      _showSnackBar(ArabicText.pleaseEnterDiscountValue, isError: true);
       return;
     }
 
     if (_promotionType == 'free_shipping' &&
         _discountController.text.isNotEmpty) {
-      _showSnackBar('Free shipping promotions do not need a discount value',
-          isError: true);
+      _showSnackBar(ArabicText.freeShippingNoDiscount, isError: true);
       return;
     }
 
@@ -1185,7 +1223,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
           return;
         }
       } catch (e) {
-        _showSnackBar('Please enter a valid percentage', isError: true);
+        _showSnackBar(ArabicText.pleaseEnterValidPercentage, isError: true);
         return;
       }
     } else if (_promotionType == 'fixed_amount') {
@@ -1196,18 +1234,18 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
           return;
         }
       } catch (e) {
-        _showSnackBar('Please enter a valid amount', isError: true);
+        _showSnackBar(ArabicText.pleaseEnterValidAmount, isError: true);
         return;
       }
     }
 
     if (_startDate == null || _endDate == null) {
-      _showSnackBar('Please select start and end dates', isError: true);
+      _showSnackBar(ArabicText.pleaseSelectDates, isError: true);
       return;
     }
 
     if (_endDate!.isBefore(_startDate!)) {
-      _showSnackBar('End date cannot be before start date', isError: true);
+      _showSnackBar(ArabicText.endDateBeforeStart, isError: true);
       return;
     }
 
@@ -1215,20 +1253,17 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
     // (This validation is now handled above)
 
     if (_promotionType == 'free_shipping' && _scopeType != 'all_products') {
-      _showSnackBar('Free shipping promotions apply to all products',
-          isError: true);
+      _showSnackBar(ArabicText.freeShippingAllProducts, isError: true);
       return;
     }
 
     if (_promotionType == 'buy_x_get_y' && _scopeType != 'specific_products') {
-      _showSnackBar('Buy X Get Y promotions require specific product selection',
-          isError: true);
+      _showSnackBar(ArabicText.buyXGetYRequiresProducts, isError: true);
       return;
     }
 
     if (_scopeType == 'specific_products' && _selectedProductIds.isEmpty) {
-      _showSnackBar('Please select at least one product for this promotion',
-          isError: true);
+      _showSnackBar(ArabicText.pleaseSelectProductsForPromotion, isError: true);
       return;
     }
 
@@ -1242,14 +1277,11 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
           return;
         }
         if (buyX < getY) {
-          _showSnackBar(
-              'Buy X quantity should be greater than or equal to Get Y quantity',
-              isError: true);
+          _showSnackBar(ArabicText.buyXGreaterThanY, isError: true);
           return;
         }
       } catch (e) {
-        _showSnackBar('Please enter valid quantities for Buy X Get Y promotion',
-            isError: true);
+        _showSnackBar(ArabicText.pleaseEnterValidQuantities, isError: true);
         return;
       }
     }
@@ -1284,7 +1316,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                 : null,
         'start_date': _startDate!.toIso8601String(),
         'end_date': _endDate!.toIso8601String(),
-        'status': _isActive ? 'active' : 'inactive',
+        'status': _isActive ? ArabicText.active : ArabicText.inactive,
         // Target audience removed - all promotions are for customers
         'scope_type': _scopeType,
         'is_featured': _isFeatured,
@@ -1307,10 +1339,10 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
 
       if (isEditing && promotionId != null) {
         await _apiService.put('/promotions/$promotionId', data: promotionData);
-        _showSnackBar('Promotion updated successfully');
+        _showSnackBar(ArabicText.promotionUpdatedSuccessfully);
       } else {
         await _apiService.post('/promotions', data: promotionData);
-        _showSnackBar('Promotion added successfully');
+        _showSnackBar(ArabicText.promotionAddedSuccessfully);
       }
 
       Navigator.pop(context);
@@ -1324,18 +1356,17 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Promotion'),
-        content: const Text(
-            'Are you sure you want to delete this promotion? This action cannot be undone.'),
+        title: const Text(ArabicText.deletePromotion),
+        content: const Text(ArabicText.confirmDeletePromotion),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: const Text(ArabicText.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: const Text(ArabicText.delete),
           ),
         ],
       ),
@@ -1344,10 +1375,11 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
     if (confirmed == true) {
       try {
         await _apiService.delete('/promotions/$promotionId');
-        _showSnackBar('Promotion deleted successfully');
+        _showSnackBar(ArabicText.promotionDeleted);
         _loadPromotions();
       } catch (e) {
-        _showSnackBar('Error deleting promotion: $e', isError: true);
+        _showSnackBar('${ArabicText.errorDeletingPromotion}: $e',
+            isError: true);
       }
     }
   }
@@ -1378,8 +1410,8 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: const TabBar(
                     tabs: [
-                      Tab(text: 'Promotions'),
-                      Tab(text: 'Coupons'),
+                      Tab(text: ArabicText.promotions),
+                      Tab(text: ArabicText.coupons),
                     ],
                   ),
                 ),
@@ -1419,7 +1451,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
           ),
           child: Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.search,
                 color: AppColors.primaryText,
                 size: 24,
@@ -1430,7 +1462,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                   controller: _searchController,
                   onChanged: _filterPromotions,
                   decoration: InputDecoration(
-                    hintText: 'Search promotions...',
+                    hintText: ArabicText.searchPromotions,
                     border: InputBorder.none,
                     hintStyle: TextStyle(
                       color: AppColors.textSecondaryColor.withOpacity(0.7),
@@ -1465,49 +1497,48 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.white,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                      color: AppColors.primaryText.withValues(alpha: 0.2)),
+                  border: Border.all(color: AppColors.primaryText),
                 ),
                 child: DropdownButton<String>(
                   value: _selectedPromotionStatus,
-                  hint: Text(
+                  hint: const Text(
                     ArabicText.all,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppColors.textSecondaryColor,
                     ),
                   ),
                   underline: Container(),
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.keyboard_arrow_down,
                     size: 16,
                     color: AppColors.primaryText,
                   ),
-                  items: [
+                  items: const [
                     DropdownMenuItem(
                       value: ArabicText.all,
                       child: Text(
                         ArabicText.all,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondaryColor,
-                        ),
-                      ),
-                    ),
-                    const DropdownMenuItem(
-                      value: 'active',
-                      child: Text(
-                        'Active',
                         style: TextStyle(
                           fontSize: 12,
                           color: AppColors.textSecondaryColor,
                         ),
                       ),
                     ),
-                    const DropdownMenuItem(
+                    DropdownMenuItem(
+                      value: 'active',
+                      child: Text(
+                        ArabicText.active,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondaryColor,
+                        ),
+                      ),
+                    ),
+                    DropdownMenuItem(
                       value: 'inactive',
                       child: Text(
-                        'Inactive',
+                        ArabicText.inactive,
                         style: TextStyle(
                           fontSize: 12,
                           color: AppColors.textSecondaryColor,
@@ -1527,7 +1558,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
               ElevatedButton.icon(
                 onPressed: _showAddPromotionDialog,
                 icon: const Icon(Icons.add),
-                label: Text(ArabicText.addNewPromotion),
+                label: const Text(ArabicText.addNewPromotion),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryText,
                   foregroundColor: Colors.white,
@@ -1560,7 +1591,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.local_offer_outlined,
               size: 64,
               color: AppColors.textSecondaryColor,
@@ -1568,9 +1599,9 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
             const SizedBox(height: 16),
             Text(
               _searchQuery.isEmpty
-                  ? 'No promotions yet'
-                  : 'No promotions found',
-              style: TextStyle(
+                  ? ArabicText.noPromotionsYet
+                  : ArabicText.noPromotionsFound,
+              style: const TextStyle(
                 fontSize: 18,
                 color: AppColors.textSecondaryColor,
               ),
@@ -1578,8 +1609,8 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
             if (_searchQuery.isEmpty) ...[
               const SizedBox(height: 8),
               Text(
-                'Add your first promotion to get started',
-                style: TextStyle(
+                '${ArabicText.addYourFirst} ${ArabicText.promotions} ${ArabicText.toGetStarted}',
+                style: const TextStyle(
                   color: AppColors.textSecondaryColor,
                 ),
               ),
@@ -1642,7 +1673,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
           children: [
             Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.local_offer,
                   color: AppColors.primaryText,
                   size: 24,
@@ -1650,7 +1681,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    promotion['name'] ?? 'Untitled Promotion',
+                    promotion['name'] ?? ArabicText.unnamedUser,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -1672,7 +1703,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                         children: [
                           Icon(Icons.edit),
                           SizedBox(width: 8),
-                          Text('Edit'),
+                          Text(ArabicText.edit),
                         ],
                       ),
                     ),
@@ -1682,20 +1713,21 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                         children: [
                           Icon(Icons.delete, color: Colors.red),
                           SizedBox(width: 8),
-                          Text('Delete', style: TextStyle(color: Colors.red)),
+                          Text(ArabicText.delete,
+                              style: TextStyle(color: Colors.red)),
                         ],
                       ),
                     ),
                   ],
-                  child: Icon(Icons.more_vert,
+                  child: const Icon(Icons.more_vert,
                       color: AppColors.textSecondaryColor),
                 ),
               ],
             ),
             const SizedBox(height: 10),
             Text(
-              promotion['description'] ?? 'No description',
-              style: TextStyle(
+              promotion['description'] ?? ArabicText.noSpecialNotes,
+              style: const TextStyle(
                 color: AppColors.textSecondaryColor,
                 fontSize: 14,
               ),
@@ -1712,7 +1744,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                   ),
                   child: Text(
                     discountDisplay,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: AppColors.primaryText,
                       fontWeight: FontWeight.bold,
                     ),
@@ -1729,7 +1761,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    isActive ? 'Active' : 'Inactive',
+                    isActive ? ArabicText.active : ArabicText.inactive,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
@@ -1745,13 +1777,13 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.calendar_today,
+                    const Icon(Icons.calendar_today,
                         size: 16, color: AppColors.textSecondaryColor),
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(
-                        '${startDate != null ? '${startDate.day}/${startDate.month}/${startDate.year}' : 'N/A'} - ${endDate != null ? '${endDate.day}/${endDate.month}/${endDate.year}' : 'N/A'}',
-                        style: TextStyle(
+                        '${startDate != null ? '${startDate.day}/${startDate.month}/${startDate.year}' : ArabicText.unknownDate} - ${endDate != null ? '${endDate.day}/${endDate.month}/${endDate.year}' : ArabicText.unknownDate}',
+                        style: const TextStyle(
                           color: AppColors.textSecondaryColor,
                           fontSize: 12,
                         ),
@@ -1766,8 +1798,8 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                         0) ...[
                   const SizedBox(height: 8),
                   Text(
-                    'Min: ${promotion['minimum_order_amount']}₪',
-                    style: TextStyle(
+                    '${ArabicText.minimumOrder}: ${promotion['minimum_order_amount']}₪',
+                    style: const TextStyle(
                       color: AppColors.textSecondaryColor,
                       fontSize: 12,
                     ),
@@ -1796,7 +1828,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
         });
       }
     } catch (e) {
-      _showSnackBar('Error loading coupons: $e', isError: true);
+      _showSnackBar('${ArabicText.errorLoadingCoupons}: $e', isError: true);
     } finally {
       setState(() {
         _isLoadingCoupons = false;
@@ -1851,7 +1883,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
           ),
           child: Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.search,
                 color: AppColors.primaryText,
                 size: 24,
@@ -1864,7 +1896,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                     _filterCoupons(q);
                   },
                   decoration: InputDecoration(
-                    hintText: 'Search coupons...',
+                    hintText: '${ArabicText.search} ${ArabicText.coupons}...',
                     border: InputBorder.none,
                     hintStyle: TextStyle(
                       color: AppColors.textSecondaryColor.withOpacity(0.7),
@@ -1899,49 +1931,48 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.white,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                      color: AppColors.primaryText.withValues(alpha: 0.2)),
+                  border: Border.all(color: AppColors.primaryText),
                 ),
                 child: DropdownButton<String>(
                   value: _selectedCouponStatus,
-                  hint: Text(
+                  hint: const Text(
                     ArabicText.all,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppColors.textSecondaryColor,
                     ),
                   ),
                   underline: Container(),
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.keyboard_arrow_down,
                     size: 16,
                     color: AppColors.primaryText,
                   ),
-                  items: [
+                  items: const [
                     DropdownMenuItem(
                       value: ArabicText.all,
                       child: Text(
                         ArabicText.all,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondaryColor,
-                        ),
-                      ),
-                    ),
-                    const DropdownMenuItem(
-                      value: 'active',
-                      child: Text(
-                        'Active',
                         style: TextStyle(
                           fontSize: 12,
                           color: AppColors.textSecondaryColor,
                         ),
                       ),
                     ),
-                    const DropdownMenuItem(
+                    DropdownMenuItem(
+                      value: 'active',
+                      child: Text(
+                        ArabicText.active,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondaryColor,
+                        ),
+                      ),
+                    ),
+                    DropdownMenuItem(
                       value: 'inactive',
                       child: Text(
-                        'Inactive',
+                        ArabicText.inactive,
                         style: TextStyle(
                           fontSize: 12,
                           color: AppColors.textSecondaryColor,
@@ -1961,7 +1992,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
               ElevatedButton.icon(
                 onPressed: _showAddCouponDialog,
                 icon: const Icon(Icons.add),
-                label: Text(ArabicText.addNewCoupon),
+                label: const Text(ArabicText.addNewCoupon),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryText,
                   foregroundColor: Colors.white,
@@ -1987,7 +2018,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
       return const Center(child: CircularProgressIndicator());
     }
     if (_filteredCoupons.isEmpty) {
-      return Center(
+      return const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -1996,9 +2027,9 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
               size: 64,
               color: AppColors.textSecondaryColor,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
-              'No coupons found',
+              ArabicText.noCouponsFound,
               style: TextStyle(
                 fontSize: 18,
                 color: AppColors.textSecondaryColor,
@@ -2062,7 +2093,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
           children: [
             Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.local_activity,
                   color: AppColors.primaryText,
                   size: 24,
@@ -2094,7 +2125,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                         children: [
                           Icon(Icons.edit),
                           SizedBox(width: 8),
-                          Text('Edit'),
+                          Text(ArabicText.edit),
                         ],
                       ),
                     ),
@@ -2104,7 +2135,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                         children: [
                           Icon(Icons.toggle_on),
                           SizedBox(width: 8),
-                          Text('Toggle Active'),
+                          Text(ArabicText.toggleActive),
                         ],
                       ),
                     ),
@@ -2114,20 +2145,21 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                         children: [
                           Icon(Icons.delete, color: Colors.red),
                           SizedBox(width: 8),
-                          Text('Delete', style: TextStyle(color: Colors.red)),
+                          Text(ArabicText.delete,
+                              style: TextStyle(color: Colors.red)),
                         ],
                       ),
                     ),
                   ],
-                  child: Icon(Icons.more_vert,
+                  child: const Icon(Icons.more_vert,
                       color: AppColors.textSecondaryColor),
                 ),
               ],
             ),
             const SizedBox(height: 10),
             Text(
-              coupon['description'] ?? 'No description',
-              style: TextStyle(
+              coupon['description'] ?? ArabicText.noSpecialNotes,
+              style: const TextStyle(
                 color: AppColors.textSecondaryColor,
                 fontSize: 14,
               ),
@@ -2144,7 +2176,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                   ),
                   child: Text(
                     discountDisplay,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: AppColors.primaryText,
                       fontWeight: FontWeight.bold,
                     ),
@@ -2161,7 +2193,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    isActive ? 'Active' : 'Inactive',
+                    isActive ? ArabicText.active : ArabicText.inactive,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
@@ -2177,13 +2209,13 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.calendar_today,
+                    const Icon(Icons.calendar_today,
                         size: 16, color: AppColors.textSecondaryColor),
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(
-                        '${validFrom != null ? '${validFrom.day}/${validFrom.month}/${validFrom.year}' : 'N/A'} - ${validUntil != null ? '${validUntil.day}/${validUntil.month}/${validUntil.year}' : 'N/A'}',
-                        style: TextStyle(
+                        '${validFrom != null ? '${validFrom.day}/${validFrom.month}/${validFrom.year}' : ArabicText.unknownDate} - ${validUntil != null ? '${validUntil.day}/${validUntil.month}/${validUntil.year}' : ArabicText.unknownDate}',
+                        style: const TextStyle(
                           color: AppColors.textSecondaryColor,
                           fontSize: 12,
                         ),
@@ -2198,8 +2230,8 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                         0) ...[
                   const SizedBox(height: 8),
                   Text(
-                    'Min: ${coupon['minimum_order_amount']}₪',
-                    style: TextStyle(
+                    '${ArabicText.minimumOrder}: ${coupon['minimum_order_amount']}₪',
+                    style: const TextStyle(
                       color: AppColors.textSecondaryColor,
                       fontSize: 12,
                     ),
@@ -2277,8 +2309,8 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    isEditing ? 'Edit Coupon' : 'Add New Coupon',
-                    style: TextStyle(
+                    isEditing ? ArabicText.editCoupon : ArabicText.addNewCoupon,
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: AppColors.primaryText,
@@ -2296,38 +2328,39 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildFormSection('Basic Information', [
-                        _buildTextField('Code', _codeController, Icons.code),
+                      _buildFormSection(ArabicText.basicInformation, [
                         _buildTextField(
-                            'Name', _couponNameController, Icons.title),
-                        _buildTextField('Description',
+                            ArabicText.couponCode, _codeController, Icons.code),
+                        _buildTextField(ArabicText.name, _couponNameController,
+                            Icons.title),
+                        _buildTextField(ArabicText.description,
                             _couponDescriptionController, Icons.description,
                             maxLines: 3),
                       ]),
-                      _buildFormSection('Discount Settings', [
+                      _buildFormSection(ArabicText.discountSettings, [
                         DropdownButtonFormField<String>(
                           value: _couponDiscountType,
                           decoration: InputDecoration(
-                            labelText: 'Discount Type',
+                            labelText: ArabicText.discountType,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(color: AppColors.primaryText),
+                              borderSide: const BorderSide(
+                                  color: AppColors.primaryText),
                             ),
                           ),
                           items: const [
                             DropdownMenuItem(
                                 value: 'percentage',
-                                child: Text('Percentage (%)')),
+                                child: Text(ArabicText.percentage)),
                             DropdownMenuItem(
                                 value: 'fixed_amount',
-                                child: Text('Fixed Amount (₪)')),
+                                child: Text(ArabicText.fixedAmount)),
                             DropdownMenuItem(
                                 value: 'free_shipping',
-                                child: Text('Free Shipping')),
+                                child: Text(ArabicText.freeShipping)),
                             DropdownMenuItem(
                                 value: 'buy_x_get_y',
-                                child: Text('Buy X Get Y')),
+                                child: Text(ArabicText.buyXGetY)),
                           ],
                           onChanged: (value) {
                             setState(() {
@@ -2336,37 +2369,38 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                           },
                         ),
                         const SizedBox(height: 15),
-                        _buildTextField('Discount Value',
+                        _buildTextField(ArabicText.discountValue,
                             _couponDiscountController, Icons.discount,
                             keyboardType: TextInputType.number),
-                        _buildTextField('Minimum Order Amount',
+                        _buildTextField(ArabicText.minimumOrderAmount,
                             _couponMinAmountController, Icons.attach_money,
                             keyboardType: TextInputType.number),
-                        _buildTextField('Maximum Discount Amount',
+                        _buildTextField(ArabicText.maximumDiscountAmount,
                             _couponMaxDiscountController, Icons.attach_money,
                             keyboardType: TextInputType.number),
-                        _buildTextField('Usage Limit',
+                        _buildTextField(ArabicText.usageLimit,
                             _couponUsageLimitController, Icons.block,
                             keyboardType: TextInputType.number),
-                        _buildTextField('Usage Limit Per User',
+                        _buildTextField(ArabicText.usageLimitPerUser,
                             _couponUsagePerUserController, Icons.person,
                             keyboardType: TextInputType.number),
                         const SizedBox(height: 15),
                         DropdownButtonFormField<String>(
                           value: _couponTargetAudience,
                           decoration: InputDecoration(
-                            labelText: 'Target Audience',
+                            labelText: ArabicText.targetAudience,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(color: AppColors.primaryText),
+                              borderSide: const BorderSide(
+                                  color: AppColors.primaryText),
                             ),
                           ),
                           items: const [
                             DropdownMenuItem(
-                                value: 'both', child: Text('All Customers')),
+                                value: 'both',
+                                child: Text(ArabicText.allCustomers)),
                             DropdownMenuItem(
-                                value: 'B2C', child: Text('B2C Only')),
+                                value: 'B2C', child: Text(ArabicText.b2cOnly)),
                           ],
                           onChanged: (value) {
                             setState(() {
@@ -2375,20 +2409,21 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                           },
                         ),
                       ]),
-                      _buildFormSection('Validity', [
-                        _buildDateField('Valid From', _couponValidFrom, (date) {
+                      _buildFormSection(ArabicText.validity, [
+                        _buildDateField(ArabicText.validFrom, _couponValidFrom,
+                            (date) {
                           setState(() {
                             _couponValidFrom = date;
                           });
                         }),
                         const SizedBox(height: 15),
-                        _buildDateField('Valid Until', _couponValidUntil,
-                            (date) {
+                        _buildDateField(
+                            ArabicText.validUntil, _couponValidUntil, (date) {
                           setState(() {
                             _couponValidUntil = date;
                           });
                         }),
-                        _buildSwitch('Active', _couponIsActive,
+                        _buildSwitch(ArabicText.active, _couponIsActive,
                             (value) => setState(() => _couponIsActive = value)),
                       ]),
                     ],
@@ -2408,7 +2443,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)),
                       ),
-                      child: const Text('Cancel'),
+                      child: const Text(ArabicText.cancel),
                     ),
                   ),
                   const SizedBox(width: 15),
@@ -2471,10 +2506,10 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
 
       if (isEditing && couponId != null) {
         await _apiService.put('/coupons/$couponId', data: couponData);
-        _showSnackBar('Coupon updated successfully');
+        _showSnackBar(ArabicText.couponUpdatedSuccessfully);
       } else {
         await _apiService.post('/coupons', data: couponData);
-        _showSnackBar('Coupon added successfully');
+        _showSnackBar(ArabicText.couponAddedSuccessfully);
       }
 
       Navigator.pop(context);
@@ -2488,17 +2523,17 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Coupon'),
-        content: const Text(
-            'Are you sure you want to delete this coupon? This action cannot be undone.'),
+        title: Text(ArabicText.deleteCoupon),
+        content: Text(
+            '${ArabicText.confirmDelete} ${ArabicText.coupons}؟ ${ArabicText.thisActionCannotBeUndone}'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
+              child: Text(ArabicText.cancel)),
           TextButton(
               onPressed: () => Navigator.pop(context, true),
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Delete')),
+              child: Text(ArabicText.delete)),
         ],
       ),
     );
@@ -2506,10 +2541,10 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
     if (confirmed == true) {
       try {
         await _apiService.delete('/coupons/$couponId');
-        _showSnackBar('Coupon deleted successfully');
+        _showSnackBar(ArabicText.couponDeleted);
         _loadCoupons();
       } catch (e) {
-        _showSnackBar('Error deleting coupon: $e', isError: true);
+        _showSnackBar('${ArabicText.errorDeletingCoupon}: $e', isError: true);
       }
     }
   }
@@ -2519,10 +2554,10 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
       final newActive = !(coupon['is_active'] == true);
       await _apiService.put('/coupons/${coupon['id']}/status',
           data: {'is_active': newActive});
-      _showSnackBar('Coupon status updated successfully');
+      _showSnackBar('${ArabicText.couponUpdatedSuccessfully}');
       _loadCoupons();
     } catch (e) {
-      _showSnackBar('Error updating coupon status: $e', isError: true);
+      _showSnackBar('${ArabicText.errorUpdatingCoupon}: $e', isError: true);
     }
   }
 
@@ -2541,8 +2576,8 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
-            'Minimum order amount required to activate this promotion (e.g., 50 for 20% off fruits)',
-            style: TextStyle(
+            ArabicText.minimumOrderHelp,
+            style: const TextStyle(
               color: AppColors.textSecondaryColor,
               fontSize: 12,
             ),

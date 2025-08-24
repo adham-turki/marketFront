@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/arabic_text.dart';
+import '../../../core/providers/notification_provider.dart';
 import 'products/admin_products_screen.dart';
 import 'users/admin_users_screen.dart';
 import 'orders/admin_orders_screen.dart';
 import 'promotions/admin_promotions_screen.dart';
+import '../../widgets/admin/notification_bell.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -61,17 +63,32 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Initialize notification service
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NotificationProvider>().initialize();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.primaryBackground,
       appBar: AppBar(
-        title: Text(
-          _currentPageTitle,
-          style: const TextStyle(color: Colors.white),
+        title: Flexible(
+          child: Text(
+            _currentPageTitle,
+            style: const TextStyle(color: Colors.white),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
         backgroundColor: AppColors.primaryText,
         foregroundColor: Colors.white,
         actions: [
+          // Notification Bell
+          const NotificationBell(),
+          // Logout Button
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
@@ -87,7 +104,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
+              color: Colors.black,
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -101,17 +118,9 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
             });
           },
           type: BottomNavigationBarType.fixed,
-          backgroundColor: AppColors.white,
-          selectedItemColor: AppColors.primaryText,
-          unselectedItemColor: AppColors.textSecondaryColor,
-          selectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 12,
-          ),
-          unselectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 12,
-          ),
+          backgroundColor: Colors.white,
+          selectedItemColor: AppColors.primaryColor,
+          unselectedItemColor: Colors.grey[600],
           items: _bottomNavItems,
         ),
       ),

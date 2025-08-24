@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_colors.dart';
+import '../../../../../core/constants/arabic_text.dart';
 
 class PromotionSettingsSection extends StatelessWidget {
   final String promotionType;
@@ -23,12 +24,12 @@ class PromotionSettingsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _buildFormSection('Promotion Settings', [
+    return _buildFormSection(ArabicText.promotionSettings, [
       _buildPromotionTypeDropdown(),
       const SizedBox(height: 15),
       if (promotionType != 'free_shipping') ...[
         _buildTextField(
-          'Discount Value',
+          ArabicText.discountValue,
           discountController,
           Icons.discount,
           keyboardType: TextInputType.number,
@@ -37,14 +38,14 @@ class PromotionSettingsSection extends StatelessWidget {
       _buildHelpText(),
       if (promotionType != 'free_shipping') ...[
         _buildTextField(
-          'Minimum Order Amount',
+          ArabicText.minimumOrderAmount,
           minAmountController,
           Icons.attach_money,
           keyboardType: TextInputType.number,
         ),
         _buildMinOrderHelpText(),
         _buildTextField(
-          'Maximum Discount Amount',
+          ArabicText.maximumDiscountAmount,
           maxDiscountController,
           Icons.attach_money,
           keyboardType: TextInputType.number,
@@ -56,16 +57,16 @@ class PromotionSettingsSection extends StatelessWidget {
           children: [
             Expanded(
               child: _buildTextField(
-                'Buy X Quantity',
+                ArabicText.buyQuantity,
                 buyXController,
                 Icons.shopping_cart,
                 keyboardType: TextInputType.number,
               ),
             ),
-            const SizedBox(width: 15),
+            const SizedBox(height: 15),
             Expanded(
               child: _buildTextField(
-                'Get Y Quantity',
+                ArabicText.getQuantity,
                 getYController,
                 Icons.card_giftcard,
                 keyboardType: TextInputType.number,
@@ -100,28 +101,28 @@ class PromotionSettingsSection extends StatelessWidget {
     return DropdownButtonFormField<String>(
       value: promotionType,
       decoration: InputDecoration(
-        labelText: 'Promotion Type',
+        labelText: ArabicText.promotionType,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: AppColors.primaryText),
         ),
       ),
-      items: [
-        const DropdownMenuItem(
+      items: const [
+        DropdownMenuItem(
           value: 'percentage',
-          child: Text('Percentage (%)'),
+          child: Text(ArabicText.percentage),
         ),
-        const DropdownMenuItem(
+        DropdownMenuItem(
           value: 'fixed_amount',
-          child: Text('Fixed Amount (₪)'),
+          child: Text(ArabicText.fixedAmount),
         ),
-        const DropdownMenuItem(
+        DropdownMenuItem(
           value: 'free_shipping',
-          child: Text('Free Shipping'),
+          child: Text(ArabicText.freeShipping),
         ),
-        const DropdownMenuItem(
+        DropdownMenuItem(
           value: 'buy_x_get_y',
-          child: Text('Buy X Get Y'),
+          child: Text(ArabicText.buyXGetY),
         ),
       ],
       onChanged: onPromotionTypeChanged,
@@ -176,7 +177,7 @@ class PromotionSettingsSection extends StatelessWidget {
         children: [
           SizedBox(height: 8),
           Text(
-            'Enter percentage (e.g., 20 for 20% off)',
+            ArabicText.percentageHelpText,
             style: TextStyle(
               color: AppColors.textSecondaryColor,
               fontSize: 12,
@@ -191,7 +192,7 @@ class PromotionSettingsSection extends StatelessWidget {
         children: [
           SizedBox(height: 8),
           Text(
-            'Enter amount in ILS (e.g., 10 for 10₪ off)',
+            ArabicText.fixedAmountHelpText,
             style: TextStyle(
               color: AppColors.textSecondaryColor,
               fontSize: 12,
@@ -206,7 +207,7 @@ class PromotionSettingsSection extends StatelessWidget {
         children: [
           SizedBox(height: 8),
           Text(
-            'Buy X Get Y promotion - select products below',
+            ArabicText.buyXGetYHelpText,
             style: TextStyle(
               color: AppColors.textSecondaryColor,
               fontSize: 12,
@@ -225,7 +226,7 @@ class PromotionSettingsSection extends StatelessWidget {
       children: [
         SizedBox(height: 8),
         Text(
-          'Minimum order amount required to activate this promotion',
+          ArabicText.minimumOrderHelp,
           style: TextStyle(
             color: AppColors.textSecondaryColor,
             fontSize: 12,

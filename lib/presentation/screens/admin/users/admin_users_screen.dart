@@ -4,6 +4,7 @@ import '../../../../core/constants/arabic_text.dart';
 import '../../../../core/network/api_service.dart';
 import '../../../widgets/admin/auth_wrapper.dart';
 import 'user_details_screen.dart';
+import 'add_user_screen.dart';
 
 class AdminUsersScreen extends StatefulWidget {
   const AdminUsersScreen({super.key});
@@ -76,7 +77,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         });
       }
     } catch (e) {
-      _showSnackBar('Error loading users: $e', isError: true);
+      _showSnackBar('${ArabicText.errorLoadingUsers}: $e', isError: true);
     } finally {
       setState(() {
         _isLoading = false;
@@ -105,11 +106,19 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
   }
 
   void _openAddUserDialog() {
-    _resetForm();
-    setState(() {
-      _showAddUserDialog = true;
-      _editingUser = null;
-    });
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddUserScreen(
+          onUserAdded: (newUser) {
+            setState(() {
+              _users.insert(0, newUser);
+              _filteredUsers.insert(0, newUser);
+            });
+          },
+        ),
+      ),
+    );
   }
 
   void _showEditUserDialog(Map<String, dynamic> user) {
@@ -178,7 +187,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       _resetForm();
       _loadUsers();
     } catch (e) {
-              _showSnackBar('${ArabicText.errorSavingUser}: $e', isError: true);
+      _showSnackBar('${ArabicText.errorSavingUser}: $e', isError: true);
     }
   }
 
@@ -188,7 +197,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       builder: (context) => AlertDialog(
         title: const Text(ArabicText.confirm),
         content: const Text(
-          'هل أنت متأكد من حذف هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء.',
+          ArabicText.confirmDeleteUser,
         ),
         actions: [
           TextButton(
@@ -230,76 +239,10 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
   }
 
   void _showUserDetails(Map<String, dynamic> user) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: AppColors.secondaryBackground,
-              child: Text(
-                (user['full_name'] ?? 'U')[0].toUpperCase(),
-                style: TextStyle(
-                  color: AppColors.primaryText,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                user['full_name'] ?? 'Unnamed User',
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildDetailRow('Full Name', user['full_name'] ?? 'N/A'),
-              _buildDetailRow('Phone', user['phone'] ?? 'N/A'),
-              _buildDetailRow('Role', user['role'] ?? 'N/A'),
-              _buildDetailRow('Status', user['status'] ?? 'N/A'),
-              _buildDetailRow('Phone Verified',
-                  user['phone_verified'] == true ? 'Yes' : 'No'),
-              if (user['company_name'] != null)
-                _buildDetailRow('Company', user['company_name']),
-              _buildDetailRow(
-                  'Last Login',
-                  user['last_login'] != null
-                      ? DateTime.parse(user['last_login'])
-                          .toString()
-                          .split('.')[0]
-                      : 'Never'),
-              _buildDetailRow(
-                  'Created',
-                  user['created_at'] != null
-                      ? DateTime.parse(user['created_at'])
-                          .toString()
-                          .split(' ')[0]
-                      : 'N/A'),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(ArabicText.close),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _showEditUserDialog(user);
-            },
-            child: const Text(ArabicText.edit),
-          ),
-        ],
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UserDetailsScreen(user: user),
       ),
     );
   }
@@ -357,6 +300,17 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
                 child: Row(
                   children: [
                     Expanded(
@@ -372,7 +326,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
+                            borderSide: const BorderSide(
                                 color: AppColors.primaryColor, width: 2),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
@@ -388,6 +342,13 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         color: Colors.grey.shade100,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: Colors.grey.shade300),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.02),
+                            blurRadius: 3,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -396,7 +357,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                               size: 16, color: Colors.grey.shade600),
                           const SizedBox(width: 4),
                           Text(
-                            '${_filteredUsers.length} results',
+                            '${_filteredUsers.length} ${ArabicText.results}',
                             style: TextStyle(
                                 fontSize: 12, color: Colors.grey.shade600),
                           ),
@@ -428,7 +389,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                                   _searchQuery.isEmpty
                                       ? ArabicText.noCustomersYet
                                       : ArabicText.noCustomersFound,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 16,
                                     color: AppColors.textSecondaryColor,
                                   ),
@@ -437,7 +398,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                                   const SizedBox(height: 8),
                                   Text(
                                     '${ArabicText.addYourFirst} ${ArabicText.users.toLowerCase()} ${ArabicText.toGetStarted}',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 12,
                                       color: AppColors.textSecondaryColor,
                                     ),
@@ -487,7 +448,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           border: Border.all(color: Colors.grey.shade200),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Colors.black,
               blurRadius: 4,
               offset: const Offset(0, 1),
             ),
@@ -522,7 +483,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       children: [
                         Expanded(
                           child: Text(
-                            user['full_name'] ?? 'Unnamed User',
+                            user['full_name'] ?? ArabicText.unnamedUser,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -541,6 +502,13 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                                 ? AppColors.successColor
                                 : Colors.grey.shade300,
                             borderRadius: BorderRadius.circular(4),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 3,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
                           ),
                           child: Text(
                             isActive ? ArabicText.active : ArabicText.inactive,
@@ -562,7 +530,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                             size: 12, color: Colors.grey.shade600),
                         const SizedBox(width: 4),
                         Text(
-                          user['phone'] ?? 'No phone',
+                          user['phone'] ?? ArabicText.noPhone,
                           style: TextStyle(
                             color: Colors.grey.shade600,
                             fontSize: 12,
@@ -570,7 +538,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         ),
                         const SizedBox(width: 8),
                         if (isPhoneVerified)
-                          Icon(Icons.verified,
+                          const Icon(Icons.verified,
                               size: 12, color: AppColors.successColor),
                       ],
                     ),
@@ -619,7 +587,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   // View details button
                   IconButton(
                     onPressed: () => _showUserDetails(user),
-                    icon: Icon(Icons.info_outline,
+                    icon: const Icon(Icons.info_outline,
                         size: 18, color: AppColors.primaryColor),
                     tooltip: ArabicText.viewDetails,
                     padding: const EdgeInsets.all(4),
@@ -629,7 +597,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   // Edit button
                   IconButton(
                     onPressed: () => _showEditUserDialog(user),
-                    icon: Icon(Icons.edit,
+                    icon: const Icon(Icons.edit,
                         size: 18, color: AppColors.secondaryColor),
                     tooltip: ArabicText.editUser,
                     padding: const EdgeInsets.all(4),
@@ -672,9 +640,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               // Dialog Header
               Container(
                 padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.primaryColor,
-                  borderRadius: const BorderRadius.only(
+                  borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(12),
                     topRight: Radius.circular(12),
                   ),
@@ -823,7 +791,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                                   labelText: ArabicText.status,
                                   border: OutlineInputBorder(),
                                 ),
-                                items: [
+                                items: const [
                                   DropdownMenuItem(
                                       value: 'active',
                                       child: Text(ArabicText.active)),

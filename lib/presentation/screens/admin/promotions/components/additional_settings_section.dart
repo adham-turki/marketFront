@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_colors.dart';
+import '../../../../../core/constants/arabic_text.dart';
 
 class AdditionalSettingsSection extends StatelessWidget {
   final TextEditingController usageLimitController;
@@ -45,35 +46,34 @@ class AdditionalSettingsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _buildFormSection('Additional Settings', [
+    return _buildFormSection('الإعدادات الإضافية', [
       _buildTextField(
-        'Usage Limit',
+        ArabicText.usageLimit,
         usageLimitController,
         Icons.people,
         keyboardType: TextInputType.number,
-        hint: 'Total number of times this promotion can be used',
+        hint: 'إجمالي عدد مرات استخدام هذا العرض',
       ),
       _buildTextField(
-        'Usage Per User',
+        ArabicText.usageLimitPerUser,
         usagePerUserController,
         Icons.person,
         keyboardType: TextInputType.number,
-        hint: 'Maximum times a single user can use this promotion',
+        hint: 'الحد الأقصى لعدد مرات استخدام المستخدم الواحد لهذا العرض',
       ),
       _buildTextField(
-        'Max Quantity Per Product',
+        ArabicText.maxQuantityPerProduct,
         maxQuantityPerProductController,
         Icons.inventory,
         keyboardType: TextInputType.number,
-        hint: 'Maximum quantity of each product that can be discounted',
+        hint: 'الحد الأقصى لكمية كل منتج التي يمكن خصمها',
       ),
       _buildTextField(
-        'Usage Limit Per Product',
+        ArabicText.usageLimitPerProduct,
         usageLimitPerProductController,
         Icons.local_offer,
         keyboardType: TextInputType.number,
-        hint:
-            'When this limit is reached, the product is excluded from promotion',
+        hint: 'عند الوصول إلى هذا الحد، لن يكون المنتج مؤهلاً للعرض',
       ),
       _buildDateFields(context),
       _buildCheckboxes(),
@@ -147,9 +147,9 @@ class AdditionalSettingsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Promotion Period',
-          style: const TextStyle(
+        const Text(
+          'فترة العرض',
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
             color: AppColors.primaryText,
@@ -161,7 +161,7 @@ class AdditionalSettingsSection extends StatelessWidget {
             Expanded(
               child: _buildDateField(
                 context,
-                'Start Date',
+                ArabicText.startDate,
                 startDate,
                 onStartDateChanged,
                 Icons.calendar_today,
@@ -171,7 +171,7 @@ class AdditionalSettingsSection extends StatelessWidget {
             Expanded(
               child: _buildDateField(
                 context,
-                'End Date',
+                ArabicText.endDate,
                 endDate,
                 onEndDateChanged,
                 Icons.calendar_today,
@@ -220,6 +220,13 @@ class AdditionalSettingsSection extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border.all(color: AppColors.primaryText),
               borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Row(
               children: [
@@ -229,7 +236,7 @@ class AdditionalSettingsSection extends StatelessWidget {
                   child: Text(
                     date != null
                         ? '${date.day}/${date.month}/${date.year}'
-                        : 'Select date',
+                        : ArabicText.selectDate,
                     style: TextStyle(
                       color: date != null
                           ? AppColors.primaryText
@@ -250,26 +257,26 @@ class AdditionalSettingsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildCheckboxTile(
-          'Active',
-          'Enable this promotion',
+          ArabicText.active,
+          'تفعيل هذا العرض',
           isActive,
           (value) => onActiveChanged(value),
         ),
         _buildCheckboxTile(
-          'Featured',
-          'Show this promotion prominently (explains what featured means)',
+          ArabicText.featured,
+          'إظهار هذا العرض بشكل بارز (يشرح ما يعنيه المميز)',
           isFeatured,
           (value) => onFeaturedChanged(value),
         ),
         _buildCheckboxTile(
-          'Stackable',
-          'Can be combined with other promotions (explains what stackable means)',
+          ArabicText.stackable,
+          'يمكن دمجه مع عروض أخرى (يشرح ما يعنيه قابل للتجميع)',
           isStackable,
           (value) => onStackableChanged(value),
         ),
         _buildCheckboxTile(
-          'Requires Coupon',
-          'Users must enter a coupon code to activate this promotion',
+          ArabicText.requiresCoupon,
+          'يجب على المستخدمين إدخال رمز كوبون لتفعيل هذا العرض',
           requiresCoupon,
           (value) => onRequiresCouponChanged(value),
         ),
@@ -310,9 +317,9 @@ class AdditionalSettingsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Priority',
-          style: const TextStyle(
+        const Text(
+          'الأولوية',
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
             color: AppColors.primaryText,

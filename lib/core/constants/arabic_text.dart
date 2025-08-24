@@ -93,6 +93,7 @@ class ArabicText {
   static const String orderStatus = 'حالة الطلب';
   static const String orderTotal = 'إجمالي الطلب';
   static const String orderDetails = 'تفاصيل الطلب';
+  static const String orderItems = 'عناصر الطلب';
   static const String customerName = 'اسم العميل';
   static const String customerEmail = 'بريد العميل';
   static const String orderHistory = 'سجل الطلبات';
@@ -127,6 +128,7 @@ class ArabicText {
   static const String pleaseSelectProducts = 'يرجى اختيار منتجات';
   static const String pleaseSelectStatus = 'يرجى اختيار الحالة';
   static const String pleaseSelectUser = 'يرجى اختيار مستخدم';
+  static const String category = 'فئة';
 
   // Error Messages
   static const String errorAddingProduct = 'خطأ في إضافة المنتج';
@@ -229,6 +231,161 @@ class ArabicText {
   static const String noCustomersYet = 'لا يوجد عملاء بعد';
   static const String noCustomersFound = 'لم يتم العثور على عملاء';
 
+  // Additional User Management
+  static const String user = 'مستخدم';
+  static const String details = 'التفاصيل';
+  static const String profileInformation = 'معلومات الملف الشخصي';
+  static const String userStatistics = 'إحصائيات المستخدم';
+  static const String joined = 'تاريخ الانضمام';
+  static const String lastUpdated = 'آخر تحديث';
+  static const String noOrdersFound = 'لم يتم العثور على طلبات';
+  static const String userId = 'معرف المستخدم';
+  static const String noOrdersMessage =
+      'لم يقم هذا المستخدم بوضع أي طلبات بعد، أو قد تكون هناك مشكلة في الاتصال بقاعدة البيانات.';
+  static const String date = 'التاريخ';
+  static const String owner = 'مالك';
+
+  // Time Units
+  static const String year = 'سنة';
+  static const String years = 'سنوات';
+  static const String month = 'شهر';
+  static const String months = 'أشهر';
+  static const String day = 'يوم';
+  static const String days = 'أيام';
+
+  // Additional Admin Text
+  static const String errorLoadingUsers = 'خطأ في تحميل المستخدمين';
+  static const String confirmDeleteUser =
+      'هل أنت متأكد من حذف هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء.';
+  static const String unnamedUser = 'مستخدم بدون اسم';
+  static const String lastLogin = 'آخر تسجيل دخول';
+  static const String never = 'أبداً';
+  static const String created = 'تاريخ الإنشاء';
+  static const String results = 'نتيجة';
+
+  // Order Management
+  static const String errorLoadingOrders = 'خطأ في تحميل الطلبات';
+  static const String errorUpdatingOrderStatus = 'خطأ في تحديث حالة الطلب';
+  static const String errorUpdatingPaymentStatus = 'خطأ في تحديث حالة الدفع';
+  static const String confirmCancelOrder =
+      'هل أنت متأكد من إلغاء هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.';
+  static const String yesCancel = 'نعم، إلغاء';
+  static const String errorCancellingOrder = 'خطأ في إلغاء الطلب';
+  static const String realTimeOrderInsights = 'رؤى الطلبات في الوقت الفعلي';
+  static const String order = 'طلب';
+  static const String phone = 'هاتف';
+  static const String updateOrder = 'تحديث الطلب';
+
+  // Promotion and Coupon Management
+  static const String basicInformation = 'المعلومات الأساسية';
+  static const String discountSettings = 'إعدادات الخصم';
+  static const String discountType = 'نوع الخصم';
+  static const String percentage = 'نسبة مئوية (%)';
+  static const String fixedAmount = 'مبلغ ثابت (₪)';
+  static const String freeShipping = 'شحن مجاني';
+  static const String buyXGetY = 'اشترِ X واحصل على Y';
+  static const String discountValue = 'قيمة الخصم';
+  static const String minimumOrderAmount = 'الحد الأدنى لمبلغ الطلب';
+  static const String maximumDiscountAmount = 'الحد الأقصى لمبلغ الخصم';
+  static const String usageLimitPerUser = 'حد الاستخدام لكل مستخدم';
+  static const String targetAudience = 'الجمهور المستهدف';
+  static const String allCustomers = 'جميع العملاء';
+  static const String b2cOnly = 'B2C فقط';
+  static const String validity = 'الصلاحية';
+  static const String validFrom = 'صالح من';
+  static const String validUntil = 'صالح حتى';
+
+  // Product Management
+  static const String errorLoadingProducts = 'خطأ في تحميل المنتجات';
+  static const String errorLoadingCategories = 'خطأ في تحميل الفئات';
+  static const String errorLoadingPromotions = 'خطأ في تحميل العروض';
+  static const String errorLoadingCoupons = 'خطأ في تحميل الكوبونات';
+  static const String pleaseEnterPromotionName = 'يرجى إدخال اسم العرض';
+  static const String pleaseEnterDiscountValue = 'يرجى إدخال قيمة الخصم';
+  static const String freeShippingNoDiscount =
+      'عروض الشحن المجاني لا تحتاج إلى قيمة خصم';
+  static const String pleaseEnterValidPercentage =
+      'يرجى إدخال نسبة مئوية صحيحة';
+  static const String pleaseEnterValidAmount = 'يرجى إدخال مبلغ صحيح';
+  static const String pleaseSelectDates = 'يرجى اختيار تاريخ البداية والانتهاء';
+  static const String endDateBeforeStart =
+      'تاريخ الانتهاء لا يمكن أن يكون قبل تاريخ البداية';
+  static const String freeShippingAllProducts =
+      'عروض الشحن المجاني تنطبق على جميع المنتجات';
+  static const String buyXGetYRequiresProducts =
+      'عروض اشترِ X واحصل على Y تتطلب اختيار منتجات محددة';
+  static const String pleaseSelectProductsForPromotion =
+      'يرجى اختيار منتج واحد على الأقل لهذا العرض';
+  static const String buyXGreaterThanY =
+      'كمية الشراء X يجب أن تكون أكبر من أو تساوي كمية الحصول Y';
+  static const String pleaseEnterValidQuantities =
+      'يرجى إدخال كميات صحيحة لعرض اشترِ X واحصل على Y';
+  static const String promotionUpdatedSuccessfully = 'تم تحديث العرض بنجاح';
+  static const String promotionAddedSuccessfully = 'تم إضافة العرض بنجاح';
+  static const String couponUpdatedSuccessfully = 'تم تحديث الكوبون بنجاح';
+  static const String couponAddedSuccessfully = 'تم إضافة الكوبون بنجاح';
+  static const String sku = 'رمز المنتج';
+  static const String barcode = 'الباركود';
+  static const String pricing = 'التسعير';
+  static const String inventory = 'المخزون';
+  static const String minStockLevel = 'الحد الأدنى للمخزون';
+  static const String maxStockLevel = 'الحد الأقصى للمخزون';
+  static const String images = 'الصور';
+  static const String clickToSelectImages =
+      'انقر لاختيار صور متعددة من معرض الصور';
+  static const String imageError = 'خطأ في الصورة';
+  static const String confirmDeleteProduct =
+      'هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.';
+  static const String confirmDeleteCategory =
+      'هل أنت متأكد من حذف هذه الفئة؟ لا يمكن التراجع عن هذا الإجراء.';
+  static const String categoryNameRequired = 'اسم الفئة مطلوب';
+  static const String productWithoutName = 'منتج بدون اسم';
+  static const String clearAllFilters = 'مسح جميع الفلاتر';
+
+  // Additional Promotion Text
+  static const String promotionSettings = 'إعدادات العرض';
+  static const String percentageHelpText =
+      'أدخل النسبة المئوية (مثال: 20 لخصم 20%)';
+  static const String fixedAmountHelpText =
+      'أدخل المبلغ بالشيكل (مثال: 10 لخصم 10₪)';
+  static const String buyXGetYHelpText =
+      'عرض اشترِ X واحصل على Y - اختر المنتجات أدناه';
+  static const String maxQuantityPerProduct = 'الحد الأقصى للكمية لكل منتج';
+  static const String usageLimitPerProduct = 'حد الاستخدام لكل منتج';
+  static const String buyQuantity = 'كمية الشراء (X)';
+  static const String getQuantity = 'كمية الحصول (Y)';
+  static const String allCustomersText = 'هذا العرض ينطبق على جميع العملاء';
+  static const String scope = 'النطاق';
+  static const String allProducts = 'جميع المنتجات';
+  static const String specificProducts = 'منتجات محددة';
+  static const String productSelection = 'اختيار المنتجات';
+  static const String dateRange = 'نطاق التاريخ';
+  static const String activePromotion = 'عرض نشط';
+  static const String featured = 'مميز';
+  static const String stackable = 'قابل للتجميع';
+  static const String requiresCoupon = 'يتطلب كوبون';
+
+  // Notification System
+  static const String notifications = 'الإشعارات';
+  static const String markAllAsRead = 'تحديد الكل كمقروء';
+  static const String unread = 'غير مقروء';
+  static const String urgent = 'عاجل';
+  static const String noNotificationsYet = 'لا توجد إشعارات بعد';
+  static const String noUnreadNotifications = 'لا توجد إشعارات غير مقروءة';
+  static const String noUrgentNotifications = 'لا توجد إشعارات عاجلة';
+  static const String markAsRead = 'تحديد كمقروء';
+  static const String justNow = 'الآن';
+  static const String minutesAgo = 'دقائق مضت';
+  static const String hoursAgo = 'ساعات مضت';
+  static const String daysAgo = 'أيام مضت';
+  static const String navigatingTo = 'الانتقال إلى';
+  static const String importantAlerts = 'تنبيهات مهمة';
+  static const String urgentNotifications = 'إشعارات عاجلة';
+  static const String lowStockProducts = 'منتجات منخفضة المخزون';
+  static const String unreadNotifications = 'إشعارات غير مقروءة';
+  static const String viewAll = 'عرض الكل';
+  static const String items = 'عناصر';
+
   // Form Labels
   static const String name = 'الاسم';
   static const String description = 'الوصف';
@@ -301,6 +458,7 @@ class ArabicText {
 
   // Units
   static const String piece = 'قطعة';
+  static const String each = 'لكل';
   static const String kg = 'كجم';
   static const String gram = 'جرام';
   static const String liter = 'لتر';
@@ -326,7 +484,6 @@ class ArabicText {
   static const String totalUsers = 'إجمالي المستخدمين';
   static const String totalRevenue = 'إجمالي الإيرادات';
   static const String averageOrderValue = 'متوسط قيمة الطلب';
-  static const String lowStockProducts = 'المنتجات منخفضة المخزون';
   static const String outOfStockProducts = 'المنتجات نافدة المخزون';
   static const String featuredProducts = 'المنتجات المميزة';
   static const String activeProducts = 'المنتجات النشطة';
@@ -359,6 +516,7 @@ class ArabicText {
   static const String notes = 'ملاحظات';
   static const String noSpecialNotes = 'لا توجد ملاحظات خاصة';
   static const String shippingAddress = 'عنوان الشحن';
+  static const String billing = 'الفوترة';
   static const String billingAddress = 'عنوان الفوترة';
   static const String noAddressProvided = 'لم يتم توفير عنوان';
   static const String subtotal = 'المجموع الفرعي';
@@ -366,7 +524,6 @@ class ArabicText {
   static const String shipping = 'الشحن';
   static const String discount = 'الخصم';
   static const String total = 'الإجمالي';
-  static const String items = 'العناصر';
   static const String updateStatus = 'تحديث الحالة';
   static const String overview = 'نظرة عامة';
   static const String ordersWillAppearHere =
@@ -387,4 +544,47 @@ class ArabicText {
   static const String userNotFound = 'المستخدم غير موجود';
   static const String promotionNotFound = 'العرض غير موجود';
   static const String couponNotFound = 'الكوبون غير موجود';
+
+  // Promotions and Coupons Additional Text
+  static const String helpAndInformation = 'المساعدة والمعلومات';
+  static const String featuredDescription =
+      'العروض المميزة ستظهر بشكل بارز للعملاء وتظهر أولاً في القوائم';
+  static const String stackableDescription =
+      'عند التمكين، يمكن دمج هذا العرض مع العروض والكوبونات الأخرى';
+  static const String maxQuantityPerProductDescription =
+      'يحد من عدد كل منتج يمكن للعميل شراؤه بهذا العرض';
+  static const String usageLimitPerProductDescription =
+      'عند الوصول إليه، لن يكون هذا المنتج المحدد مؤهلاً للعرض';
+  static const String chooseCategoriesForPromotion = 'اختر الفئات لهذا العرض';
+  static const String chooseProductsForPromotion = 'اختر المنتجات لهذا العرض';
+  static const String selected = 'مختار';
+  static const String searchPromotions = 'البحث في العروض...';
+  static const String noPromotionsFound = 'لم يتم العثور على عروض';
+  static const String noCouponsFound = 'لم يتم العثور على كوبونات';
+  static const String confirmDeletePromotion =
+      'هل أنت متأكد من أنك تريد حذف هذا العرض؟ لا يمكن التراجع عن هذا الإجراء.';
+  static const String toggleActive = 'تبديل النشاط';
+  static const String selectDate = 'اختر التاريخ';
+  static const String thisPromotionAppliesToAllProducts =
+      'هذا العرض ينطبق على جميع المنتجات';
+
+  // Payment Status
+  static const String pendingPayment = 'في الانتظار';
+  static const String paid = 'مدفوع';
+  static const String failed = 'فشل';
+  static const String partiallyRefunded = 'مسترد جزئياً';
+  static const String done = 'تم';
+  static const String paymentStatus = 'حالة الدفع';
+
+  // Additional Order Management
+  static const String orderStatusUpdatedSuccessfully =
+      'تم تحديث حالة الطلب بنجاح';
+  static const String errorSavingChanges = 'خطأ في حفظ التغييرات';
+
+  // Image Related
+  static const String pleaseSelectAtLeastOneImage =
+      'يرجى اختيار صورة واحدة على الأقل';
+
+  // Additional User Management
+  static const String errorCreatingUser = 'خطأ في إنشاء المستخدم';
 }

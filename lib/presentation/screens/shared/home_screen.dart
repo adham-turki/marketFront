@@ -117,7 +117,7 @@ class HomeScreen extends StatelessWidget {
                       Icon(
                         Icons.shopping_cart,
                         size: 100,
-                        color: AppColors.primaryText.withValues(alpha: 0.3),
+                        color: AppColors.primaryText,
                       ),
                       const SizedBox(height: 20),
                       Text(

@@ -33,15 +33,10 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     });
 
     try {
-      print('Loading orders for user ID: ${widget.user['id']}');
-
       // Load user orders using admin endpoint with customer_id filter
       final ordersResponse = await _apiService.get(
         '/orders/admin?customer_id=${widget.user['id']}&limit=100',
       );
-
-      print('Orders response status: ${ordersResponse.statusCode}');
-      print('Orders response data: ${ordersResponse.data}');
 
       if (ordersResponse.statusCode == 200 && ordersResponse.data['success']) {
         setState(() {
@@ -49,8 +44,6 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
             ordersResponse.data['orders'] ?? [],
           );
         });
-        print(
-            'Loaded ${_userOrders.length} orders for user ${widget.user['id']}');
 
         // Calculate user statistics from orders
         _calculateUserStats();
@@ -74,7 +67,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         'total_spent': 0.0,
         'average_order_value': 0.0,
         'last_order_date': null,
-        'favorite_category': 'N/A',
+        'favorite_category': ArabicText.none,
         'account_age': _calculateAccountAge(),
       };
       return;
@@ -117,7 +110,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     }
 
     // Find favorite category
-    String favoriteCategory = 'N/A';
+    String favoriteCategory = ArabicText.none;
     int maxCount = 0;
     for (final entry in categoryCount.entries) {
       if (entry.value > maxCount) {
@@ -145,7 +138,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
       backgroundColor: AppColors.primaryBackground,
       appBar: AppBar(
         title: Text(
-          '${widget.user['full_name'] ?? widget.user['username'] ?? 'User'} Details',
+          '${widget.user['full_name'] ?? widget.user['username'] ?? ArabicText.user} ${ArabicText.details}',
           style: const TextStyle(
             color: AppColors.primaryText,
             fontWeight: FontWeight.bold,
@@ -183,44 +176,52 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
 
   Widget _buildUserProfileSection() {
     return _buildInfoCard(
-      title: 'Profile Information',
+      title: ArabicText.profileInformation,
       icon: Icons.person,
       children: [
-        _buildInfoRow('Full Name', widget.user['full_name'] ?? 'N/A'),
-        _buildInfoRow('Username', widget.user['username'] ?? 'N/A'),
-        _buildInfoRow('Email', widget.user['email'] ?? 'N/A'),
-        _buildInfoRow('Phone', widget.user['phone'] ?? 'N/A'),
-        _buildInfoRow('Role', _getUserRole()),
-        _buildInfoRow('Status', _getUserStatus()),
-        _buildInfoRow('Joined', _formatDate(widget.user['created_at'])),
-        _buildInfoRow('Last Updated', _formatDate(widget.user['updated_at'])),
+        _buildInfoRow(
+            ArabicText.fullName, widget.user['full_name'] ?? ArabicText.none),
+        _buildInfoRow(
+            ArabicText.userName, widget.user['username'] ?? ArabicText.none),
+        _buildInfoRow(
+            ArabicText.email, widget.user['email'] ?? ArabicText.none),
+        _buildInfoRow(
+            ArabicText.phoneNumber, widget.user['phone'] ?? ArabicText.none),
+        _buildInfoRow(ArabicText.role, _getUserRole()),
+        _buildInfoRow(ArabicText.status, _getUserStatus()),
+        _buildInfoRow(
+            ArabicText.joined, _formatDate(widget.user['created_at'])),
+        _buildInfoRow(
+            ArabicText.lastUpdated, _formatDate(widget.user['updated_at'])),
       ],
     );
   }
 
   Widget _buildUserStatsSection() {
     return _buildInfoCard(
-      title: 'User Statistics',
+      title: ArabicText.userStatistics,
       icon: Icons.analytics,
       children: [
-        _buildStatRow(
-            'Total Orders', _userStats['total_orders']?.toString() ?? '0'),
-        _buildStatRow('Total Spent',
+        _buildStatRow(ArabicText.totalOrders,
+            _userStats['total_orders']?.toString() ?? '0'),
+        _buildStatRow(ArabicText.totalSpent,
             '${_formatCurrency(_userStats['total_spent'] ?? 0)}₪'),
-        _buildStatRow('Average Order Value',
+        _buildStatRow(ArabicText.averageOrderValue,
             '${_formatCurrency(_userStats['average_order_value'] ?? 0)}₪'),
         _buildStatRow(
-            'Last Order Date', _formatDate(_userStats['last_order_date'])),
-        _buildStatRow(
-            'Favorite Category', _userStats['favorite_category'] ?? 'N/A'),
-        _buildStatRow('Account Age', _userStats['account_age'] ?? 'N/A'),
+            ArabicText.lastOrder, _formatDate(_userStats['last_order_date'])),
+        _buildStatRow(ArabicText.favoriteCategory,
+            _userStats['favorite_category'] ?? ArabicText.none),
+        _buildStatRow(ArabicText.accountAge,
+            _userStats['account_age'] ?? ArabicText.none),
       ],
     );
   }
 
   Widget _buildUserOrdersSection() {
     return _buildInfoCard(
-      title: 'Order History (${_userOrders.length} orders)',
+      title:
+          '${ArabicText.orderHistory} (${_userOrders.length} ${ArabicText.orders})',
       icon: Icons.shopping_bag,
       children: [
         if (_userOrders.isEmpty)
@@ -229,7 +230,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
             child: Column(
               children: [
                 const Text(
-                  'No orders found',
+                  ArabicText.noOrdersFound,
                   style: TextStyle(
                     color: AppColors.textSecondaryColor,
                     fontSize: 16,
@@ -237,22 +238,22 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'User ID: ${widget.user['id']}',
-                  style: TextStyle(
+                  '${ArabicText.userId}: ${widget.user['id']}',
+                  style: const TextStyle(
                     color: AppColors.textSecondaryColor,
                     fontSize: 12,
                   ),
                 ),
                 Text(
-                  'User Email: ${widget.user['email']}',
-                  style: TextStyle(
+                  '${ArabicText.userEmail}: ${widget.user['email']}',
+                  style: const TextStyle(
                     color: AppColors.textSecondaryColor,
                     fontSize: 12,
                   ),
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'This user has not placed any orders yet, or there might be an issue with the database connection.',
+                  ArabicText.noOrdersMessage,
                   style: TextStyle(
                     color: AppColors.textSecondaryColor,
                     fontSize: 12,
@@ -281,6 +282,13 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         color: Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey[200]!),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,7 +297,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Order #$orderId',
+                '${ArabicText.orderNumber} #$orderId',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -300,6 +308,13 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                 decoration: BoxDecoration(
                   color: _getOrderStatusColor(order['status']),
                   borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 3,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
                 ),
                 child: Text(
                   orderStatus,
@@ -314,15 +329,15 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Date: $orderDate',
-            style: TextStyle(
+            '${ArabicText.date}: $orderDate',
+            style: const TextStyle(
               color: AppColors.textSecondaryColor,
               fontSize: 14,
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            'Total: ${orderTotal}₪',
+            '${ArabicText.total}: ${orderTotal}₪',
             style: const TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 16,
@@ -347,7 +362,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black,
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -387,7 +402,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
             width: 120,
             child: Text(
               '$label:',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textSecondaryColor,
@@ -417,7 +432,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         children: [
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: AppColors.textSecondaryColor,
@@ -438,28 +453,28 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
 
   String _getUserRole() {
     final role = widget.user['role'];
-    if (role == 'admin') return 'Administrator';
-    if (role == 'owner') return 'Owner';
-    return 'Customer';
+    if (role == 'admin') return ArabicText.admin;
+    if (role == 'owner') return ArabicText.owner;
+    return ArabicText.customer;
   }
 
   String _getUserStatus() {
     final isActive = widget.user['is_active'];
-    return isActive == true ? 'Active' : 'Inactive';
+    return isActive == true ? ArabicText.active : ArabicText.inactive;
   }
 
   String _getOrderStatus(String? status) {
     switch (status) {
       case 'pending':
-        return 'Pending';
+        return ArabicText.pending;
       case 'processing':
-        return 'Processing';
+        return ArabicText.processing;
       case 'shipped':
-        return 'Shipped';
+        return ArabicText.shipped;
       case 'delivered':
-        return 'Delivered';
+        return ArabicText.delivered;
       case 'cancelled':
-        return 'Cancelled';
+        return ArabicText.cancelled;
       default:
         return ArabicText.unknownStatus;
     }
@@ -483,7 +498,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   }
 
   String _formatDate(dynamic date) {
-    if (date == null) return 'N/A';
+    if (date == null) return ArabicText.none;
     try {
       final dateTime = DateTime.parse(date.toString());
       return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
@@ -504,7 +519,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
 
   String _calculateAccountAge() {
     final createdAt = widget.user['created_at'];
-    if (createdAt == null) return 'N/A';
+    if (createdAt == null) return ArabicText.none;
 
     try {
       final createdDate = DateTime.parse(createdAt.toString());
@@ -513,15 +528,15 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
 
       if (difference.inDays > 365) {
         final years = (difference.inDays / 365).floor();
-        return '$years year${years > 1 ? 's' : ''}';
+        return '$years ${ArabicText.year}${years > 1 ? ArabicText.years : ''}';
       } else if (difference.inDays > 30) {
         final months = (difference.inDays / 30).floor();
-        return '$months month${months > 1 ? 's' : ''}';
+        return '$months ${ArabicText.month}${months > 1 ? ArabicText.months : ''}';
       } else {
-        return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''}';
+        return '${difference.inDays} ${ArabicText.day}${difference.inDays > 1 ? ArabicText.days : ''}';
       }
     } catch (e) {
-      return 'N/A';
+      return ArabicText.none;
     }
   }
 }

@@ -59,7 +59,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
         }
       }
     } catch (e) {
-      _showSnackBar('Error loading order details: $e', isError: true);
+      _showSnackBar('${ArabicText.errorLoadingOrders}: $e', isError: true);
     } finally {
       setState(() {
         _isLoading = false;
@@ -91,7 +91,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
         _showSnackBar(response.data['message']);
       }
     } catch (e) {
-      _showSnackBar('Error updating order status: $e', isError: true);
+      _showSnackBar('${ArabicText.errorUpdatingOrderStatus}: $e',
+          isError: true);
     }
   }
 
@@ -167,9 +168,32 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
     }
   }
 
+  String _getStatusDisplayText(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return ArabicText.pending;
+      case 'shipped':
+        return ArabicText.shipped;
+      case 'delivered':
+        return ArabicText.delivered;
+      case 'cancelled':
+        return ArabicText.cancelled;
+      case 'paid':
+        return ArabicText.paid;
+      case 'failed':
+        return ArabicText.failed;
+      case 'refunded':
+        return ArabicText.refunded;
+      case 'partially_refunded':
+        return ArabicText.partiallyRefunded;
+      default:
+        return status.toUpperCase();
+    }
+  }
+
   Widget _buildHeader() {
     final order = _orderDetails ?? widget.order;
-    final orderId = order['id']?.toString() ?? 'N/A';
+    final orderId = order['id']?.toString() ?? ArabicText.unknownStatus;
     final status = order['status']?.toString() ?? ArabicText.unknownStatus;
     final totalAmount = order['total_amount']?.toString() ?? '0.00';
 
@@ -208,6 +232,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 5,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: const Icon(
                     Icons.arrow_back,
@@ -240,7 +271,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Order #$orderId',
+                      '${ArabicText.orderNumber} #$orderId',
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
@@ -250,7 +281,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Total: ${double.tryParse(totalAmount)?.toStringAsFixed(2) ?? '0.00'}₪',
+                      '${ArabicText.total}: ${double.tryParse(totalAmount)?.toStringAsFixed(2) ?? '0.00'}₪',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -427,7 +458,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
               ),
               const SizedBox(width: 16),
               Text(
-                'Order Items (${items.length})',
+                '${ArabicText.orderItems} (${items.length})',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -528,7 +559,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                 Row(
                   children: [
                     Text(
-                      'Qty: $quantity',
+                      '${ArabicText.quantity}: $quantity',
                       style: TextStyle(
                         fontSize: 14,
                         color: AppColors.textSecondaryColor,
@@ -536,7 +567,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                     ),
                     const SizedBox(width: 16),
                     Text(
-                      '${double.tryParse(price)?.toStringAsFixed(2) ?? '0.00'}₪ each',
+                      '${double.tryParse(price)?.toStringAsFixed(2) ?? '0.00'}₪ ${ArabicText.each}',
                       style: TextStyle(
                         fontSize: 14,
                         color: AppColors.textSecondaryColor,
@@ -637,7 +668,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
               ),
               const SizedBox(width: 16),
               Text(
-                'Shipping & Billing',
+                '${ArabicText.shipping} & ${ArabicText.billing}',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -851,7 +882,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
               items: ['pending', 'shipped', 'delivered', 'cancelled']
                   .map((status) => DropdownMenuItem(
                         value: status,
-                        child: Text(status.toUpperCase()),
+                        child: Text(_getStatusDisplayText(status)),
                       ))
                   .toList(),
               onChanged: (value) {
@@ -863,7 +894,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text(ArabicText.cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -874,7 +905,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
               backgroundColor: AppColors.primaryText,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Update'),
+            child: const Text(ArabicText.update),
           ),
         ],
       ),
@@ -888,11 +919,11 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Update Payment Status'),
+        title: Text(ArabicText.updatePaymentStatus),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Select new payment status:'),
+            Text(ArabicText.selectNewPaymentStatus),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value: selectedPaymentStatus,
@@ -910,7 +941,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
               ]
                   .map((status) => DropdownMenuItem(
                         value: status,
-                        child: Text(status.toUpperCase()),
+                        child: Text(_getStatusDisplayText(status)),
                       ))
                   .toList(),
               onChanged: (value) {
@@ -922,7 +953,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text(ArabicText.cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -933,7 +964,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
               backgroundColor: AppColors.primaryText,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Update'),
+            child: const Text(ArabicText.update),
           ),
         ],
       ),
@@ -944,13 +975,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Cancel Order'),
-        content: const Text(
-            'Are you sure you want to cancel this order? This action cannot be undone.'),
+        title: Text(ArabicText.cancelOrder),
+        content: Text('${ArabicText.confirmCancelOrder}'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('No'),
+            child: const Text(ArabicText.no),
           ),
           TextButton(
             onPressed: () async {
@@ -958,7 +988,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
               await _updateOrderStatus('cancelled');
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Yes, Cancel'),
+            child: const Text(ArabicText.yesCancel),
           ),
         ],
       ),

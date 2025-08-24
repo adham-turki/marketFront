@@ -6,6 +6,12 @@ import '../../../../core/constants/arabic_text.dart';
 import '../../../../core/network/api_service.dart';
 import '../../../widgets/admin/auth_wrapper.dart';
 import 'product_details_screen.dart';
+import 'add_product_screen.dart';
+import 'add_category_screen.dart';
+import 'package:flutter/foundation.dart';
+import 'package:provider/provider.dart';
+import '../../../../core/providers/notification_provider.dart';
+import '../../../../core/models/notification_model.dart';
 
 class AdminProductsScreen extends StatefulWidget {
   const AdminProductsScreen({super.key});
@@ -74,6 +80,43 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
     });
     _loadProducts();
     _loadCategories();
+
+    // Check for low stock products and create notifications
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkLowStockProducts();
+    });
+  }
+
+  // Check for low stock products and create notifications
+  Future<void> _checkLowStockProducts() async {
+    try {
+      final notificationProvider = context.read<NotificationProvider>();
+      await notificationProvider.checkLowStockProducts();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error checking low stock products: $e');
+      }
+    }
+  }
+
+  // Create notification when product stock is updated
+  void _createStockUpdateNotification(
+      Map<String, dynamic> product, int oldStock, int newStock) {
+    final notificationProvider = context.read<NotificationProvider>();
+
+    if (newStock <= (product['min_stock_level'] ?? 5)) {
+      notificationProvider.createLocalNotification(
+        title: 'تنبيه مخزون منخفض',
+        message:
+            '${product['name']} وصل إلى الحد الأدنى للمخزون (المخزون الحالي: $newStock)',
+        notificationType: 'stock_alert',
+        priority: newStock == 0 ? 'urgent' : 'high',
+        relatedId: product['id'],
+        relatedType: 'product',
+        actionUrl: '/admin/products/${product['id']}',
+        imageUrl: 'https://example.com/stock-icon.png',
+      );
+    }
   }
 
   @override
@@ -110,7 +153,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
         });
       }
     } catch (e) {
-      _showSnackBar('Error loading products: $e', isError: true);
+      _showSnackBar('${ArabicText.errorLoadingProducts}: $e', isError: true);
     } finally {
       setState(() {
         _isLoading = false;
@@ -127,7 +170,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
         });
       }
     } catch (e) {
-      _showSnackBar('Error loading categories: $e', isError: true);
+      _showSnackBar('${ArabicText.errorLoadingCategories}: $e', isError: true);
     }
   }
 
@@ -180,11 +223,26 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
   }
 
   void _showAddProductDialog() {
-    _clearForm();
-    _showProductDialog(isEditing: false);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddProductScreen(
+          onProductAdded: (newProduct) {
+            setState(() {
+              _products.insert(0, newProduct);
+              _filteredProducts.insert(0, newProduct);
+            });
+          },
+        ),
+      ),
+    );
   }
 
-  void _showEditProductDialog(Map<String, dynamic> product) {
+  void _showEditProductDialog(Map<String, dynamic> product) async {
+    // Ensure categories are loaded before populating the form
+    if (_categories.isEmpty) {
+      await _loadCategories();
+    }
     _populateForm(product);
     _showProductDialog(isEditing: true, productId: product['id']);
   }
@@ -212,7 +270,17 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
   void _populateForm(Map<String, dynamic> product) {
     _nameController.text = product['name'] ?? '';
     _descriptionController.text = product['description'] ?? '';
-    _selectedCategoryId = product['category_id'] ?? product['category']?['id'];
+
+    // Safely set the category ID, ensuring it exists in the categories list
+    final productCategoryId =
+        product['category_id'] ?? product['category']?['id'];
+    if (productCategoryId != null && _categories.isNotEmpty) {
+      final categoryExists =
+          _categories.any((cat) => cat['id'] == productCategoryId);
+      _selectedCategoryId = categoryExists ? productCategoryId : null;
+    } else {
+      _selectedCategoryId = null;
+    }
 
     _skuController.text = product['sku'] ?? '';
     _barcodeController.text = product['barcode'] ?? '';
@@ -246,6 +314,13 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24),
             color: AppColors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Column(
             children: [
@@ -259,21 +334,35 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                     end: Alignment.bottomRight,
                     colors: [
                       AppColors.primaryText,
-                      AppColors.primaryText.withValues(alpha: 0.9),
+                      AppColors.primaryText,
                     ],
                   ),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(24),
                     topRight: Radius.circular(24),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
+                        color: Colors.white.withAlpha(2),
                         borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 3,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
                       ),
                       child: Icon(
                         isEditing ? Icons.edit : Icons.add_circle_outline,
@@ -300,7 +389,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                       icon: const Icon(Icons.close,
                           color: Colors.white, size: 28),
                       style: IconButton.styleFrom(
-                        backgroundColor: Colors.white.withValues(alpha: 0.2),
+                        backgroundColor: Colors.white,
                         padding: const EdgeInsets.all(8),
                       ),
                     ),
@@ -317,7 +406,8 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildEnhancedFormSection('المعلومات الأساسية', [
+                        _buildEnhancedFormSection(
+                            '${ArabicText.basicInformation}', [
                           _buildEnhancedTextField(ArabicText.productName,
                               _nameController, Icons.inventory_2),
                           _buildEnhancedTextField(ArabicText.description,
@@ -325,37 +415,38 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                               maxLines: 3),
                           _buildEnhancedCategoryDropdown(),
                         ]),
-                        _buildEnhancedFormSection('تفاصيل المنتج', [
+                        _buildEnhancedFormSection(
+                            '${ArabicText.productDetails}', [
                           _buildEnhancedTextField(
-                              'SKU', _skuController, Icons.qr_code),
-                          _buildEnhancedTextField(
-                              'الباركود', _barcodeController, Icons.qr_code_2),
+                              ArabicText.sku, _skuController, Icons.qr_code),
+                          _buildEnhancedTextField(ArabicText.barcode,
+                              _barcodeController, Icons.qr_code_2),
                           _buildEnhancedTextField(ArabicText.unit,
                               _unitController, Icons.straighten),
                           _buildEnhancedTextField('${ArabicText.weight} (كجم)',
                               _weightController, Icons.monitor_weight),
                         ]),
-                        _buildEnhancedFormSection('التسعير', [
+                        _buildEnhancedFormSection('${ArabicText.pricing}', [
                           _buildEnhancedTextField(ArabicText.price,
                               _priceController, Icons.attach_money,
                               keyboardType: TextInputType.number),
                         ]),
-                        _buildEnhancedFormSection('المخزون', [
+                        _buildEnhancedFormSection('${ArabicText.inventory}', [
                           _buildEnhancedTextField(ArabicText.productStock,
                               _stockQuantityController, Icons.inventory_2,
                               keyboardType: TextInputType.number),
-                          _buildEnhancedTextField('الحد الأدنى للمخزون',
+                          _buildEnhancedTextField('${ArabicText.minStockLevel}',
                               _minStockLevelController, Icons.warning,
                               keyboardType: TextInputType.number),
-                          _buildEnhancedTextField('الحد الأقصى للمخزون',
+                          _buildEnhancedTextField('${ArabicText.maxStockLevel}',
                               _maxStockLevelController, Icons.trending_up,
                               keyboardType: TextInputType.number),
                         ]),
-                        _buildEnhancedFormSection('الصور', [
+                        _buildEnhancedFormSection('${ArabicText.images}', [
                           _buildEnhancedImagePicker(),
                           if (_imageUrls.isNotEmpty) _buildEnhancedImageUrls(),
                         ]),
-                        _buildEnhancedFormSection('الإعدادات', [
+                        _buildEnhancedFormSection('${ArabicText.settings}', [
                           _buildEnhancedTextField(
                               '${ArabicText.tags} (مفصولة بفواصل)',
                               _tagsController,
@@ -385,6 +476,13 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                     bottomLeft: Radius.circular(24),
                     bottomRight: Radius.circular(24),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, -2),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
@@ -393,6 +491,13 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: Colors.grey[300]!),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 5,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: ElevatedButton(
                           onPressed: () => Navigator.pop(context),
@@ -419,8 +524,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color:
-                                  AppColors.primaryText.withValues(alpha: 0.3),
+                              color: AppColors.primaryText,
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -487,6 +591,13 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
         color: Colors.grey[50],
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.grey[200]!),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -496,8 +607,15 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryText.withValues(alpha: 0.1),
+                  color: AppColors.primaryText,
                   borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 5,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Icon(
                   _getSectionIcon(title),
@@ -527,17 +645,17 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
 
   IconData _getSectionIcon(String title) {
     switch (title) {
-      case 'Basic Information':
+      case ArabicText.basicInformation:
         return Icons.info_outline;
-      case 'Product Details':
+      case ArabicText.productDetails:
         return Icons.details_outlined;
-      case 'Pricing':
+      case ArabicText.pricing:
         return Icons.attach_money;
-      case 'Inventory':
+      case ArabicText.inventory:
         return Icons.inventory_2_outlined;
-      case 'Images':
+      case ArabicText.images:
         return Icons.image_outlined;
-      case 'Settings':
+      case ArabicText.settings:
         return Icons.settings_outlined;
       default:
         return Icons.category_outlined;
@@ -604,7 +722,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
               border: Border.all(color: Colors.grey[300]!),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black,
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -621,14 +739,14 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
               decoration: InputDecoration(
                 hintText: 'Enter $label',
                 hintStyle: TextStyle(
-                  color: AppColors.textSecondaryColor.withValues(alpha: 0.6),
+                  color: AppColors.textSecondaryColor.withAlpha(1),
                   fontSize: 14,
                 ),
                 prefixIcon: Container(
                   margin: const EdgeInsets.all(12),
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryText.withValues(alpha: 0.1),
+                    color: AppColors.primaryText.withAlpha(1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -678,7 +796,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
         border: Border.all(color: Colors.grey[300]!),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black,
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -689,10 +807,15 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: value
-                  ? AppColors.primaryText.withValues(alpha: 0.1)
-                  : Colors.grey[100],
+              color: value ? AppColors.primaryText : Colors.grey[100],
               borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Icon(
               value ? Icons.check_circle : Icons.radio_button_unchecked,
@@ -730,7 +853,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
             value: value,
             onChanged: onChanged,
             activeColor: AppColors.primaryText,
-            activeTrackColor: AppColors.primaryText.withValues(alpha: 0.3),
+            activeTrackColor: AppColors.primaryText,
             inactiveThumbColor: Colors.grey[400],
             inactiveTrackColor: Colors.grey[300],
           ),
@@ -748,6 +871,13 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
           decoration: BoxDecoration(
             border: Border.all(color: AppColors.primaryText),
             borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 5,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Text(
             ArabicText.loading,
@@ -760,7 +890,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: DropdownButtonFormField<int>(
-        value: _selectedCategoryId,
+        value: _getValidCategoryValue(),
         decoration: InputDecoration(
           labelText: ArabicText.productCategory,
           prefixIcon: Icon(Icons.category, color: AppColors.primaryText),
@@ -818,15 +948,14 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
               border: Border.all(color: Colors.grey[300]!),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black,
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
               ],
             ),
             child: DropdownButtonFormField<int>(
-              value: _selectedCategoryId ??
-                  (_categories.isNotEmpty ? _categories.first['id'] : null),
+              value: _getValidCategoryValue(),
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
@@ -834,15 +963,22 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
               decoration: InputDecoration(
                 hintText: ArabicText.selectCategory,
                 hintStyle: TextStyle(
-                  color: AppColors.textSecondaryColor.withValues(alpha: 0.6),
+                  color: AppColors.textSecondaryColor,
                   fontSize: 14,
                 ),
                 prefixIcon: Container(
                   margin: const EdgeInsets.all(12),
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryText.withValues(alpha: 0.1),
+                    color: AppColors.primaryText,
                     borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 5,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Icon(
                     Icons.category_outlined,
@@ -881,6 +1017,23 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
         ],
       ),
     );
+  }
+
+  // Helper method to get a valid category value for the dropdown
+  int? _getValidCategoryValue() {
+    if (_categories.isEmpty) return null;
+
+    // If we have a selected category ID, check if it exists in the current categories list
+    if (_selectedCategoryId != null) {
+      final categoryExists =
+          _categories.any((cat) => cat['id'] == _selectedCategoryId);
+      if (categoryExists) {
+        return _selectedCategoryId;
+      }
+    }
+
+    // If no valid selection or categories changed, return the first category
+    return _categories.first['id'];
   }
 
   Widget _buildImagePicker() {
@@ -928,9 +1081,16 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                           },
                           child: Container(
                             padding: const EdgeInsets.all(2),
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               color: Colors.red,
                               shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
                             child: const Icon(
                               Icons.close,
@@ -960,7 +1120,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
-              'Product Images',
+              ArabicText.productImages,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -975,7 +1135,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
               border: Border.all(color: Colors.grey[300]!),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black,
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -991,8 +1151,15 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColors.primaryText.withValues(alpha: 0.1),
+                          color: AppColors.primaryText,
                           borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 5,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: Icon(
                           Icons.add_photo_alternate_outlined,
@@ -1011,7 +1178,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'انقر لاختيار صور متعددة من معرض الصور',
+                        ArabicText.clickToSelectImages,
                         style: TextStyle(
                           fontSize: 14,
                           color: AppColors.textSecondaryColor,
@@ -1047,6 +1214,13 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                         bottomLeft: Radius.circular(16),
                         bottomRight: Radius.circular(16),
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 5,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1095,8 +1269,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                             shape: BoxShape.circle,
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.black
-                                                    .withValues(alpha: 0.3),
+                                                color: Colors.black,
                                                 blurRadius: 4,
                                                 offset: const Offset(0, 2),
                                               ),
@@ -1132,7 +1305,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Current Images:',
+        Text(ArabicText.currentImages,
             style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         SizedBox(
@@ -1173,9 +1346,16 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                         },
                         child: Container(
                           padding: const EdgeInsets.all(2),
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             color: Colors.red,
                             shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
                           child: const Icon(
                             Icons.close,
@@ -1219,7 +1399,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
               border: Border.all(color: Colors.grey[300]!),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black,
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -1262,7 +1442,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
-                                        'Image Error',
+                                        ArabicText.imageError,
                                         style: TextStyle(
                                           fontSize: 12,
                                           color: Colors.grey[600],
@@ -1290,8 +1470,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
-                                      color:
-                                          Colors.black.withValues(alpha: 0.3),
+                                      color: Colors.black,
                                       blurRadius: 4,
                                       offset: const Offset(0, 2),
                                     ),
@@ -1409,18 +1588,17 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Product'),
-        content: const Text(
-            'Are you sure you want to delete this product? This action cannot be undone.'),
+        title: Text(ArabicText.deleteProduct),
+        content: Text(ArabicText.confirmDeleteProduct),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(ArabicText.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(ArabicText.delete),
           ),
         ],
       ),
@@ -1429,10 +1607,10 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
     if (confirmed == true) {
       try {
         await _apiService.delete('/products/$productId');
-        _showSnackBar('Product deleted successfully');
+        _showSnackBar(ArabicText.productDeleted);
         _loadProducts();
       } catch (e) {
-        _showSnackBar('Error deleting product: $e', isError: true);
+        _showSnackBar('${ArabicText.errorDeletingProduct}: $e', isError: true);
       }
     }
   }
@@ -1450,7 +1628,18 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
 
   // Category management methods
   void _showAddCategoryDialog() {
-    _showCategoryDialog(isEditing: false);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddCategoryScreen(
+          onCategoryAdded: (newCategory) {
+            setState(() {
+              _categories.insert(0, newCategory);
+            });
+          },
+        ),
+      ),
+    );
   }
 
   void _showEditCategoryDialog(Map<String, dynamic> category) {
@@ -1472,22 +1661,23 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(isEditing ? 'Edit Category' : 'Add New Category'),
+        title: Text(
+            isEditing ? ArabicText.editCategory : ArabicText.addNewCategory),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Category Name',
+              decoration: InputDecoration(
+                labelText: ArabicText.categoryName,
                 border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description',
+              decoration: InputDecoration(
+                labelText: ArabicText.description,
                 border: OutlineInputBorder(),
               ),
               maxLines: 3,
@@ -1495,8 +1685,8 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
             const SizedBox(height: 16),
             TextField(
               controller: imageUrlController,
-              decoration: const InputDecoration(
-                labelText: 'Image URL',
+              decoration: InputDecoration(
+                labelText: ArabicText.imageUrl,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -1505,12 +1695,12 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(ArabicText.cancel),
           ),
           ElevatedButton(
             onPressed: () async {
               if (nameController.text.isEmpty) {
-                _showSnackBar('Category name is required', isError: true);
+                _showSnackBar(ArabicText.categoryNameRequired, isError: true);
                 return;
               }
 
@@ -1526,10 +1716,10 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                 if (isEditing && categoryId != null) {
                   await _apiService.put('/categories/$categoryId',
                       data: categoryData);
-                  _showSnackBar('Category updated successfully');
+                  _showSnackBar(ArabicText.categoryUpdated);
                 } else {
                   await _apiService.post('/categories', data: categoryData);
-                  _showSnackBar('Category added successfully');
+                  _showSnackBar(ArabicText.categoryAdded);
                 }
 
                 Navigator.pop(context);
@@ -1539,7 +1729,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                     isError: true);
               }
             },
-            child: Text(isEditing ? 'Update' : 'Add'),
+            child: Text(isEditing ? ArabicText.update : ArabicText.add),
           ),
         ],
       ),
@@ -1550,18 +1740,17 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Category'),
-        content: const Text(
-            'Are you sure you want to delete this category? This action cannot be undone.'),
+        title: Text(ArabicText.deleteCategory),
+        content: Text(ArabicText.confirmDeleteCategory),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(ArabicText.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(ArabicText.delete),
           ),
         ],
       ),
@@ -1570,10 +1759,10 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
     if (confirmed == true) {
       try {
         await _apiService.delete('/categories/$categoryId');
-        _showSnackBar('Category deleted successfully');
+        _showSnackBar(ArabicText.categoryDeleted);
         _loadCategories();
       } catch (e) {
-        _showSnackBar('Error deleting category: $e', isError: true);
+        _showSnackBar('${ArabicText.errorDeletingCategory}: $e', isError: true);
       }
     }
   }
@@ -1586,7 +1775,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withAlpha(1),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -1634,7 +1823,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    category['name'] ?? 'فئة بدون اسم',
+                    category['name'] ?? ArabicText.uncategorized,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -1664,12 +1853,12 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                 IconButton(
                   onPressed: () => _showEditCategoryDialog(category),
                   icon: Icon(Icons.edit, color: AppColors.primaryText),
-                  tooltip: 'Edit',
+                  tooltip: ArabicText.edit,
                 ),
                 IconButton(
                   onPressed: () => _deleteCategory(category['id']),
                   icon: const Icon(Icons.delete, color: Colors.red),
-                  tooltip: 'Delete',
+                  tooltip: ArabicText.delete,
                 ),
               ],
             ),
@@ -1710,7 +1899,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
               color: AppColors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black,
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -1758,6 +1947,17 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                       margin: const EdgeInsets.all(10),
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 0),
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
                       child: Row(
                         children: [
                           Expanded(
@@ -1772,8 +1972,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                 hintText:
                                     '${ArabicText.search} ${ArabicText.products}',
                                 hintStyle: TextStyle(
-                                  color: AppColors.textSecondaryColor
-                                      .withValues(alpha: 0.7),
+                                  color: AppColors.textSecondaryColor,
                                   fontSize: 14,
                                 ),
                                 border: InputBorder.none,
@@ -1798,12 +1997,10 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 0),
                             decoration: BoxDecoration(
-                              color:
-                                  AppColors.primaryText.withValues(alpha: 0.05),
+                              color: AppColors.primaryText,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: AppColors.primaryText
-                                    .withValues(alpha: 0.2),
+                                color: AppColors.primaryText,
                               ),
                             ),
                             child: DropdownButton<String>(
@@ -1856,7 +2053,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                 Icons.clear_all,
                                 color: AppColors.textSecondaryColor,
                               ),
-                              tooltip: 'Clear all filters',
+                              tooltip: ArabicText.clearAllFilters,
                             ),
                         ],
                       ),
@@ -1979,7 +2176,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
+              color: Colors.black,
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -2030,7 +2227,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                       children: [
                         Expanded(
                           child: Text(
-                            product['name'] ?? 'منتج بدون اسم',
+                            product['name'] ?? ArabicText.productWithoutName,
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -2047,6 +2244,13 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                             decoration: BoxDecoration(
                               color: AppColors.secondaryBackground,
                               borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 3,
+                                  offset: const Offset(0, 1),
+                                ),
+                              ],
                             ),
                             child: Text(
                               ArabicText.featuredProduct,
@@ -2117,12 +2321,12 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                   IconButton(
                     onPressed: () => _showEditProductDialog(product),
                     icon: Icon(Icons.edit, color: AppColors.primaryText),
-                    tooltip: 'Edit',
+                    tooltip: ArabicText.edit,
                   ),
                   IconButton(
                     onPressed: () => _deleteProduct(product['id']),
                     icon: const Icon(Icons.delete, color: Colors.red),
-                    tooltip: 'Delete',
+                    tooltip: ArabicText.delete,
                   ),
                 ],
               ),

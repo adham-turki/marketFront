@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_colors.dart';
+import '../../../../../core/constants/arabic_text.dart';
 
 class ProductSelectionSection extends StatelessWidget {
   final String scopeType;
@@ -31,7 +32,7 @@ class ProductSelectionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _buildFormSection('Product Selection', [
+    return _buildFormSection(ArabicText.productSelection, [
       _buildScopeDropdown(),
       const SizedBox(height: 15),
       _buildProductSelectionWidget(),
@@ -61,24 +62,24 @@ class ProductSelectionSection extends StatelessWidget {
     return DropdownButtonFormField<String>(
       value: scopeType,
       decoration: InputDecoration(
-        labelText: 'Scope',
+        labelText: ArabicText.scope,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: AppColors.primaryText),
         ),
       ),
-      items: [
-        const DropdownMenuItem(
+      items: const [
+        DropdownMenuItem(
           value: 'all_products',
-          child: Text('All Products'),
+          child: Text(ArabicText.allProducts),
         ),
-        const DropdownMenuItem(
+        DropdownMenuItem(
           value: 'specific_products',
-          child: Text('Specific Products'),
+          child: Text(ArabicText.specificProducts),
         ),
-        const DropdownMenuItem(
+        DropdownMenuItem(
           value: 'category',
-          child: Text('Category'),
+          child: Text(ArabicText.category),
         ),
       ],
       onChanged: (value) {
@@ -93,8 +94,8 @@ class ProductSelectionSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildCustomDropdown(
-            label: 'Select Products',
-            hint: 'Tap to select products',
+            label: ArabicText.selectProducts,
+            hint: ArabicText.chooseProductsForPromotion,
             selectedCount: selectedProductIds.length,
             onTap: onShowProductDialog,
           ),
@@ -105,6 +106,13 @@ class ProductSelectionSection extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border.all(color: AppColors.primaryText),
                 borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: ListView.builder(
                 itemCount: selectedProductIds.length,
@@ -112,10 +120,11 @@ class ProductSelectionSection extends StatelessWidget {
                   final productId = selectedProductIds[index];
                   final product = availableProducts.firstWhere(
                     (p) => p['id'] == productId,
-                    orElse: () => {'name': 'Unknown Product', 'price': 0},
+                    orElse: () =>
+                        {'name': ArabicText.unknownProduct, 'price': 0},
                   );
                   return ListTile(
-                    title: Text(product['name'] ?? 'Unknown Product'),
+                    title: Text(product['name'] ?? ArabicText.unknownProduct),
                     subtitle: Text('${product['price']?.toString() ?? '0'}₪'),
                     trailing: IconButton(
                       icon: const Icon(Icons.remove_circle, color: Colors.red),
@@ -133,8 +142,8 @@ class ProductSelectionSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildCustomDropdown(
-            label: 'Select Categories',
-            hint: 'Tap to select categories',
+            label: ArabicText.selectCategories,
+            hint: ArabicText.chooseCategoriesForPromotion,
             selectedCount: selectedCategories.length,
             onTap: onShowCategoryDialog,
           ),
@@ -145,13 +154,20 @@ class ProductSelectionSection extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border.all(color: AppColors.primaryText),
                 borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: ListView.builder(
                 itemCount: selectedCategories.length,
                 itemBuilder: (context, index) {
                   final category = selectedCategories[index];
                   return ListTile(
-                    title: Text(category['name'] ?? 'Unknown Category'),
+                    title: Text(category['name'] ?? ArabicText.unknownCategory),
                     trailing: IconButton(
                       icon: const Icon(Icons.remove_circle, color: Colors.red),
                       onPressed: () => onCategoryDeselected(category),
@@ -165,8 +181,8 @@ class ProductSelectionSection extends StatelessWidget {
       );
     } else {
       return Text(
-        'This promotion applies to all products',
-        style: TextStyle(
+        ArabicText.thisPromotionAppliesToAllProducts,
+        style: const TextStyle(
           color: AppColors.textSecondaryColor,
           fontSize: 14,
         ),
@@ -200,12 +216,21 @@ class ProductSelectionSection extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border.all(color: AppColors.primaryText),
               borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Row(
               children: [
                 Expanded(
                   child: Text(
-                    selectedCount == 0 ? hint : '$selectedCount selected',
+                    selectedCount == 0
+                        ? hint
+                        : '$selectedCount ${ArabicText.selected}',
                     style: TextStyle(
                       color: selectedCount == 0
                           ? AppColors.textSecondaryColor
@@ -214,7 +239,7 @@ class ProductSelectionSection extends StatelessWidget {
                     ),
                   ),
                 ),
-                Icon(
+                const Icon(
                   Icons.arrow_drop_down,
                   color: AppColors.primaryText,
                 ),

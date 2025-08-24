@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_colors.dart';
+import '../../../../../core/constants/arabic_text.dart';
 
 class BasicInfoSection extends StatelessWidget {
   final TextEditingController nameController;
@@ -19,25 +20,25 @@ class BasicInfoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _buildFormSection('Basic Information', [
+    return _buildFormSection(ArabicText.basicInformation, [
       _buildTextField(
-        'Promotion Name',
+        ArabicText.name,
         nameController,
         Icons.label,
       ),
       _buildTextField(
-        'Description',
+        ArabicText.description,
         descriptionController,
         Icons.description,
         maxLines: 3,
       ),
       _buildTextField(
-        'Coupon Code (Optional)',
+        '${ArabicText.couponCode} (اختياري)',
         codeController,
         Icons.confirmation_number,
       ),
       _buildSwitch(
-        'Requires Coupon Code',
+        ArabicText.requiresCoupon,
         requiresCoupon,
         onRequiresCouponChanged,
       ),

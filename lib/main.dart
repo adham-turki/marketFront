@@ -11,6 +11,7 @@ import 'core/constants/app_routes.dart';
 import 'core/constants/arabic_text.dart';
 import 'core/network/api_service.dart';
 import 'presentation/providers/auth_provider.dart';
+import 'core/providers/notification_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,6 +54,7 @@ class TradeSuperApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: MaterialApp.router(
         title: ArabicText.appTitle,
