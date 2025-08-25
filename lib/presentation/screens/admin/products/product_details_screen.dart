@@ -23,82 +23,138 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         title: Text(
           widget.product['name'] ?? ArabicText.productDetails,
           style: const TextStyle(
-            color: AppColors.primaryText,
-            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
           ),
         ),
-        backgroundColor: AppColors.white,
+        backgroundColor: AppColors.primaryText,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.primaryText),
+          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
           onPressed: () => Navigator.pop(context),
         ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
+          ),
+        ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildImageSection(),
-            const SizedBox(height: 24),
-            _buildBasicInfoSection(),
-            const SizedBox(height: 24),
-            _buildPricingSection(),
-            const SizedBox(height: 24),
-            _buildInventorySection(),
-            const SizedBox(height: 24),
-            _buildAdditionalDetailsSection(),
-          ],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.primaryText.withOpacity(0.05),
+              AppColors.primaryBackground,
+            ],
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildEnhancedImageSection(),
+              const SizedBox(height: 24),
+              _buildEnhancedBasicInfoSection(),
+              const SizedBox(height: 24),
+              _buildEnhancedPricingSection(),
+              const SizedBox(height: 24),
+              _buildEnhancedInventorySection(),
+              const SizedBox(height: 24),
+              _buildEnhancedAdditionalDetailsSection(),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildImageSection() {
+  Widget _buildEnhancedImageSection() {
     final featuredImage = widget.product['featured_image_url'];
 
     return Container(
       width: double.infinity,
       height: 300,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black,
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Colors.black.withOpacity(0.25),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+            spreadRadius: 5,
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         child: featuredImage != null && featuredImage.isNotEmpty
             ? Image.network(
                 featuredImage,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  return _buildPlaceholderImage();
+                  return _buildEnhancedPlaceholderImage();
                 },
               )
-            : _buildPlaceholderImage(),
+            : _buildEnhancedPlaceholderImage(),
       ),
     );
   }
 
-  Widget _buildPlaceholderImage() {
+  Widget _buildEnhancedPlaceholderImage() {
     return Container(
-      color: Colors.grey[200],
-      child: const Center(
-        child: Icon(
-          Icons.inventory_2,
-          size: 80,
-          color: AppColors.textSecondaryColor,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.grey[200]!,
+            Colors.grey[300]!,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.primaryText.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(
+                Icons.inventory_2,
+                size: 80,
+                color: AppColors.primaryText,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No Image Available',
+              style: TextStyle(
+                fontSize: 18,
+                color: AppColors.textSecondaryColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildBasicInfoSection() {
+  Widget _buildEnhancedBasicInfoSection() {
     return _buildInfoCard(
       title: ArabicText.basicInformation,
       icon: Icons.info_outline,
@@ -112,7 +168,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildPricingSection() {
+  Widget _buildEnhancedPricingSection() {
     return _buildInfoCard(
       title: ArabicText.pricing,
       icon: Icons.attach_money,
@@ -126,7 +182,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildInventorySection() {
+  Widget _buildEnhancedInventorySection() {
     final stockQuantity = widget.product['stock_quantity'] ?? 0;
 
     return _buildInfoCard(
@@ -148,7 +204,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildAdditionalDetailsSection() {
+  Widget _buildEnhancedAdditionalDetailsSection() {
     return _buildInfoCard(
       title: 'تفاصيل إضافية',
       icon: Icons.settings,
@@ -172,14 +228,24 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.grey[200]!,
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black,
-            blurRadius: 10,
+            color: Colors.black.withOpacity(0.12),
+            blurRadius: 25,
+            offset: const Offset(0, 8),
+            spreadRadius: 2,
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
@@ -189,19 +255,40 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         children: [
           Row(
             children: [
-              Icon(icon, color: AppColors.primaryText, size: 24),
-              const SizedBox(width: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryText.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primaryText.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  icon,
                   color: AppColors.primaryText,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primaryText,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           ...children,
         ],
       ),
@@ -209,13 +296,22 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   Widget _buildInfoRow(String label, String value, {Color? valueColor}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.grey[200]!,
+          width: 1,
+        ),
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 120,
+          Container(
+            width: 140,
             child: Text(
               '$label:',
               style: TextStyle(
@@ -226,12 +322,23 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ),
           ),
           Expanded(
-            child: Text(
-              value,
-              style: TextStyle(
-                fontSize: 16,
-                color: valueColor ?? AppColors.primaryText,
-                fontWeight: FontWeight.w500,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: (valueColor ?? AppColors.primaryText).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: (valueColor ?? AppColors.primaryText).withOpacity(0.3),
+                ),
+              ),
+              child: Text(
+                value,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: valueColor ?? AppColors.primaryText,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
               ),
             ),
           ),
