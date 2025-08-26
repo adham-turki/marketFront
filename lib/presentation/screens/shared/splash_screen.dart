@@ -53,8 +53,11 @@ class _SplashScreenState extends State<SplashScreen>
           if (authProvider.isAdmin) {
             // Route admin/owner users directly to admin panel (products page)
             context.go('/admin/panel');
+          } else if (authProvider.isCustomer) {
+            // Route customers to the new customer home
+            context.go('/customer/home');
           } else {
-            // Route regular users to home
+            // Fallback for other roles
             context.go('/home');
           }
         } else {

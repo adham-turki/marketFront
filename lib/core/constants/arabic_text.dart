@@ -23,6 +23,53 @@ class ArabicText {
   static const String warning = 'تحذير';
   static const String info = 'معلومات';
 
+  // Customer App Specific
+  static const String morningGreeting = 'صباح الخير، مرحباً بك';
+  static const String whatToBuyToday = 'ماذا تريد أن تشتري اليوم؟';
+  static const String allCategories = 'الكل';
+  static const String viewAll = 'عرض الكل';
+  static const String startShopping = 'ابدأ التسوق';
+  static const String addToCart = 'إضافة إلى السلة';
+  static const String checkoutNow = 'إتمام الطلب الآن';
+  static const String cart = 'سلة التسوق';
+  static const String emptyCart = 'سلة التسوق فارغة';
+  static const String emptyCartMessage =
+      'ابدأ بالتسوق لإضافة منتجات إلى سلة التسوق';
+  static const String subtotal = 'المجموع الفرعي';
+  static const String delivery = 'التوصيل';
+  static const String total = 'الإجمالي';
+  static const String quantity = 'الكمية';
+  static const String description = 'الوصف';
+  static const String noDescription = 'لا يوجد وصف متاح';
+  static const String recommendedProducts = 'منتجات مقترحة';
+  static const String totalPrice = 'السعر الإجمالي';
+  static const String discount = 'خصم';
+  static const String inStock = 'متوفر في المخزون';
+  static const String outOfStock = 'نفذ المخزون';
+  static const String lowStock = 'مخزون منخفض';
+  static const String availableCoupons = 'لديك 3 كوبونات';
+  static const String applyCoupon = 'يمكنك تطبيقها على طلبك';
+  static const String apply = 'تطبيق';
+  static const String availableCouponsTitle = 'الكوبونات المتاحة';
+  static const String closeDialog = 'إغلاق';
+  static const String couponApplied = 'تم تطبيق الكوبون';
+  static const String successfully = 'بنجاح';
+  static const String productAddedToCart = 'تم إضافة المنتج إلى السلة';
+  static const String searchPlaceholder =
+      'ابحث عن الخضروات والفواكه والمزيد...';
+  static const String filterOptions = 'خيارات البحث';
+  static const String categoryFilter = 'الفئة';
+  static const String categoryFilterDesc = 'اختر فئة المنتج';
+  static const String priceFilter = 'السعر';
+  static const String priceFilterDesc = 'نطاق السعر';
+  static const String ratingFilter = 'التقييم';
+  static const String ratingFilterDesc = 'تقييم المنتج';
+  static const String offersFilter = 'العروض';
+  static const String offersFilterDesc = 'المنتجات المعروضة';
+  static const String shopNow = 'تسوق الآن';
+  static const String specialOffers = 'استمتع بالعروض الخاصة حتى 30%';
+  static const String fromDate = 'من 14 يونيو، 2025';
+
   // Navigation
   static const String home = 'الرئيسية';
   static const String products = 'المنتجات';
@@ -71,9 +118,6 @@ class ArabicText {
   static const String featuredProduct = ' مميز';
   static const String activeProduct = ' نشط';
   static const String inactiveProduct = ' غير نشط';
-  static const String outOfStock = 'نفذ المخزون';
-  static const String lowStock = 'مخزون منخفض';
-  static const String inStock = 'متوفر في المخزون';
 
   // Category Related
   static const String categoryName = 'اسم الفئة';
@@ -122,7 +166,6 @@ class ArabicText {
   static const String selectProducts = 'اختر المنتجات';
   static const String selectStatus = 'اختر الحالة';
   static const String selectUser = 'اختر المستخدم';
-  static const String searchPlaceholder = 'ابحث هنا...';
   static const String pleaseSelectCategory = 'يرجى اختيار فئة';
   static const String pleaseSelectCategories = 'يرجى اختيار فئات';
   static const String pleaseSelectProducts = 'يرجى اختيار منتجات';
@@ -383,14 +426,11 @@ class ArabicText {
   static const String urgentNotifications = 'إشعارات عاجلة';
   static const String lowStockProducts = 'منتجات منخفضة المخزون';
   static const String unreadNotifications = 'إشعارات غير مقروءة';
-  static const String viewAll = 'عرض الكل';
   static const String items = 'عناصر';
 
   // Form Labels
   static const String name = 'الاسم';
-  static const String description = 'الوصف';
   static const String price = 'السعر';
-  static const String quantity = 'الكمية';
   static const String weight = 'الوزن';
   static const String dimensions = 'الأبعاد';
   static const String unit = 'الوحدة';
@@ -519,11 +559,8 @@ class ArabicText {
   static const String billing = 'الفوترة';
   static const String billingAddress = 'عنوان الفوترة';
   static const String noAddressProvided = 'لم يتم توفير عنوان';
-  static const String subtotal = 'المجموع الفرعي';
   static const String tax = 'الضريبة';
   static const String shipping = 'الشحن';
-  static const String discount = 'الخصم';
-  static const String total = 'الإجمالي';
   static const String updateStatus = 'تحديث الحالة';
   static const String overview = 'نظرة عامة';
   static const String ordersWillAppearHere =

@@ -6,6 +6,10 @@ import '../../presentation/screens/auth/register_screen.dart';
 import '../../presentation/screens/shared/home_screen.dart';
 import '../../presentation/screens/admin/admin_main_screen.dart';
 import '../../presentation/widgets/admin/auth_wrapper.dart';
+import '../../presentation/screens/customer/customer_home_screen.dart';
+import '../../presentation/screens/customer/customer_cart_screen.dart';
+import '../../presentation/screens/customer/customer_product_details_screen.dart';
+import '../../presentation/screens/customer/category_products_screen.dart';
 
 class AppRoutes {
   static final router = GoRouter(
@@ -41,6 +45,28 @@ class AppRoutes {
         path: '/admin/panel',
         builder: (context, state) => const AdminAuthWrapper(
           child: AdminMainScreen(),
+        ),
+      ),
+
+      // Customer routes
+      GoRoute(
+        path: '/customer/home',
+        builder: (context, state) => const CustomerHomeScreen(),
+      ),
+      GoRoute(
+        path: '/customer/cart',
+        builder: (context, state) => const CustomerCartScreen(),
+      ),
+      GoRoute(
+        path: '/customer/product/:id',
+        builder: (context, state) => CustomerProductDetailsScreen(
+          productId: state.pathParameters['id']!,
+        ),
+      ),
+      GoRoute(
+        path: '/customer/category/:id',
+        builder: (context, state) => CategoryProductsScreen(
+          categoryId: int.parse(state.pathParameters['id']!),
         ),
       ),
     ],
