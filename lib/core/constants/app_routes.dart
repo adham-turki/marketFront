@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../presentation/screens/shared/landing_screen.dart';
 import '../../presentation/screens/shared/splash_screen.dart';

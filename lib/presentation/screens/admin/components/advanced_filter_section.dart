@@ -10,14 +10,14 @@ class AdvancedFilterSection extends StatefulWidget {
   final String? searchHint;
 
   const AdvancedFilterSection({
-    Key? key,
+    super.key,
     required this.filterOptions,
     required this.currentFilters,
     required this.onFiltersChanged,
     required this.onClearFilters,
     this.showSearchBar = true,
     this.searchHint,
-  }) : super(key: key);
+  });
 
   @override
   State<AdvancedFilterSection> createState() => _AdvancedFilterSectionState();
@@ -84,13 +84,13 @@ class _AdvancedFilterSectionState extends State<AdvancedFilterSection> {
       ),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.filter_list,
             color: AppColors.primaryColor,
             size: 24,
           ),
           const SizedBox(width: 12),
-          Text(
+          const Text(
             'Advanced Filters',
             style: TextStyle(
               fontSize: 18,
@@ -111,7 +111,7 @@ class _AdvancedFilterSectionState extends State<AdvancedFilterSection> {
             ),
             label: Text(
               _isExpanded ? 'Collapse' : 'Expand',
-              style: TextStyle(color: AppColors.primaryColor),
+              style: const TextStyle(color: AppColors.primaryColor),
             ),
           ),
         ],
@@ -126,10 +126,10 @@ class _AdvancedFilterSectionState extends State<AdvancedFilterSection> {
         controller: _searchController,
         decoration: InputDecoration(
           hintText: widget.searchHint ?? 'Search...',
-          prefixIcon: Icon(Icons.search, color: AppColors.primaryColor),
+          prefixIcon: const Icon(Icons.search, color: AppColors.primaryColor),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
-                  icon: Icon(Icons.clear, color: AppColors.primaryColor),
+                  icon: const Icon(Icons.clear, color: AppColors.primaryColor),
                   onPressed: () {
                     _searchController.clear();
                     _updateFilter('search', '');
@@ -138,11 +138,11 @@ class _AdvancedFilterSectionState extends State<AdvancedFilterSection> {
               : null,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: AppColors.primaryColor),
+            borderSide: const BorderSide(color: AppColors.primaryColor),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: AppColors.primaryColor, width: 2),
+            borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
           ),
         ),
         onChanged: (value) {
@@ -198,7 +198,7 @@ class _AdvancedFilterSectionState extends State<AdvancedFilterSection> {
             decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: AppColors.primaryText),
+                borderSide: const BorderSide(color: AppColors.primaryText),
               ),
             ),
             items: option.options?.map((value) {
@@ -237,7 +237,7 @@ class _AdvancedFilterSectionState extends State<AdvancedFilterSection> {
               Expanded(
                 child: _buildDateField(
                   'From',
-                  option.key + '_from',
+                  '${option.key}_from',
                   Icons.calendar_today,
                 ),
               ),
@@ -245,7 +245,7 @@ class _AdvancedFilterSectionState extends State<AdvancedFilterSection> {
               Expanded(
                 child: _buildDateField(
                   'To',
-                  option.key + '_to',
+                  '${option.key}_to',
                   Icons.calendar_today,
                 ),
               ),
@@ -369,7 +369,7 @@ class _AdvancedFilterSectionState extends State<AdvancedFilterSection> {
                   ),
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
-                    _updateFilter(option.key + '_min', value);
+                    _updateFilter('${option.key}_min', value);
                   },
                 ),
               ),
@@ -384,7 +384,7 @@ class _AdvancedFilterSectionState extends State<AdvancedFilterSection> {
                   ),
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
-                    _updateFilter(option.key + '_max', value);
+                    _updateFilter('${option.key}_max', value);
                   },
                 ),
               ),
@@ -417,7 +417,7 @@ class _AdvancedFilterSectionState extends State<AdvancedFilterSection> {
         children: [
           Row(
             children: [
-              Text(
+              const Text(
                 'Active Filters:',
                 style: TextStyle(
                   fontSize: 14,
@@ -428,7 +428,7 @@ class _AdvancedFilterSectionState extends State<AdvancedFilterSection> {
               const Spacer(),
               TextButton(
                 onPressed: widget.onClearFilters,
-                child: Text(
+                child: const Text(
                   'Clear All',
                   style: TextStyle(color: AppColors.primaryColor),
                 ),
@@ -442,12 +442,12 @@ class _AdvancedFilterSectionState extends State<AdvancedFilterSection> {
             children: activeFilters.map((filter) {
               return Chip(
                 label: Text('${filter.key}: ${filter.value}'),
-                deleteIcon: Icon(Icons.close, size: 18),
+                deleteIcon: const Icon(Icons.close, size: 18),
                 onDeleted: () {
                   _updateFilter(filter.key, null);
                 },
                 backgroundColor: AppColors.primaryColor.withOpacity(0.1),
-                labelStyle: TextStyle(color: AppColors.primaryColor),
+                labelStyle: const TextStyle(color: AppColors.primaryColor),
               );
             }).toList(),
           ),

@@ -15,7 +15,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
-        title: Text(ArabicText.appTitle),
+        title: const Text(ArabicText.appTitle),
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
         actions: [
@@ -50,7 +50,7 @@ class HomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Welcome message
-              Text(
+              const Text(
                 'مرحباً بك في ${ArabicText.appTitle}!',
                 style: TextStyle(
                   fontSize: 28,
@@ -59,7 +59,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10),
-              Text(
+              const Text(
                 'سوقك للمنتجات عالية الجودة',
                 style: TextStyle(
                   fontSize: 16,
@@ -75,7 +75,7 @@ class HomeScreen extends StatelessWidget {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           'لوحة الإدارة',
                           style: TextStyle(
                             fontSize: 20,
@@ -109,7 +109,7 @@ class HomeScreen extends StatelessWidget {
               ),
 
               // Regular app content
-              Expanded(
+              const Expanded(
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -119,7 +119,7 @@ class HomeScreen extends StatelessWidget {
                         size: 100,
                         color: AppColors.primaryText,
                       ),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
                       Text(
                         'ابدأ التسوق',
                         style: TextStyle(
@@ -128,7 +128,7 @@ class HomeScreen extends StatelessWidget {
                           color: AppColors.primaryText,
                         ),
                       ),
-                      const SizedBox(height: 10),
+                      SizedBox(height: 10),
                       Text(
                         'تصفح منتجاتنا واطلب طلباتك',
                         textAlign: TextAlign.center,
@@ -190,7 +190,7 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppTheme.textPrimaryColor,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -200,7 +200,7 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppTheme.textSecondaryColor,
                 fontSize: 12,
               ),

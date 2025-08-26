@@ -22,7 +22,7 @@ class DesignPatterns {
             child: Row(
               children: [
                 // Hamburger menu icon
-                Icon(
+                const Icon(
                   Icons.menu,
                   color: AppColors.white,
                   size: 24,
@@ -37,14 +37,14 @@ class DesignPatterns {
                       color: AppColors.white,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Row(
+                    child: const Row(
                       children: [
                         Icon(
                           Icons.search,
                           color: AppColors.primaryText,
                           size: 20,
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Text(
                           'Search products...',
                           style: TextStyle(
@@ -58,7 +58,7 @@ class DesignPatterns {
                 ),
                 const SizedBox(width: 16),
                 // Shopping cart icon
-                Icon(
+                const Icon(
                   Icons.shopping_cart,
                   color: AppColors.white,
                   size: 24,
@@ -88,7 +88,7 @@ class DesignPatterns {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Main title in primary text color
-          Text(
+          const Text(
             'Grocery Shop',
             style: TextStyle(
               color: AppColors.primaryText,
@@ -146,7 +146,7 @@ class DesignPatterns {
         // Category title in primary text color
         Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             color: AppColors.primaryText,
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -184,14 +184,14 @@ class DesignPatterns {
               ),
             ),
             padding: const EdgeInsets.all(16),
-            child: Row(
+            child: const Row(
               children: [
                 Icon(
                   Icons.star,
                   color: AppColors.white,
                   size: 24,
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Text(
                   'Featured Products',
                   style: TextStyle(

@@ -248,7 +248,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                 ),
               ),
               const SizedBox(width: 16),
-              Expanded(
+              const Expanded(
                 child: Text(
                   ArabicText.orderDetails,
                   style: TextStyle(
@@ -348,14 +348,14 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                   color: AppColors.primaryText.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(15),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.person,
                   color: AppColors.primaryText,
                   size: 24,
                 ),
               ),
               const SizedBox(width: 16),
-              Text(
+              const Text(
                 ArabicText.customerInformation,
                 style: TextStyle(
                   fontSize: 20,
@@ -394,7 +394,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
               children: [
                 Text(
                   label,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondaryColor,
                     fontWeight: FontWeight.w500,
@@ -450,7 +450,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                   color: AppColors.primaryText.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(15),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.shopping_bag,
                   color: AppColors.primaryText,
                   size: 24,
@@ -459,7 +459,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
               const SizedBox(width: 16),
               Text(
                 '${ArabicText.orderItems} (${items.length})',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                   color: AppColors.primaryText,
@@ -471,7 +471,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
 
           // Order Items List
           if (items.isNotEmpty) ...[
-            ...items.map((item) => _buildOrderItemCard(item)).toList(),
+            ...items.map((item) => _buildOrderItemCard(item)),
             const SizedBox(height: 20),
             const Divider(height: 1),
             const SizedBox(height: 20),
@@ -525,7 +525,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                       imageUrl,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
-                        return Icon(
+                        return const Icon(
                           Icons.image,
                           color: AppColors.textSecondaryColor,
                           size: 24,
@@ -533,7 +533,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                       },
                     ),
                   )
-                : Icon(
+                : const Icon(
                     Icons.image,
                     color: AppColors.textSecondaryColor,
                     size: 24,
@@ -560,7 +560,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                   children: [
                     Text(
                       '${ArabicText.quantity}: $quantity',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
                         color: AppColors.textSecondaryColor,
                       ),
@@ -568,7 +568,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                     const SizedBox(width: 16),
                     Text(
                       '${double.tryParse(price)?.toStringAsFixed(2) ?? '0.00'}₪ ${ArabicText.each}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
                         color: AppColors.textSecondaryColor,
                       ),
@@ -582,7 +582,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
           // Total Price
           Text(
             '${double.tryParse(total)?.toStringAsFixed(2) ?? '0.00'}₪',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: AppColors.primaryText,
@@ -660,14 +660,14 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                   color: AppColors.primaryText.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(15),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.location_on,
                   color: AppColors.primaryText,
                   size: 24,
                 ),
               ),
               const SizedBox(width: 16),
-              Text(
+              const Text(
                 '${ArabicText.shipping} & ${ArabicText.billing}',
                 style: TextStyle(
                   fontSize: 20,
@@ -721,7 +721,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
       children: [
         Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
             color: AppColors.primaryText,
@@ -781,14 +781,14 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                   color: AppColors.primaryText.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(15),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.settings,
                   color: AppColors.primaryText,
                   size: 24,
                 ),
               ),
               const SizedBox(width: 16),
-              Text(
+              const Text(
                 ArabicText.orderActions,
                 style: TextStyle(
                   fontSize: 20,
@@ -866,11 +866,11 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(ArabicText.updateOrderStatus),
+        title: const Text(ArabicText.updateOrderStatus),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(ArabicText.selectNewStatus),
+            const Text(ArabicText.selectNewStatus),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value: selectedStatus,
@@ -919,11 +919,11 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(ArabicText.updatePaymentStatus),
+        title: const Text(ArabicText.updatePaymentStatus),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(ArabicText.selectNewPaymentStatus),
+            const Text(ArabicText.selectNewPaymentStatus),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value: selectedPaymentStatus,
@@ -975,8 +975,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(ArabicText.cancelOrder),
-        content: Text('${ArabicText.confirmCancelOrder}'),
+        title: const Text(ArabicText.cancelOrder),
+        content: const Text(ArabicText.confirmCancelOrder),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

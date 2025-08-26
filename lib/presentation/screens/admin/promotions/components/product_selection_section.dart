@@ -16,7 +16,7 @@ class ProductSelectionSection extends StatelessWidget {
   final VoidCallback onShowCategoryDialog;
 
   const ProductSelectionSection({
-    Key? key,
+    super.key,
     required this.scopeType,
     required this.availableProducts,
     required this.selectedProductIds,
@@ -28,7 +28,7 @@ class ProductSelectionSection extends StatelessWidget {
     required this.onCategoryDeselected,
     required this.onShowProductDialog,
     required this.onShowCategoryDialog,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -180,9 +180,9 @@ class ProductSelectionSection extends StatelessWidget {
         ],
       );
     } else {
-      return Text(
+      return const Text(
         ArabicText.thisPromotionAppliesToAllProducts,
-        style: const TextStyle(
+        style: TextStyle(
           color: AppColors.textSecondaryColor,
           fontSize: 14,
         ),

@@ -443,7 +443,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                       ),
                       child: IconButton(
                         onPressed: () => Navigator.pop(context),
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.close,
                           color: AppColors.primaryText,
                           size: 24,
@@ -477,7 +477,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildEnhancedFormSection(
-                            '${ArabicText.basicInformation}', [
+                            ArabicText.basicInformation, [
                           _buildEnhancedTextField(ArabicText.productName,
                               _nameController, Icons.inventory_2),
                           _buildEnhancedTextField(ArabicText.description,
@@ -486,7 +486,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                           _buildEnhancedCategoryDropdown(),
                         ]),
                         _buildEnhancedFormSection(
-                            '${ArabicText.productDetails}', [
+                            ArabicText.productDetails, [
                           _buildEnhancedTextField(
                               ArabicText.sku, _skuController, Icons.qr_code),
                           _buildEnhancedTextField(ArabicText.barcode,
@@ -496,27 +496,27 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                           _buildEnhancedTextField('${ArabicText.weight} (كجم)',
                               _weightController, Icons.monitor_weight),
                         ]),
-                        _buildEnhancedFormSection('${ArabicText.pricing}', [
+                        _buildEnhancedFormSection(ArabicText.pricing, [
                           _buildEnhancedTextField(ArabicText.price,
                               _priceController, Icons.attach_money,
                               keyboardType: TextInputType.number),
                         ]),
-                        _buildEnhancedFormSection('${ArabicText.inventory}', [
+                        _buildEnhancedFormSection(ArabicText.inventory, [
                           _buildEnhancedTextField(ArabicText.productStock,
                               _stockQuantityController, Icons.inventory_2,
                               keyboardType: TextInputType.number),
-                          _buildEnhancedTextField('${ArabicText.minStockLevel}',
+                          _buildEnhancedTextField(ArabicText.minStockLevel,
                               _minStockLevelController, Icons.warning,
                               keyboardType: TextInputType.number),
-                          _buildEnhancedTextField('${ArabicText.maxStockLevel}',
+                          _buildEnhancedTextField(ArabicText.maxStockLevel,
                               _maxStockLevelController, Icons.trending_up,
                               keyboardType: TextInputType.number),
                         ]),
-                        _buildEnhancedFormSection('${ArabicText.images}', [
+                        _buildEnhancedFormSection(ArabicText.images, [
                           _buildEnhancedImagePicker(),
                           if (_imageUrls.isNotEmpty) _buildEnhancedImageUrls(),
                         ]),
-                        _buildEnhancedFormSection('${ArabicText.settings}', [
+                        _buildEnhancedFormSection(ArabicText.settings, [
                           _buildEnhancedTextField(
                               '${ArabicText.tags} (مفصولة بفواصل)',
                               _tagsController,
@@ -580,9 +580,9 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                 borderRadius: BorderRadius.circular(16)),
                             elevation: 0,
                           ),
-                          child: Text(
+                          child: const Text(
                             ArabicText.cancel,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
+                            style: TextStyle(fontWeight: FontWeight.w600),
                           ),
                         ),
                       ),
@@ -640,7 +640,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
       children: [
         Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: AppColors.primaryText,
@@ -705,7 +705,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
               Expanded(
                 child: Text(
                   title,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
                     color: AppColors.primaryText,
@@ -760,11 +760,11 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
           prefixIcon: Icon(icon, color: AppColors.primaryText),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: AppColors.primaryText),
+            borderSide: const BorderSide(color: AppColors.primaryText),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: AppColors.primaryText, width: 2),
+            borderSide: const BorderSide(color: AppColors.primaryText, width: 2),
           ),
         ),
       ),
@@ -788,7 +788,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
               label,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: AppColors.primaryText,
@@ -930,7 +930,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
               children: [
                 Text(
                   label,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: AppColors.primaryText,
@@ -980,7 +980,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
               ),
             ],
           ),
-          child: Text(
+          child: const Text(
             ArabicText.loading,
             style: TextStyle(color: AppColors.textSecondaryColor),
           ),
@@ -994,14 +994,14 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
         value: _getValidCategoryValue(),
         decoration: InputDecoration(
           labelText: ArabicText.productCategory,
-          prefixIcon: Icon(Icons.category, color: AppColors.primaryText),
+          prefixIcon: const Icon(Icons.category, color: AppColors.primaryText),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: AppColors.primaryText),
+            borderSide: const BorderSide(color: AppColors.primaryText),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: AppColors.primaryText, width: 2),
+            borderSide: const BorderSide(color: AppColors.primaryText, width: 2),
           ),
         ),
         items: _categories.map((category) {
@@ -1031,8 +1031,8 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 12),
             child: Text(
               ArabicText.productCategory,
               style: TextStyle(
@@ -1088,7 +1088,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                       ),
                     ],
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.category_outlined,
                     color: Colors.white,
                     size: 22,
@@ -1229,8 +1229,8 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 12),
             child: Text(
               ArabicText.productImages,
               style: TextStyle(
@@ -1279,14 +1279,14 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                             ),
                           ],
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.add_photo_alternate_outlined,
                           size: 36,
                           color: Colors.white,
                         ),
                       ),
                       const SizedBox(height: 16),
-                      Text(
+                      const Text(
                         ArabicText.productImages,
                         style: TextStyle(
                           fontSize: 18,
@@ -1295,7 +1295,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
+                      const Text(
                         ArabicText.clickToSelectImages,
                         style: TextStyle(
                           fontSize: 15,
@@ -1319,7 +1319,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                         child: ElevatedButton.icon(
                           onPressed: _pickImages,
                           icon: const Icon(Icons.photo_library, size: 22),
-                          label: Text(ArabicText.selectImage),
+                          label: const Text(ArabicText.selectImage),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primaryText,
                             foregroundColor: Colors.white,
@@ -1359,7 +1359,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                       children: [
                         Text(
                           '${ArabicText.selectedImages} (${_selectedImages.length})',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: AppColors.primaryText,
@@ -1451,7 +1451,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(ArabicText.currentImages,
+        const Text(ArabicText.currentImages,
             style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         SizedBox(
@@ -1531,7 +1531,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
               '${ArabicText.currentImages} (${_imageUrls.length})',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: AppColors.primaryText,
@@ -1753,17 +1753,17 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(ArabicText.deleteProduct),
-        content: Text(ArabicText.confirmDeleteProduct),
+        title: const Text(ArabicText.deleteProduct),
+        content: const Text(ArabicText.confirmDeleteProduct),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(ArabicText.cancel),
+            child: const Text(ArabicText.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(ArabicText.delete),
+            child: const Text(ArabicText.delete),
           ),
         ],
       ),
@@ -1833,7 +1833,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
           children: [
             TextField(
               controller: nameController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: ArabicText.categoryName,
                 border: OutlineInputBorder(),
               ),
@@ -1841,7 +1841,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
             const SizedBox(height: 16),
             TextField(
               controller: descriptionController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: ArabicText.description,
                 border: OutlineInputBorder(),
               ),
@@ -1850,7 +1850,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
             const SizedBox(height: 16),
             TextField(
               controller: imageUrlController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: ArabicText.imageUrl,
                 border: OutlineInputBorder(),
               ),
@@ -1860,7 +1860,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(ArabicText.cancel),
+            child: const Text(ArabicText.cancel),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -1905,17 +1905,17 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(ArabicText.deleteCategory),
-        content: Text(ArabicText.confirmDeleteCategory),
+        title: const Text(ArabicText.deleteCategory),
+        content: const Text(ArabicText.confirmDeleteCategory),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(ArabicText.cancel),
+            child: const Text(ArabicText.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(ArabicText.delete),
+            child: const Text(ArabicText.delete),
           ),
         ],
       ),
@@ -1978,7 +1978,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                         category['image_url'],
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
-                          return Icon(
+                          return const Icon(
                             Icons.category,
                             size: 40,
                             color: AppColors.textSecondaryColor,
@@ -1986,7 +1986,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                         },
                       ),
                     )
-                  : Icon(
+                  : const Icon(
                       Icons.category,
                       size: 40,
                       color: AppColors.textSecondaryColor,
@@ -2015,7 +2015,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                       category['description'].isNotEmpty)
                     Text(
                       category['description'],
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: AppColors.textSecondaryColor,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -2163,21 +2163,11 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                   children: [
                     // Enhanced Search and Filters with better shadows
                     Container(
-                      margin: const EdgeInsets.all(16),
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.12),
-                            blurRadius: 25,
-                            offset: const Offset(0, 8),
-                            spreadRadius: 3,
-                          ),
-                        ],
-                      ),
+                          horizontal: 10, vertical: 4),
+                     
                       child: Row(
                         children: [
                           Expanded(
@@ -2188,7 +2178,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                               ),
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 hintText:
                                     '${ArabicText.search} ${ArabicText.products}',
                                 hintStyle: TextStyle(
@@ -2196,7 +2186,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                   fontSize: 14,
                                 ),
                                 border: InputBorder.none,
-                                contentPadding: const EdgeInsets.all(8),
+                                contentPadding: EdgeInsets.all(8),
                               ),
                             ),
                           ),
@@ -2234,16 +2224,16 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                             child: DropdownButton<String>(
                               value: _selectedCategoryFilter,
                               dropdownColor: AppColors.primaryText,
-                              hint: Text(
+                              hint: const Text(
                                 ArabicText.all,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                               underline: Container(),
-                              icon: Icon(
+                              icon: const Icon(
                                 Icons.keyboard_arrow_down,
                                 size: 20,
                                 color: Colors.white,
@@ -2254,11 +2244,11 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                 fontWeight: FontWeight.w600,
                               ),
                               items: [
-                                DropdownMenuItem<String>(
+                                const DropdownMenuItem<String>(
                                   value: null,
                                   child: Text(
                                     ArabicText.all,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 14,
                                       color: Colors.white,
                                       fontWeight: FontWeight.w600,
@@ -2277,7 +2267,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                       ),
                                     ),
                                   );
-                                }).toList(),
+                                }),
                               ],
                               onChanged: _onCategoryFilterChanged,
                             ),
@@ -2288,7 +2278,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                               margin: const EdgeInsets.only(left: 8),
                               child: IconButton(
                                 onPressed: _clearAllFilters,
-                                icon: Icon(
+                                icon: const Icon(
                                   Icons.clear_all,
                                   color: AppColors.textSecondaryColor,
                                 ),
@@ -2308,7 +2298,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(
+                                      const Icon(
                                         Icons.inventory_2_outlined,
                                         size: 64,
                                         color: AppColors.textSecondaryColor,
@@ -2318,14 +2308,14 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                         _searchQuery.isEmpty
                                             ? ArabicText.noProductsYet
                                             : ArabicText.noProductsFound,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 18,
                                           color: AppColors.textSecondaryColor,
                                         ),
                                       ),
                                       if (_searchQuery.isEmpty) ...[
                                         const SizedBox(height: 8),
-                                        Text(
+                                        const Text(
                                           '${ArabicText.addYourFirst} ${ArabicText.products} ${ArabicText.toGetStarted}',
                                           style: TextStyle(
                                             color: AppColors.textSecondaryColor,
@@ -2336,7 +2326,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                   ),
                                 )
                               : ListView.builder(
-                                  padding: const EdgeInsets.all(20),
+                                  padding: const EdgeInsets.all(10),
                                   itemCount: _filteredProducts.length,
                                   itemBuilder: (context, index) {
                                     final product = _filteredProducts[index];
@@ -2454,7 +2444,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                           product['featured_image_url'],
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
-                            return Icon(
+                            return const Icon(
                               Icons.inventory_2,
                               size: 32,
                               color: AppColors.textSecondaryColor,
@@ -2462,7 +2452,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                           },
                         ),
                       )
-                    : Icon(
+                    : const Icon(
                         Icons.inventory_2,
                         size: 32,
                         color: AppColors.textSecondaryColor,
@@ -2506,7 +2496,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                 ),
                               ],
                             ),
-                            child: Text(
+                            child: const Text(
                               ArabicText.featuredProduct,
                               style: TextStyle(
                                 color: AppColors.primaryText,
@@ -2531,7 +2521,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                                 ),
                               ],
                             ),
-                            child: Text(
+                            child: const Text(
                               ArabicText.inactiveProduct,
                               style: TextStyle(
                                 color: AppColors.primaryText,
@@ -2545,7 +2535,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                     const SizedBox(height: 4),
                     Text(
                       '${ArabicText.productCategory}: ${product['category']?['name'] ?? ArabicText.uncategorized}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: AppColors.textSecondaryColor,
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
@@ -2568,7 +2558,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                           ),
                           child: Text(
                             '${ArabicText.price}: ${(double.tryParse(product['price']?.toString() ?? '0') ?? 0.0).toStringAsFixed(2)}₪',
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: AppColors.primaryText,
                               fontWeight: FontWeight.w700,
                               fontSize: 10,

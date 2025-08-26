@@ -264,17 +264,17 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(ArabicText.cancelOrder),
-        content: Text(ArabicText.confirmCancelOrder),
+        title: const Text(ArabicText.cancelOrder),
+        content: const Text(ArabicText.confirmCancelOrder),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(ArabicText.no),
+            child: const Text(ArabicText.no),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(ArabicText.yesCancel),
+            child: const Text(ArabicText.yesCancel),
           ),
         ],
       ),
@@ -410,7 +410,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         ArabicText.orderStatistics,
                         style: TextStyle(
                           fontSize: 22, // Larger font
@@ -532,7 +532,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
             // Value text with responsive font size
             Text(
               value,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 24, // Larger font size
                 fontWeight: FontWeight.w700,
                 color: AppColors.primaryText,
@@ -543,7 +543,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
             // Title text with responsive font size
             Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12, // Larger font size
                 color: AppColors.textSecondaryColor,
                 fontWeight: FontWeight.w500,
@@ -714,7 +714,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                       createdAt != null
                           ? '${ArabicText.date}: ${createdAt.toString().split(' ')[0]}'
                           : '${ArabicText.orderDate}: ${ArabicText.unknownDate}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: AppColors.textSecondaryColor,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -725,7 +725,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                     children: [
                       IconButton(
                         onPressed: () => _showStatusUpdateDialog(order),
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.edit,
                           color: AppColors.primaryText,
                           size: 20,
@@ -777,7 +777,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
         const SizedBox(height: 8),
         Text(
           value,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: AppColors.primaryText,
@@ -786,7 +786,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
         ),
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 11,
             color: AppColors.textSecondaryColor,
           ),
@@ -798,7 +798,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
 
   void _showStatusUpdateDialog(Map<String, dynamic> order) {
     // Map database status to Arabic text for display
-    String _getArabicStatus(String status) {
+    String getArabicStatus(String status) {
       switch (status) {
         case 'pending':
           return ArabicText.pending;
@@ -814,7 +814,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
     }
 
     // Map database payment status to Arabic text for display
-    String _getArabicPaymentStatus(String status) {
+    String getArabicPaymentStatus(String status) {
       switch (status) {
         case 'pending':
           return ArabicText.pendingPayment;
@@ -832,7 +832,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
     }
 
     // Map Arabic text back to database status
-    String _getDatabaseStatus(String arabicStatus) {
+    String getDatabaseStatus(String arabicStatus) {
       if (arabicStatus == ArabicText.pending) return 'pending';
       if (arabicStatus == ArabicText.shipped) return 'shipped';
       if (arabicStatus == ArabicText.delivered) return 'delivered';
@@ -841,19 +841,20 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
     }
 
     // Map Arabic payment status back to database status
-    String _getDatabasePaymentStatus(String arabicStatus) {
+    String getDatabasePaymentStatus(String arabicStatus) {
       if (arabicStatus == ArabicText.pendingPayment) return 'pending';
       if (arabicStatus == ArabicText.paid) return 'paid';
       if (arabicStatus == ArabicText.failed) return 'failed';
       if (arabicStatus == ArabicText.refunded) return 'refunded';
-      if (arabicStatus == ArabicText.partiallyRefunded)
+      if (arabicStatus == ArabicText.partiallyRefunded) {
         return 'partially_refunded';
+      }
       return 'pending';
     }
 
-    String selectedStatus = _getArabicStatus(order['status'] ?? 'pending');
+    String selectedStatus = getArabicStatus(order['status'] ?? 'pending');
     String selectedPaymentStatus =
-        _getArabicPaymentStatus(order['payment_status'] ?? 'pending');
+        getArabicPaymentStatus(order['payment_status'] ?? 'pending');
 
     Navigator.push(
       context,
@@ -981,20 +982,9 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                   children: [
                     // Enhanced Search and Filters
                     Container(
-                      margin: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.all(10),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 16),
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 15,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
+                          horizontal: 4, vertical: 4),
                       child: Column(
                         children: [
                           // Search
@@ -1006,15 +996,16 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                                   color: AppColors.primaryText.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: Icon(
+                                child: const Icon(
                                   Icons.search,
                                   color: AppColors.primaryText,
                                   size: 24,
                                 ),
                               ),
-                              const SizedBox(width: 16),
+                              const SizedBox(width: 6),
                               Expanded(
                                 child: TextField(
+                                  
                                   controller: _searchController,
                                   onChanged: _filterOrders,
                                   style: const TextStyle(
@@ -1039,14 +1030,14 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                                     _searchController.clear();
                                     _filterOrders('');
                                   },
-                                  icon: Icon(
+                                  icon: const Icon(
                                     Icons.clear,
                                     color: AppColors.textSecondaryColor,
                                   ),
                                 ),
                             ],
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 6),
 
                           // Status and User Filters
                           Row(
@@ -1054,7 +1045,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                               // Status Filter
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
+                                    horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
                                   color: AppColors.white,
                                   borderRadius: BorderRadius.circular(8),
@@ -1066,7 +1057,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                                 ),
                                 child: DropdownButton<String>(
                                   value: _selectedStatus,
-                                  hint: Text(
+                                  hint: const Text(
                                     ArabicText.all,
                                     style: TextStyle(
                                       fontSize: 12,
@@ -1074,13 +1065,13 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                                     ),
                                   ),
                                   underline: Container(),
-                                  icon: Icon(
+                                  icon: const Icon(
                                     Icons.keyboard_arrow_down,
                                     size: 16,
                                     color: AppColors.primaryText,
                                   ),
                                   items: [
-                                    DropdownMenuItem<String>(
+                                    const DropdownMenuItem<String>(
                                       value: ArabicText.all,
                                       child: Text(
                                         ArabicText.all,
@@ -1104,16 +1095,16 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                                           ),
                                         ),
                                       );
-                                    }).toList(),
+                                    }),
                                   ],
                                   onChanged: _onStatusFilterChanged,
                                 ),
                               ),
-                              const SizedBox(width: 12),
+                              const SizedBox(width: 6),
                               // User Filter
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
+                                    horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
                                   color: AppColors.white,
                                   borderRadius: BorderRadius.circular(8),
@@ -1125,7 +1116,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                                 ),
                                 child: DropdownButton<String>(
                                   value: _selectedUserFilter,
-                                  hint: Text(
+                                  hint: const Text(
                                     ArabicText.all,
                                     style: TextStyle(
                                       fontSize: 12,
@@ -1133,13 +1124,13 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                                     ),
                                   ),
                                   underline: Container(),
-                                  icon: Icon(
+                                  icon: const Icon(
                                     Icons.keyboard_arrow_down,
                                     size: 16,
                                     color: AppColors.primaryText,
                                   ),
                                   items: [
-                                    DropdownMenuItem<String>(
+                                    const DropdownMenuItem<String>(
                                       value: null,
                                       child: Text(
                                         ArabicText.all,
@@ -1160,7 +1151,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                                           ),
                                         ),
                                       );
-                                    }).toList(),
+                                    }),
                                   ],
                                   onChanged: (String? newValue) {
                                     if (newValue != null) {
@@ -1187,19 +1178,19 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(
+                                      const Icon(
                                         Icons.shopping_cart_outlined,
                                         size: 64,
                                         color: AppColors.textSecondaryColor,
                                       ),
-                                      const SizedBox(height: 16),
+                                      const SizedBox(height: 6),
                                       Text(
                                         _searchQuery.isEmpty &&
                                                 _selectedStatus ==
                                                     ArabicText.all
-                                            ? '${ArabicText.noOrdersYet}'
-                                            : '${ArabicText.noOrdersFound}',
-                                        style: TextStyle(
+                                            ? ArabicText.noOrdersYet
+                                            : ArabicText.noOrdersFound,
+                                        style: const TextStyle(
                                           fontSize: 18,
                                           color: AppColors.textSecondaryColor,
                                         ),
@@ -1208,7 +1199,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                                           _selectedStatus ==
                                               ArabicText.all) ...[
                                         const SizedBox(height: 8),
-                                        Text(
+                                        const Text(
                                           ArabicText.ordersWillAppearHere,
                                           style: TextStyle(
                                             color: AppColors.textSecondaryColor,

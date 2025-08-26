@@ -12,7 +12,7 @@ class PromotionSettingsSection extends StatelessWidget {
   final TextEditingController getYController;
 
   const PromotionSettingsSection({
-    Key? key,
+    super.key,
     required this.promotionType,
     required this.onPromotionTypeChanged,
     required this.discountController,
@@ -20,7 +20,7 @@ class PromotionSettingsSection extends StatelessWidget {
     required this.maxDiscountController,
     required this.buyXController,
     required this.getYController,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

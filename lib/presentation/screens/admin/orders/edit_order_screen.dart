@@ -214,9 +214,9 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Order Status Section
-              Text(
+              const Text(
                 '${ArabicText.orderStatus}:',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: AppColors.primaryText,
@@ -272,9 +272,9 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
               const SizedBox(height: 24),
 
               // Payment Status Section
-              Text(
+              const Text(
                 '${ArabicText.paymentStatus}:',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: AppColors.primaryText,
@@ -343,9 +343,9 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      child: Text(
+                      child: const Text(
                         ArabicText.cancel,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.primaryText,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -376,9 +376,9 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                                     AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
-                          : Text(
+                          : const Text(
                               ArabicText.update,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),

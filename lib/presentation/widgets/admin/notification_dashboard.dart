@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/arabic_text.dart';
 import '../../../core/providers/notification_provider.dart';
-import '../../../core/models/notification_model.dart';
 import 'notification_panel.dart';
 
 class NotificationDashboard extends StatelessWidget {

@@ -126,16 +126,16 @@ class _SelectCategoriesScreenState extends State<SelectCategoriesScreen> {
         'SelectCategoriesScreen build - isLoading: $_isLoading, categories: ${_categories.length}, filtered: ${_filteredCategories.length}');
     return Scaffold(
       appBar: AppBar(
-        title: Text(ArabicText.selectCategories,
-            style: const TextStyle(color: Colors.white)),
+        title: const Text(ArabicText.selectCategories,
+            style: TextStyle(color: Colors.white)),
         backgroundColor: AppColors.primaryText,
         foregroundColor: Colors.white,
         actions: [
           TextButton(
             onPressed: _saveSelection,
-            child: Text(
+            child: const Text(
               ArabicText.save,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Colors.white),
             ),
           ),
         ],
@@ -218,7 +218,7 @@ class _SelectCategoriesScreenState extends State<SelectCategoriesScreen> {
                                     AppColors.primaryText.withOpacity(0.1),
                                 child: Text(
                                   (category['name'] ?? '')[0].toUpperCase(),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: AppColors.primaryText,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -248,7 +248,7 @@ class _SelectCategoriesScreenState extends State<SelectCategoriesScreen> {
             Expanded(
               child: OutlinedButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text(ArabicText.cancel),
+                child: const Text(ArabicText.cancel),
               ),
             ),
             const SizedBox(width: 16),

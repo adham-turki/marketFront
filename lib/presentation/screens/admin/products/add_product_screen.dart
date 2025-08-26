@@ -4,6 +4,7 @@ import 'dart:io';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/arabic_text.dart';
 import '../../../../core/network/api_service.dart';
+import '../../../../core/network/connection_test.dart';
 
 class AddProductScreen extends StatefulWidget {
   final Function(Map<String, dynamic>) onProductAdded;
@@ -29,7 +30,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   String? _selectedCategory;
   List<Map<String, dynamic>> _categories = [];
-  List<File> _selectedImages = [];
+  final List<File> _selectedImages = [];
   bool _isFeatured = false;
   bool _isActive = true;
   bool _isLoading = false;
@@ -38,7 +39,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   void initState() {
     super.initState();
+    print('AddProductScreen initState called');
     _apiService.init();
+    print('API service initialized');
     _loadCategories();
   }
 
@@ -59,12 +62,26 @@ class _AddProductScreenState extends State<AddProductScreen> {
     });
 
     try {
+      final isConnected = await ConnectionTest.testBackendConnection();
+      if (!isConnected) {
+        _showSnackBar('فشل الاتصال بالخادم. يرجى التأكد من تشغيل الخادم.',
+            isError: true);
+        return;
+      }
+
       final response = await _apiService.get('/categories');
+
       if (response.statusCode == 200 && response.data['success']) {
+        // Fix: Backend returns 'data' not 'categories'
+        final categoriesData = response.data['data'] ?? [];
+
         setState(() {
-          _categories = List<Map<String, dynamic>>.from(
-              response.data['categories'] ?? []);
+          _categories = List<Map<String, dynamic>>.from(categoriesData);
         });
+      } else {
+        _showSnackBar(
+            'فشل تحميل الفئات: ${response.data['message'] ?? 'خطأ غير معروف'}',
+            isError: true);
       }
     } catch (e) {
       _showSnackBar('${ArabicText.errorLoadingCategories}: $e', isError: true);
@@ -215,11 +232,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
             maxLines: maxLines,
             keyboardType: keyboardType,
             decoration: InputDecoration(
-              border: OutlineInputBorder(
+              border: const OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(12)),
               ),
               contentPadding:
-                  EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               filled: true,
               fillColor: Colors.white,
               prefixIcon:
@@ -237,15 +254,47 @@ class _AddProductScreenState extends State<AddProductScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           ArabicText.productCategory,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
             color: AppColors.primaryText,
           ),
         ),
         const SizedBox(height: 8),
+
+        // Debug info in development
+        if (_categories.isEmpty && !_isLoadingCategories)
+          Container(
+            padding: const EdgeInsets.all(8),
+            margin: const EdgeInsets.only(bottom: 8),
+            decoration: BoxDecoration(
+              color: Colors.orange.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.orange.withOpacity(0.3)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Debug: No categories loaded. Categories count: ${_categories.length}',
+                    style: TextStyle(
+                      color: Colors.orange[800],
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: _loadCategories,
+                  icon:
+                      Icon(Icons.refresh, color: Colors.orange[800], size: 16),
+                  tooltip: 'إعادة تحميل الفئات',
+                ),
+              ],
+            ),
+          ),
+
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -261,24 +310,26 @@ class _AddProductScreenState extends State<AddProductScreen> {
           child: DropdownButtonFormField<String>(
             value: _selectedCategory,
             decoration: InputDecoration(
-              border: OutlineInputBorder(
+              border: const OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(12)),
               ),
               contentPadding:
-                  EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               filled: true,
               fillColor: Colors.white,
               hintText: _isLoadingCategories
                   ? ArabicText.loading
-                  : ArabicText.selectCategory,
+                  : _categories.isEmpty
+                      ? 'لا توجد فئات متاحة'
+                      : ArabicText.selectCategory,
             ),
             items: _categories
                 .map((category) => DropdownMenuItem(
                       value: category['id'].toString(),
-                      child: Text(category['name'] ?? ''),
+                      child: Text(category['name'] ?? 'Unknown Category'),
                     ))
                 .toList(),
-            onChanged: _isLoadingCategories
+            onChanged: _isLoadingCategories || _categories.isEmpty
                 ? null
                 : (value) {
                     setState(() {
@@ -295,9 +346,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           ArabicText.productImages,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
             color: AppColors.primaryText,
@@ -350,9 +401,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 20),
-        Text(
+        const Text(
           ArabicText.selectedImages,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
             color: AppColors.primaryText,
@@ -469,15 +520,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
             Text(
               title,
               style: const TextStyle(
-                fontSize: 18,
+                fontSize: 22,
                 fontWeight: FontWeight.w700,
                 color: AppColors.primaryText,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 10),
         ...children,
+        const SizedBox(height: 16),
       ],
     );
   }
@@ -487,9 +539,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
     return Scaffold(
       backgroundColor: AppColors.primaryBackground,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           ArabicText.addNewProduct,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w700,
             fontSize: 20,
@@ -524,15 +576,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
         ),
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.primaryText.withOpacity(0.05),
-              AppColors.primaryBackground,
-            ],
-          ),
+        decoration: const BoxDecoration(
+          color: Color.fromARGB(255, 253, 248, 248),
         ),
         child: Form(
           key: _formKey,
@@ -541,65 +586,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Enhanced Header Section
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryText,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primaryText.withOpacity(0.3),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const Icon(
-                          Icons.add_circle_outline,
-                          size: 40,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        ArabicText.addNewProduct,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                          letterSpacing: 0.5,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Fill in the details below to add a new product to your inventory',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white.withOpacity(0.9),
-                          fontWeight: FontWeight.w500,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
                 // Basic Information Section
                 _buildEnhancedSection(
-                  'Basic Information',
+                  'المعلومات الأساسية',
                   Icons.info_outline,
                   [
                     _buildEnhancedTextField(
@@ -608,7 +597,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       Icons.inventory_2,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter product name';
+                          return 'يرجى إدخال اسم المنتج';
                         }
                         return null;
                       },
@@ -625,7 +614,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
                 // Product Details Section
                 _buildEnhancedSection(
-                  'Product Details',
+                  'تفاصيل المنتج',
                   Icons.details_outlined,
                   [
                     _buildEnhancedTextField(
@@ -643,7 +632,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
                 // Pricing Section
                 _buildEnhancedSection(
-                  'Pricing',
+                  'التسعير',
                   Icons.attach_money,
                   [
                     _buildEnhancedTextField(
@@ -653,10 +642,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       keyboardType: TextInputType.number,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter price';
+                          return 'يرجى إدخال السعر';
                         }
                         if (double.tryParse(value) == null) {
-                          return 'Please enter a valid price';
+                          return 'يرجى إدخال سعر صحيح';
                         }
                         return null;
                       },
@@ -666,7 +655,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
                 // Inventory Section
                 _buildEnhancedSection(
-                  'Inventory',
+                  'المخزون',
                   Icons.inventory_2_outlined,
                   [
                     _buildEnhancedTextField(
@@ -676,10 +665,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       keyboardType: TextInputType.number,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter stock quantity';
+                          return 'يرجى إدخال الكمية في المخزون';
                         }
                         if (int.tryParse(value) == null) {
-                          return 'Please enter a valid quantity';
+                          return 'يرجى إدخال كمية صحيحة';
                         }
                         return null;
                       },
@@ -689,7 +678,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
                 // Images Section
                 _buildEnhancedSection(
-                  'Product Images',
+                  'صور المنتج',
                   Icons.image_outlined,
                   [
                     _buildEnhancedImagePicker(),
@@ -699,7 +688,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
                 // Settings Section
                 _buildEnhancedSection(
-                  'Settings',
+                  'الإعدادات',
                   Icons.settings_outlined,
                   [
                     _buildEnhancedSwitch(
@@ -751,18 +740,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
                               strokeWidth: 2,
                             ),
                           )
-                        : Row(
+                        : const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.save, size: 24),
-                              const SizedBox(width: 12),
-                              Text(
-                                'Save Product',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
+                              Icon(Icons.save, size: 24),
+                              SizedBox(width: 12),
+                              Text(ArabicText.save,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                  )),
                             ],
                           ),
                   ),

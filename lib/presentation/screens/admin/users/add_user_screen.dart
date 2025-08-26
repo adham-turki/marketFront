@@ -131,8 +131,9 @@ class _AddUserScreenState extends State<AddUserScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('إضافة مستخدم جديد'),
-        backgroundColor: AppColors.primaryBackground,
+        title: const Text('إضافة مستخدم جديد',
+            style: TextStyle(color: Colors.white)),
+        backgroundColor: AppColors.primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
       ),
@@ -148,9 +149,9 @@ class _AddUserScreenState extends State<AddUserScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // User Name
-                Text(
+                const Text(
                   ArabicText.fullName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.primaryText,
@@ -191,9 +192,9 @@ class _AddUserScreenState extends State<AddUserScreen> {
                 const SizedBox(height: 20),
 
                 // User Email
-                Text(
+                const Text(
                   ArabicText.email,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.primaryText,
@@ -239,9 +240,9 @@ class _AddUserScreenState extends State<AddUserScreen> {
                 const SizedBox(height: 20),
 
                 // User Phone
-                Text(
+                const Text(
                   ArabicText.phoneNumber,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.primaryText,
@@ -283,9 +284,9 @@ class _AddUserScreenState extends State<AddUserScreen> {
                 const SizedBox(height: 20),
 
                 // User Role
-                Text(
+                const Text(
                   ArabicText.userRole,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.primaryText,
@@ -332,9 +333,9 @@ class _AddUserScreenState extends State<AddUserScreen> {
                 const SizedBox(height: 20),
 
                 // Password
-                Text(
+                const Text(
                   ArabicText.password,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.primaryText,
@@ -379,9 +380,9 @@ class _AddUserScreenState extends State<AddUserScreen> {
                 const SizedBox(height: 20),
 
                 // Confirm Password
-                Text(
+                const Text(
                   ArabicText.confirmPassword,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.primaryText,
@@ -442,9 +443,9 @@ class _AddUserScreenState extends State<AddUserScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         ArabicText.isActive,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                           color: AppColors.primaryText,
@@ -478,9 +479,9 @@ class _AddUserScreenState extends State<AddUserScreen> {
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
-                        child: Text(
+                        child: const Text(
                           ArabicText.cancel,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.primaryText,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -511,9 +512,9 @@ class _AddUserScreenState extends State<AddUserScreen> {
                                       Colors.white),
                                 ),
                               )
-                            : Text(
+                            : const Text(
                                 ArabicText.save,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),

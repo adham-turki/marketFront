@@ -133,14 +133,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 color: AppColors.primaryText.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.inventory_2,
                 size: 80,
                 color: AppColors.primaryText,
               ),
             ),
             const SizedBox(height: 16),
-            Text(
+            const Text(
               'No Image Available',
               style: TextStyle(
                 fontSize: 18,
@@ -310,11 +310,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
+          SizedBox(
             width: 140,
             child: Text(
               '$label:',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textSecondaryColor,

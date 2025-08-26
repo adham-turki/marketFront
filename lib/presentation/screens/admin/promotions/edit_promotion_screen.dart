@@ -310,8 +310,8 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(ArabicText.editPromotion,
-            style: const TextStyle(color: Colors.white)),
+        title: const Text(ArabicText.editPromotion,
+            style: TextStyle(color: Colors.white)),
         backgroundColor: AppColors.primaryText,
         foregroundColor: Colors.white,
       ),
@@ -322,15 +322,15 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'المعلومات الأساسية',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: AppColors.primaryText),
               ),
               const SizedBox(height: 20),
-              Text(ArabicText.promotionName),
+              const Text(ArabicText.promotionName),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _nameController,
@@ -347,7 +347,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                 },
               ),
               const SizedBox(height: 20),
-              Text(ArabicText.promotionDescription),
+              const Text(ArabicText.promotionDescription),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _descriptionController,
@@ -365,7 +365,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                 },
               ),
               const SizedBox(height: 20),
-              Text(ArabicText.promotionType),
+              const Text(ArabicText.promotionType),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: _selectedType,
@@ -381,7 +381,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                 onChanged: (value) => setState(() => _selectedType = value),
               ),
               const SizedBox(height: 20),
-              Text(ArabicText.discountPercentage),
+              const Text(ArabicText.discountPercentage),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _discountPercentageController,
@@ -406,7 +406,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(ArabicText.startDate),
+                        const Text(ArabicText.startDate),
                         const SizedBox(height: 8),
                         InkWell(
                           onTap: () => _selectDate(context, true),
@@ -429,7 +429,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(ArabicText.endDate),
+                        const Text(ArabicText.endDate),
                         const SizedBox(height: 8),
                         InkWell(
                           onTap: () => _selectDate(context, false),
@@ -450,7 +450,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              Text('نطاق التطبيق'),
+              const Text('نطاق التطبيق'),
               const SizedBox(height: 8),
               Column(
                 children: [
@@ -476,7 +476,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
               ),
               const SizedBox(height: 20),
               if (_scopeType == 'category') ...[
-                Text('اختر الفئات'),
+                const Text('اختر الفئات'),
                 const SizedBox(height: 8),
                 InkWell(
                   onTap: _showCategorySelectionPage,
@@ -503,7 +503,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                 const SizedBox(height: 20),
               ],
               if (_scopeType == 'specific_products') ...[
-                Text('اختر المنتجات'),
+                const Text('اختر المنتجات'),
                 const SizedBox(height: 8),
                 InkWell(
                   onTap: _showProductSelectionPage,
@@ -530,9 +530,9 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                 const SizedBox(height: 20),
               ],
               const SizedBox(height: 20),
-              Text(
+              const Text(
                 'إعدادات إضافية',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: AppColors.primaryText),
@@ -544,7 +544,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('الحد الأدنى للطلب'),
+                        const Text('الحد الأدنى للطلب'),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _minimumOrderController,
@@ -573,7 +573,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('الحد الأقصى للخصم'),
+                        const Text('الحد الأقصى للخصم'),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _maxDiscountController,
@@ -606,7 +606,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('حد الاستخدام الإجمالي'),
+                        const Text('حد الاستخدام الإجمالي'),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _usageLimitController,
@@ -634,7 +634,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('حد الاستخدام لكل منتج'),
+                        const Text('حد الاستخدام لكل منتج'),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _maxQuantityPerProductController,
@@ -666,7 +666,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('حد الاستخدام لكل منتج'),
+                        const Text('حد الاستخدام لكل منتج'),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _usageLimitPerProductController,
@@ -694,7 +694,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('الأولوية'),
+                        const Text('الأولوية'),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _priorityController,
@@ -723,7 +723,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(ArabicText.isFeatured),
+                  const Text(ArabicText.isFeatured),
                   Switch(
                     value: _isFeatured,
                     onChanged: (value) => setState(() => _isFeatured = value),
@@ -733,7 +733,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(ArabicText.isStackable),
+                  const Text(ArabicText.isStackable),
                   Switch(
                     value: _isStackable,
                     onChanged: (value) => setState(() => _isStackable = value),
@@ -743,7 +743,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(ArabicText.isActive),
+                  const Text(ArabicText.isActive),
                   Switch(
                     value: _isActive,
                     onChanged: (value) => setState(() => _isActive = value),
@@ -757,7 +757,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                     child: OutlinedButton(
                       onPressed:
                           _isLoading ? null : () => Navigator.pop(context),
-                      child: Text(ArabicText.cancel),
+                      child: const Text(ArabicText.cancel),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -769,7 +769,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(strokeWidth: 2))
-                          : Text(ArabicText.update),
+                          : const Text(ArabicText.update),
                     ),
                   ),
                 ],

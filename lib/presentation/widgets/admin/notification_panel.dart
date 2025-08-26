@@ -48,22 +48,22 @@ class _NotificationPanelState extends State<NotificationPanel>
           // Header
           Container(
             padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.primaryColor,
               borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(20)),
+                  BorderRadius.vertical(top: Radius.circular(20)),
             ),
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.notifications,
                   color: Colors.white,
                   size: 24,
                 ),
                 const SizedBox(width: 12),
-                Text(
+                const Text(
                   ArabicText.notifications,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -86,7 +86,7 @@ class _NotificationPanelState extends State<NotificationPanel>
               labelColor: AppColors.primaryColor,
               unselectedLabelColor: Colors.grey[600],
               indicatorColor: AppColors.primaryColor,
-              tabs: [
+              tabs: const [
                 Tab(text: ArabicText.all),
                 Tab(text: ArabicText.unread),
                 Tab(text: ArabicText.urgent),
@@ -246,9 +246,9 @@ class _NotificationPanelState extends State<NotificationPanel>
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Text(
+                  child: const Text(
                     ArabicText.urgent,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -279,7 +279,7 @@ class _NotificationPanelState extends State<NotificationPanel>
               if (!notification.isRead)
                 TextButton(
                   onPressed: () => _markAsRead(notification.id),
-                  child: Text(
+                  child: const Text(
                     ArabicText.markAsRead,
                     style: TextStyle(
                       color: AppColors.primaryColor,
@@ -292,7 +292,7 @@ class _NotificationPanelState extends State<NotificationPanel>
                   onPressed: () => _handleAction(notification),
                   child: Text(
                     '${ArabicText.navigatingTo} ${notification.relatedType ?? ''}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: AppColors.primaryColor,
                       fontSize: 12,
                     ),

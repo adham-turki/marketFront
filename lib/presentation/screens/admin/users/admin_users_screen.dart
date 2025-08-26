@@ -446,11 +446,11 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           color: AppColors.white,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Colors.grey.shade200),
-          boxShadow: [
+          boxShadow:  [
             BoxShadow(
-              color: Colors.black,
+              color: Colors.black.withOpacity(0.05),
               blurRadius: 4,
-              offset: const Offset(0, 1),
+              offset: Offset(0, 1),
             ),
           ],
         ),

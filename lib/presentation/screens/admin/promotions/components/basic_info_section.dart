@@ -10,13 +10,13 @@ class BasicInfoSection extends StatelessWidget {
   final Function(bool?) onRequiresCouponChanged;
 
   const BasicInfoSection({
-    Key? key,
+    super.key,
     required this.nameController,
     required this.descriptionController,
     required this.codeController,
     required this.requiresCoupon,
     required this.onRequiresCouponChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

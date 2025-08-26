@@ -8,8 +8,8 @@ void main() {
     testWidgets('AdminOrdersScreen builds without errors',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: const AdminOrdersScreen(),
+        const MaterialApp(
+          home: AdminOrdersScreen(),
         ),
       );
 

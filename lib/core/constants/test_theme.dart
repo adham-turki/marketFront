@@ -39,7 +39,7 @@ class ThemeTestScreen extends StatelessWidget {
               child: Container(
                 color: AppColors.white,
                 padding: const EdgeInsets.all(20),
-                child: Column(
+                child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -50,7 +50,7 @@ class ThemeTestScreen extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                     Text(
                       'This text should be on a white background. If you see any other color, the theme is not working correctly.',
                       style: TextStyle(
@@ -58,12 +58,12 @@ class ThemeTestScreen extends StatelessWidget {
                         fontSize: 16,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                     // Test card
                     Card(
                       color: AppColors.white,
                       child: Padding(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(16),
                         child: Text(
                           'This card should have a white background',
                           style: TextStyle(

@@ -271,9 +271,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             ? null
                                             : _register,
                                         isLoading: authProvider.isLoading,
-                                        child: Text(
+                                        child: const Text(
                                           ArabicText.signUp,
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -302,7 +302,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           ),
                                           child: Text(
                                             authProvider.errorMessage,
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               color: AppColors.errorColor,
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
@@ -317,9 +317,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   const SizedBox(height: 12),
                                   TextButton(
                                     onPressed: () => context.go('/login'),
-                                    child: Text(
+                                    child: const Text(
                                       '${ArabicText.alreadyHaveAccount} ${ArabicText.login}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         color: AppColors.primaryText,
                                       ),
                                     ),

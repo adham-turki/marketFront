@@ -126,16 +126,16 @@ class _SelectProductsScreenState extends State<SelectProductsScreen> {
         'SelectProductsScreen build - isLoading: $_isLoading, products: ${_products.length}, filtered: ${_filteredProducts.length}');
     return Scaffold(
       appBar: AppBar(
-        title: Text(ArabicText.selectProducts,
-            style: const TextStyle(color: Colors.white)),
+        title: const Text(ArabicText.selectProducts,
+            style: TextStyle(color: Colors.white)),
         backgroundColor: AppColors.primaryText,
         foregroundColor: Colors.white,
         actions: [
           TextButton(
             onPressed: _saveSelection,
-            child: Text(
+            child: const Text(
               ArabicText.save,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Colors.white),
             ),
           ),
         ],
@@ -232,7 +232,7 @@ class _SelectProductsScreenState extends State<SelectProductsScreen> {
                               secondary: CircleAvatar(
                                 backgroundColor:
                                     AppColors.primaryText.withOpacity(0.1),
-                                child: Icon(
+                                child: const Icon(
                                   Icons.inventory_2,
                                   color: AppColors.primaryText,
                                 ),
@@ -261,7 +261,7 @@ class _SelectProductsScreenState extends State<SelectProductsScreen> {
             Expanded(
               child: OutlinedButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text(ArabicText.cancel),
+                child: const Text(ArabicText.cancel),
               ),
             ),
             const SizedBox(width: 16),

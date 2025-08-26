@@ -394,7 +394,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide:
-                                  BorderSide(color: AppColors.primaryText),
+                                  const BorderSide(color: AppColors.primaryText),
                             ),
                           ),
                           items: const [
@@ -1064,7 +1064,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           return AlertDialog(
-            title: Text(ArabicText.selectCategories),
+            title: const Text(ArabicText.selectCategories),
             content: SizedBox(
               width: double.maxFinite,
               height: 400,
@@ -1308,11 +1308,11 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
             : 1,
         'max_quantity_per_product':
             _maxQuantityPerProductController.text.isNotEmpty
-                ? int.tryParse(_maxQuantityPerProductController.text) ?? null
+                ? int.tryParse(_maxQuantityPerProductController.text)
                 : null,
         'usage_limit_per_product':
             _usageLimitPerProductController.text.isNotEmpty
-                ? int.tryParse(_usageLimitPerProductController.text) ?? null
+                ? int.tryParse(_usageLimitPerProductController.text)
                 : null,
         'start_date': _startDate!.toIso8601String(),
         'end_date': _endDate!.toIso8601String(),
@@ -1608,9 +1608,9 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
             ),
             if (_searchQuery.isEmpty) ...[
               const SizedBox(height: 8),
-              Text(
+              const Text(
                 '${ArabicText.addYourFirst} ${ArabicText.promotions} ${ArabicText.toGetStarted}',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textSecondaryColor,
                 ),
               ),
@@ -2523,17 +2523,17 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(ArabicText.deleteCoupon),
-        content: Text(
+        title: const Text(ArabicText.deleteCoupon),
+        content: const Text(
             '${ArabicText.confirmDelete} ${ArabicText.coupons}؟ ${ArabicText.thisActionCannotBeUndone}'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: Text(ArabicText.cancel)),
+              child: const Text(ArabicText.cancel)),
           TextButton(
               onPressed: () => Navigator.pop(context, true),
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: Text(ArabicText.delete)),
+              child: const Text(ArabicText.delete)),
         ],
       ),
     );
@@ -2554,7 +2554,7 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
       final newActive = !(coupon['is_active'] == true);
       await _apiService.put('/coupons/${coupon['id']}/status',
           data: {'is_active': newActive});
-      _showSnackBar('${ArabicText.couponUpdatedSuccessfully}');
+      _showSnackBar(ArabicText.couponUpdatedSuccessfully);
       _loadCoupons();
     } catch (e) {
       _showSnackBar('${ArabicText.errorUpdatingCoupon}: $e', isError: true);
@@ -2575,9 +2575,9 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
             color: AppColors.secondaryBackground,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Text(
+          child: const Text(
             ArabicText.minimumOrderHelp,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondaryColor,
               fontSize: 12,
             ),

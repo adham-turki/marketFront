@@ -135,7 +135,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primaryBackground,
+      backgroundColor: const Color.fromARGB(255, 248, 238, 238),
       appBar: AppBar(
         title: Text(
           '${widget.user['full_name'] ?? widget.user['username'] ?? ArabicText.user} ${ArabicText.details}',
@@ -264,7 +264,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
             ),
           )
         else
-          ..._userOrders.map((order) => _buildOrderItem(order)).toList(),
+          ..._userOrders.map((order) => _buildOrderItem(order)),
       ],
     );
   }
@@ -337,7 +337,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            '${ArabicText.total}: ${orderTotal}₪',
+            '${ArabicText.total}: $orderTotal₪',
             style: const TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 16,
@@ -358,13 +358,13 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.primaryBackground,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
+        boxShadow:  [
           BoxShadow(
-            color: Colors.black,
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
-            offset: const Offset(0, 2),
+            offset: Offset(0, 2),
           ),
         ],
       ),

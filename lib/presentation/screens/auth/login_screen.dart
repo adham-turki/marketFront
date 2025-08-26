@@ -140,9 +140,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text(
+                                  const Text(
                                     'مرحباً بعودتك!',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.w900,
                                       color: AppColors.primaryText,
@@ -150,9 +150,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     textAlign: TextAlign.center,
                                   ),
                                   const SizedBox(height: 6),
-                                  Text(
+                                  const Text(
                                     'سجل دخولك إلى حساب تريد سوبر',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
                                       color: AppColors.textSecondaryColor,
@@ -213,9 +213,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                             ? null
                                             : _login,
                                         isLoading: authProvider.isLoading,
-                                        child: Text(
+                                        child: const Text(
                                           ArabicText.login,
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -244,7 +244,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           ),
                                           child: Text(
                                             authProvider.errorMessage,
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               color: AppColors.errorColor,
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
@@ -259,9 +259,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   const SizedBox(height: 12),
                                   TextButton(
                                     onPressed: () => context.go('/'),
-                                    child: Text(
+                                    child: const Text(
                                       'ليس لديك حساب؟ سجل الآن',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         color: AppColors.primaryText,
                                       ),
                                     ),

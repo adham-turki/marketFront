@@ -51,7 +51,7 @@ class CustomTextField extends StatelessWidget {
           maxLines: maxLines,
           enabled: enabled,
           onTap: onTap,
-          style: TextStyle(
+          style: const TextStyle(
             color: AppColors.primaryText,
             fontSize: 16,
           ),
@@ -87,21 +87,21 @@ class CustomTextField extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: AppColors.primaryText,
                 width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: AppColors.errorColor,
                 width: 1,
               ),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: AppTheme.errorColor,
                 width: 2,
               ),
@@ -110,7 +110,7 @@ class CustomTextField extends StatelessWidget {
               horizontal: 16,
               vertical: 16,
             ),
-            errorStyle: TextStyle(
+            errorStyle: const TextStyle(
               color: AppTheme.errorColor,
               fontSize: 12,
               fontWeight: FontWeight.w500,

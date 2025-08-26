@@ -209,9 +209,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
     return Scaffold(
       backgroundColor: AppColors.primaryBackground,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           ArabicText.editProduct,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w700,
             fontSize: 20,
@@ -372,7 +372,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
               Expanded(
                 child: Text(
                   title,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
                     color: AppColors.primaryText,
@@ -405,7 +405,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
               label,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: AppColors.primaryText,
@@ -480,8 +480,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 12),
             child: Text(
               ArabicText.productCategory,
               style: TextStyle(
@@ -537,7 +537,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       ),
                     ],
                   ),
-                  child: Icon(Icons.category_outlined,
+                  child: const Icon(Icons.category_outlined,
                       color: Colors.white, size: 22),
                 ),
                 border: InputBorder.none,
@@ -625,7 +625,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: AppColors.primaryText,
@@ -649,8 +649,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 12),
             child: Text(
               ArabicText.productImages,
               style: TextStyle(
@@ -699,14 +699,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
                             ),
                           ],
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.add_photo_alternate_outlined,
                           size: 32,
                           color: Colors.white,
                         ),
                       ),
                       const SizedBox(height: 16),
-                      Text(
+                      const Text(
                         ArabicText.productImages,
                         style: TextStyle(
                           fontSize: 16,
@@ -715,7 +715,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
+                      const Text(
                         ArabicText.clickToSelectImages,
                         style: TextStyle(
                           fontSize: 14,
@@ -739,7 +739,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         child: ElevatedButton.icon(
                           onPressed: _pickImages,
                           icon: const Icon(Icons.photo_library, size: 20),
-                          label: Text(ArabicText.selectImage),
+                          label: const Text(ArabicText.selectImage),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primaryText,
                             foregroundColor: Colors.white,
@@ -772,7 +772,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       children: [
                         Text(
                           '${ArabicText.selectedImages} (${_selectedImages.length})',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: AppColors.primaryText,
@@ -870,7 +870,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
               '${ArabicText.currentImages} (${_imageUrls.length})',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: AppColors.primaryText,
@@ -1035,9 +1035,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               )
-            : Text(
+            : const Text(
                 ArabicText.updateProduct,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                 ),

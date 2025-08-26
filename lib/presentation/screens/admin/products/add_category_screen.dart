@@ -137,7 +137,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(ArabicText.addNewCategory),
+        title: const Text(ArabicText.addNewCategory),
         backgroundColor: AppColors.primaryBackground,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -154,9 +154,9 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Category Name
-                Text(
+                const Text(
                   ArabicText.categoryName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.primaryText,
@@ -197,9 +197,9 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                 const SizedBox(height: 20),
 
                 // Category Description
-                Text(
+                const Text(
                   ArabicText.categoryDescription,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.primaryText,
@@ -241,9 +241,9 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                 const SizedBox(height: 20),
 
                 // Image Selection
-                Text(
+                const Text(
                   ArabicText.categoryImage,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.primaryText,
@@ -338,9 +338,9 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         ArabicText.isActive,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                           color: AppColors.primaryText,
@@ -374,9 +374,9 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
-                        child: Text(
+                        child: const Text(
                           ArabicText.cancel,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.primaryText,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -407,9 +407,9 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                                       Colors.white),
                                 ),
                               )
-                            : Text(
+                            : const Text(
                                 ArabicText.save,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),

@@ -23,7 +23,7 @@ class AdditionalSettingsSection extends StatelessWidget {
   final ValueChanged<int?> onPriorityChanged;
 
   const AdditionalSettingsSection({
-    Key? key,
+    super.key,
     required this.usageLimitController,
     required this.usagePerUserController,
     required this.maxQuantityPerProductController,
@@ -42,7 +42,7 @@ class AdditionalSettingsSection extends StatelessWidget {
     required this.onStackableChanged,
     required this.onRequiresCouponChanged,
     required this.onPriorityChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
