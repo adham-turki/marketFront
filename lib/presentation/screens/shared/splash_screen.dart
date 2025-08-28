@@ -90,7 +90,7 @@ class _SplashScreenState extends State<SplashScreen>
                   width: 120,
                   height: 120,
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryColor,
+                    color: AppColors.primaryColor,
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: const Icon(
@@ -110,7 +110,7 @@ class _SplashScreenState extends State<SplashScreen>
               child: Text(
                 'TradeSuper',
                 style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                      color: AppTheme.primaryColor,
+                      color: AppColors.primaryColor,
                       fontWeight: FontWeight.bold,
                     ),
               ),
@@ -124,7 +124,7 @@ class _SplashScreenState extends State<SplashScreen>
               child: Text(
                 'B2B/B2C Wholesale-Retail Platform',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: AppTheme.textSecondaryColor,
+                      color: AppColors.textSecondaryColor,
                     ),
               ),
             ),
@@ -136,7 +136,7 @@ class _SplashScreenState extends State<SplashScreen>
               opacity: _fadeAnimation,
               child: const CircularProgressIndicator(
                 valueColor:
-                    AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+                    AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
               ),
             ),
           ],

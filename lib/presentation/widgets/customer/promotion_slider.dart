@@ -80,98 +80,100 @@ class _PromotionSliderState extends State<PromotionSlider> {
   }
 
   Widget _buildPromotionCard(Promotion promotion) {
-    // No card: just overlay content directly on top of the merged gradient section
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Stack(
-        children: [
-          // Background Image (optional)
-          if (promotion.imageUrl != null && promotion.imageUrl!.isNotEmpty)
-            Positioned.fill(
-              child: Image.network(
-                promotion.imageUrl!,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return const SizedBox.shrink();
-                },
-              ),
-            ),
-
-          // Horizontal gradient wash to improve text contrast
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [
-                    AppColors.primaryText.withOpacity(0.45),
-                    AppColors.primaryText.withOpacity(0.20),
-                    Colors.transparent,
-                  ],
+      child: Container(
+        child: Row(
+          children: [
+            // Left side - Image
+            if (promotion.imageUrl != null && promotion.imageUrl!.isNotEmpty)
+              Expanded(
+                flex: 2,
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    bottomLeft: Radius.circular(16),
+                  ),
+                  child: Image.network(
+                    promotion.imageUrl!,
+                    fit: BoxFit.cover,
+                    height: double.infinity,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey[300],
+                        child: const Icon(
+                          Icons.image_not_supported,
+                          color: Colors.grey,
+                          size: 40,
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
-          ),
 
-          // Content (title, desc, pill)
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  promotion.name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    height: 1.2,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                if (promotion.description != null)
-                  Text(
-                    promotion.description!,
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 14,
-                      height: 1.3,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                const SizedBox(height: 16),
-                Row(
+            // Right side - Content
+            Expanded(
+              flex: 3,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if (promotion.discountValue != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.25),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          promotion.promotionType == 'percentage'
-                              ? 'خصم ${promotion.discountValue!.toInt()}%'
-                              : 'خصم ${promotion.discountValue!.toStringAsFixed(2)} ₪',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                    Text(
+                      promotion.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        height: 1.2,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    if (promotion.description != null)
+                      Text(
+                        promotion.description!,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.9),
+                          fontSize: 14,
+                          height: 1.3,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        if (promotion.discountValue != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.25),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              promotion.promotionType == 'percentage'
+                                  ? 'خصم ${promotion.discountValue!.toInt()}%'
+                                  : 'خصم ${promotion.discountValue!.toStringAsFixed(2)} ₪',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

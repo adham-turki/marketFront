@@ -83,7 +83,7 @@ class CartItemWidget extends StatelessWidget {
 
                 // Price and Unit
                 Text(
-                  '${cartItem.price.toStringAsFixed(2)} ريال / ${cartItem.unit ?? 'قطعة'}',
+                  '${cartItem.price.toStringAsFixed(2)} ₪ / ${cartItem.unit ?? 'قطعة'}',
                   style: TextStyle(
                     color: AppColors.textSecondaryColor,
                     fontSize: 14,
@@ -186,7 +186,7 @@ class CartItemWidget extends StatelessWidget {
 
               // Total Price for this item
               Text(
-                '${(cartItem.price * cartItem.quantity).toStringAsFixed(2)} ريال',
+                '${(cartItem.price * cartItem.quantity).toStringAsFixed(2)} ₪',
                 style: TextStyle(
                   color: AppColors.primaryText,
                   fontSize: 16,

@@ -438,6 +438,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
+                color: Color.fromARGB(255, 152, 57, 6),
               ),
               decoration: InputDecoration(
                 hintText: 'Enter $label',
@@ -554,7 +555,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     category['name'] ?? ArabicText.unknownCategory,
                     style: const TextStyle(
                       fontSize: 16,
-                      color: AppColors.primaryText,
+                      color: Color.fromARGB(255, 160, 63, 11),
                     ),
                   ),
                 );

@@ -29,6 +29,7 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
   final _maxQuantityPerProductController = TextEditingController();
   final _usageLimitPerProductController = TextEditingController();
   final _priorityController = TextEditingController();
+  final _imageUrlController = TextEditingController();
 
   String? _selectedType = 'نسبة مئوية';
   DateTime? _startDate;
@@ -66,6 +67,7 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
     _maxQuantityPerProductController.dispose();
     _usageLimitPerProductController.dispose();
     _priorityController.dispose();
+    _imageUrlController.dispose();
     super.dispose();
   }
 
@@ -203,6 +205,9 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
             : 0,
         'buy_x_quantity': null,
         'get_y_quantity': null,
+        'image_url': _imageUrlController.text.trim().isNotEmpty
+            ? _imageUrlController.text.trim()
+            : null,
       };
 
       print('Sending promotion data: $promotionData');
@@ -263,17 +268,30 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                 style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primaryText),
+                    color: AppColors.adminTextPrimary),
               ),
               const SizedBox(height: 20),
-              const Text(ArabicText.promotionName),
+              Text(
+                ArabicText.promotionName,
+                style: const TextStyle(
+                  color: AppColors.adminTextPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _nameController,
+                style: const TextStyle(
+                  color: AppColors.adminTextPrimary,
+                  fontSize: 16,
+                ),
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   filled: true,
                   fillColor: Colors.white,
+                  hintStyle: TextStyle(
+                    color: AppColors.textSecondaryColor,
+                  ),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -283,15 +301,28 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                 },
               ),
               const SizedBox(height: 20),
-              const Text(ArabicText.promotionDescription),
+              Text(
+                ArabicText.promotionDescription,
+                style: const TextStyle(
+                  color: AppColors.adminTextPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 3,
+                style: const TextStyle(
+                  color: AppColors.adminTextPrimary,
+                  fontSize: 16,
+                ),
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   filled: true,
                   fillColor: Colors.white,
+                  hintStyle: TextStyle(
+                    color: AppColors.textSecondaryColor,
+                  ),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -301,10 +332,45 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                 },
               ),
               const SizedBox(height: 20),
-              const Text(ArabicText.promotionType),
+              Text(
+                'رابط الصورة (اختياري)',
+                style: const TextStyle(
+                  color: AppColors.adminTextPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _imageUrlController,
+                style: const TextStyle(
+                  color: AppColors.adminTextPrimary,
+                  fontSize: 16,
+                ),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.white,
+                  hintText: 'https://example.com/image.jpg',
+                  hintStyle: TextStyle(
+                    color: AppColors.textSecondaryColor,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                ArabicText.promotionType,
+                style: const TextStyle(
+                  color: AppColors.adminTextPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: _selectedType,
+                style: const TextStyle(
+                  color: AppColors.adminTextPrimary,
+                  fontSize: 16,
+                ),
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   filled: true,
@@ -317,16 +383,29 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                 onChanged: (value) => setState(() => _selectedType = value),
               ),
               const SizedBox(height: 20),
-              const Text(ArabicText.discountPercentage),
+              Text(
+                ArabicText.discountPercentage,
+                style: const TextStyle(
+                  color: AppColors.adminTextPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _discountPercentageController,
                 keyboardType: TextInputType.number,
+                style: const TextStyle(
+                  color: AppColors.adminTextPrimary,
+                  fontSize: 16,
+                ),
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   filled: true,
                   fillColor: Colors.white,
                   suffixText: '%',
+                  hintStyle: TextStyle(
+                    color: AppColors.textSecondaryColor,
+                  ),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -342,7 +421,13 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(ArabicText.startDate),
+                        Text(
+                          ArabicText.startDate,
+                          style: const TextStyle(
+                            color: AppColors.adminTextPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         InkWell(
                           onTap: () => _selectDate(context, true),
@@ -365,7 +450,13 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(ArabicText.endDate),
+                        Text(
+                          ArabicText.endDate,
+                          style: const TextStyle(
+                            color: AppColors.adminTextPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         InkWell(
                           onTap: () => _selectDate(context, false),
@@ -386,24 +477,39 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              const Text('نطاق التطبيق'),
+              const Text(
+                'نطاق التطبيق',
+                style: TextStyle(
+                  color: AppColors.adminTextPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               const SizedBox(height: 8),
               Column(
                 children: [
                   RadioListTile<String>(
-                    title: const Text('جميع المنتجات'),
+                    title: const Text(
+                      'جميع المنتجات',
+                      style: TextStyle(color: AppColors.adminTextPrimary),
+                    ),
                     value: 'all_products',
                     groupValue: _scopeType,
                     onChanged: (value) => setState(() => _scopeType = value!),
                   ),
                   RadioListTile<String>(
-                    title: const Text('منتجات محددة'),
+                    title: const Text(
+                      'منتجات محددة',
+                      style: TextStyle(color: AppColors.adminTextPrimary),
+                    ),
                     value: 'specific_products',
                     groupValue: _scopeType,
                     onChanged: (value) => setState(() => _scopeType = value!),
                   ),
                   RadioListTile<String>(
-                    title: const Text('فئات محددة'),
+                    title: const Text(
+                      'فئات محددة',
+                      style: TextStyle(color: AppColors.adminTextPrimary),
+                    ),
                     value: 'category',
                     groupValue: _scopeType,
                     onChanged: (value) => setState(() => _scopeType = value!),
@@ -412,7 +518,13 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
               ),
               const SizedBox(height: 20),
               if (_scopeType == 'category') ...[
-                const Text('اختر الفئات'),
+                const Text(
+                  'اختر الفئات',
+                  style: TextStyle(
+                    color: AppColors.adminTextPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 InkWell(
                   onTap: _showCategorySelectionPage,
@@ -439,7 +551,13 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                 const SizedBox(height: 20),
               ],
               if (_scopeType == 'specific_products') ...[
-                const Text('اختر المنتجات'),
+                const Text(
+                  'اختر المنتجات',
+                  style: TextStyle(
+                    color: AppColors.adminTextPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 InkWell(
                   onTap: _showProductSelectionPage,
@@ -471,7 +589,7 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                 style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primaryText),
+                    color: AppColors.adminTextPrimary),
               ),
               const SizedBox(height: 20),
               Row(
@@ -480,16 +598,29 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('الحد الأدنى للطلب'),
+                        Text(
+                          'الحد الأدنى للطلب',
+                          style: const TextStyle(
+                            color: AppColors.adminTextPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _minimumOrderController,
                           keyboardType: TextInputType.number,
+                          style: const TextStyle(
+                            color: AppColors.adminTextPrimary,
+                            fontSize: 16,
+                          ),
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             filled: true,
                             fillColor: Colors.white,
                             suffixText: '₪',
+                            hintStyle: TextStyle(
+                              color: AppColors.textSecondaryColor,
+                            ),
                           ),
                           validator: (value) {
                             if (value != null && value.isNotEmpty) {
@@ -509,16 +640,29 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('الحد الأقصى للخصم'),
+                        Text(
+                          'الحد الأقصى للخصم',
+                          style: const TextStyle(
+                            color: AppColors.adminTextPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _maxDiscountController,
                           keyboardType: TextInputType.number,
+                          style: const TextStyle(
+                            color: AppColors.adminTextPrimary,
+                            fontSize: 16,
+                          ),
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             filled: true,
                             fillColor: Colors.white,
                             suffixText: '₪',
+                            hintStyle: TextStyle(
+                              color: AppColors.textSecondaryColor,
+                            ),
                           ),
                           validator: (value) {
                             if (value != null && value.isNotEmpty) {
@@ -542,15 +686,28 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('حد الاستخدام الإجمالي'),
+                        Text(
+                          'حد الاستخدام الإجمالي',
+                          style: const TextStyle(
+                            color: AppColors.adminTextPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _usageLimitController,
                           keyboardType: TextInputType.number,
+                          style: const TextStyle(
+                            color: AppColors.adminTextPrimary,
+                            fontSize: 16,
+                          ),
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             filled: true,
                             fillColor: Colors.white,
+                            hintStyle: TextStyle(
+                              color: AppColors.adminTextPrimary,
+                            ),
                           ),
                           validator: (value) {
                             if (value != null && value.isNotEmpty) {
@@ -570,15 +727,28 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('حد الاستخدام لكل منتج'),
+                        Text(
+                          'حد الاستخدام لكل منتج',
+                          style: const TextStyle(
+                            color: AppColors.adminTextPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _maxQuantityPerProductController,
                           keyboardType: TextInputType.number,
+                          style: const TextStyle(
+                            color: AppColors.adminTextPrimary,
+                            fontSize: 16,
+                          ),
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             filled: true,
                             fillColor: Colors.white,
+                            hintStyle: TextStyle(
+                              color: AppColors.adminTextPrimary,
+                            ),
                           ),
                           validator: (value) {
                             if (value != null && value.isNotEmpty) {
@@ -602,15 +772,28 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('حد الاستخدام لكل منتج'),
+                        Text(
+                          'حد الاستخدام لكل منتج',
+                          style: const TextStyle(
+                            color: AppColors.adminTextPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _usageLimitPerProductController,
                           keyboardType: TextInputType.number,
+                          style: const TextStyle(
+                            color: AppColors.adminTextPrimary,
+                            fontSize: 16,
+                          ),
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             filled: true,
                             fillColor: Colors.white,
+                            hintStyle: TextStyle(
+                              color: AppColors.adminTextPrimary,
+                            ),
                           ),
                           validator: (value) {
                             if (value != null && value.isNotEmpty) {
@@ -630,15 +813,28 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('الأولوية'),
+                        Text(
+                          'الأولوية',
+                          style: const TextStyle(
+                            color: AppColors.adminTextPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _priorityController,
                           keyboardType: TextInputType.number,
+                          style: const TextStyle(
+                            color: AppColors.adminTextPrimary,
+                            fontSize: 16,
+                          ),
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             filled: true,
                             fillColor: Colors.white,
+                            hintStyle: TextStyle(
+                              color: AppColors.adminTextPrimary,
+                            ),
                           ),
                           validator: (value) {
                             if (value != null && value.isNotEmpty) {
@@ -659,7 +855,13 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(ArabicText.isFeatured),
+                  Text(
+                    ArabicText.isFeatured,
+                    style: const TextStyle(
+                      color: AppColors.adminTextPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   Switch(
                     value: _isFeatured,
                     onChanged: (value) => setState(() => _isFeatured = value),
@@ -669,7 +871,13 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(ArabicText.isStackable),
+                  Text(
+                    ArabicText.isStackable,
+                    style: const TextStyle(
+                      color: AppColors.adminTextPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   Switch(
                     value: _isStackable,
                     onChanged: (value) => setState(() => _isStackable = value),
@@ -679,7 +887,13 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(ArabicText.isActive),
+                  Text(
+                    ArabicText.isActive,
+                    style: const TextStyle(
+                      color: AppColors.adminTextPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   Switch(
                     value: _isActive,
                     onChanged: (value) => setState(() => _isActive = value),

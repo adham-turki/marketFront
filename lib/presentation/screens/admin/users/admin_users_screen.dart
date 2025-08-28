@@ -5,6 +5,7 @@ import '../../../../core/network/api_service.dart';
 import '../../../widgets/admin/auth_wrapper.dart';
 import 'user_details_screen.dart';
 import 'add_user_screen.dart';
+import 'package:characters/characters.dart';
 
 class AdminUsersScreen extends StatefulWidget {
   const AdminUsersScreen({super.key});
@@ -35,6 +36,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
   String _searchQuery = '';
   bool _showAddUserDialog = false;
   Map<String, dynamic>? _editingUser;
+  Map<int, int> _userOrdersCount = {}; // userId -> orders count
 
   // Form controllers
   final TextEditingController _fullNameController = TextEditingController();
@@ -49,6 +51,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
   @override
   void initState() {
     super.initState();
+    _apiService.init();
     _loadUsers();
   }
 
@@ -63,6 +66,48 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     super.dispose();
   }
 
+  Future<void> _loadOrdersCountForUsers(
+      List<Map<String, dynamic>> users) async {
+    // Fetch counts sequentially to avoid hammering the API (can optimize later)
+    for (final u in users) {
+      final int userId =
+          (u['id'] is int) ? u['id'] as int : int.tryParse('${u['id']}') ?? -1;
+      if (userId <= 0) {
+        _userOrdersCount[userId] = 0;
+        if (mounted) setState(() {});
+        continue;
+      }
+      try {
+        final response =
+            await _apiService.get('/orders/admin', queryParameters: {
+          'customer_id': userId.toString(),
+          'limit': '1',
+        });
+        int count = 0;
+        final body = response.data;
+        if (body is Map) {
+          final pagination = body['pagination'];
+          if (pagination is Map) {
+            final ti = pagination['total_items'];
+            if (ti is int) {
+              count = ti;
+            } else if (ti is String) {
+              count = int.tryParse(ti) ?? 0;
+            }
+          }
+          if (count == 0) {
+            final ordersList = body['orders'] ?? body['data'];
+            if (ordersList is List) count = ordersList.length;
+          }
+        }
+        _userOrdersCount[userId] = count;
+      } catch (_) {
+        _userOrdersCount[userId] = 0;
+      }
+      if (mounted) setState(() {});
+    }
+  }
+
   Future<void> _loadUsers() async {
     setState(() {
       _isLoading = true;
@@ -75,6 +120,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           _users = List<Map<String, dynamic>>.from(response.data['data']);
           _filteredUsers = List.from(_users);
         });
+        // Fetch orders count per user after users load
+        await _loadOrdersCountForUsers(_users);
       }
     } catch (e) {
       _showSnackBar('${ArabicText.errorLoadingUsers}: $e', isError: true);
@@ -317,8 +364,15 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       child: TextField(
                         controller: _searchController,
                         onChanged: _filterUsers,
+                        style: const TextStyle(
+                          color: AppColors.adminTextPrimary,
+                          fontSize: 16,
+                        ),
                         decoration: InputDecoration(
                           hintText: ArabicText.search,
+                          hintStyle: const TextStyle(
+                            color: AppColors.textSecondaryColor,
+                          ),
                           prefixIcon: const Icon(Icons.search, size: 20),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -409,7 +463,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                           )
                         : ListView.builder(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 8),
+                                horizontal: 10, vertical: 8),
                             itemCount: _filteredUsers.length,
                             itemBuilder: (context, index) {
                               final user = _filteredUsers[index];
@@ -430,6 +484,43 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
   Widget _buildUserCard(Map<String, dynamic> user) {
     final isActive = user['status'] == 'active';
     final isPhoneVerified = user['phone_verified'] == true;
+    // Enhanced orders count parsing: supports several possible API keys (flat or nested)
+    int _extractOrdersCount(Map<String, dynamic> u) {
+      final dynamic flat = u['orders_count'] ??
+          u['ordersCount'] ??
+          u['total_orders'] ??
+          u['totalOrders'];
+      int byFlat =
+          flat is int ? flat : (flat is String ? (int.tryParse(flat) ?? 0) : 0);
+      if (byFlat > 0) return byFlat;
+      // Nested containers commonly used by APIs
+      final List<String> containers = [
+        'stats',
+        'metrics',
+        'summary',
+        'ordersSummary'
+      ];
+      for (final container in containers) {
+        final nested = u[container];
+        if (nested is Map<String, dynamic>) {
+          final dynamic val = nested['orders_count'] ??
+              nested['ordersCount'] ??
+              nested['total_orders'] ??
+              nested['totalOrders'];
+          int parsed =
+              val is int ? val : (val is String ? (int.tryParse(val) ?? 0) : 0);
+          if (parsed > 0) return parsed;
+        }
+      }
+      // As a fallback, try orders list length
+      if (u['orders'] is List) return (u['orders'] as List).length;
+      return 0;
+    }
+
+    final int ordersCount = _userOrdersCount[(user['id'] is int)
+            ? user['id'] as int
+            : int.tryParse('${user['id']}') ?? -1] ??
+        0;
 
     return GestureDetector(
       onTap: () {
@@ -446,7 +537,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           color: AppColors.white,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Colors.grey.shade200),
-          boxShadow:  [
+          boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
               blurRadius: 4,
@@ -456,120 +547,14 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         ),
         child: Padding(
           padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              // Avatar and basic info
-              CircleAvatar(
-                radius: 20,
-                backgroundColor:
-                    isActive ? AppColors.primaryColor : Colors.grey.shade300,
-                child: Text(
-                  (user['full_name'] ?? 'U')[0].toUpperCase(),
-                  style: TextStyle(
-                    color: isActive ? Colors.white : Colors.grey.shade600,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final bool isCompact = constraints.maxWidth < 420;
 
-              // User details
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            user['full_name'] ?? ArabicText.unnamedUser,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        // Status badge
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: isActive
-                                ? AppColors.successColor
-                                : Colors.grey.shade300,
-                            borderRadius: BorderRadius.circular(4),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 3,
-                                offset: const Offset(0, 1),
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            isActive ? ArabicText.active : ArabicText.inactive,
-                            style: TextStyle(
-                              color: isActive
-                                  ? Colors.white
-                                  : Colors.grey.shade600,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(Icons.phone,
-                            size: 12, color: Colors.grey.shade600),
-                        const SizedBox(width: 4),
-                        Text(
-                          user['phone'] ?? ArabicText.noPhone,
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 12,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        if (isPhoneVerified)
-                          const Icon(Icons.verified,
-                              size: 12, color: AppColors.successColor),
-                      ],
-                    ),
-                    if (user['company_name'] != null) ...[
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Icon(Icons.business,
-                              size: 12, color: Colors.grey.shade600),
-                          const SizedBox(width: 4),
-                          Text(
-                            user['company_name'],
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 12,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-
-              // Action buttons
-              Row(
+              // Build actions row once
+              final actionsRow = Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Toggle status button
                   IconButton(
                     onPressed: () => _toggleUserStatus(user),
                     icon: Icon(
@@ -584,7 +569,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     constraints:
                         const BoxConstraints(minWidth: 32, minHeight: 32),
                   ),
-                  // View details button
                   IconButton(
                     onPressed: () => _showUserDetails(user),
                     icon: const Icon(Icons.info_outline,
@@ -594,7 +578,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     constraints:
                         const BoxConstraints(minWidth: 32, minHeight: 32),
                   ),
-                  // Edit button
                   IconButton(
                     onPressed: () => _showEditUserDialog(user),
                     icon: const Icon(Icons.edit,
@@ -604,7 +587,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     constraints:
                         const BoxConstraints(minWidth: 32, minHeight: 32),
                   ),
-                  // Delete button
                   IconButton(
                     onPressed: () => _deleteUser(user['id']),
                     icon: Icon(Icons.delete_outline,
@@ -615,8 +597,204 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         const BoxConstraints(minWidth: 32, minHeight: 32),
                   ),
                 ],
-              ),
-            ],
+              );
+
+              // Creative orders badge (aligned to far right in second row)
+              final Color badgeBg = ordersCount > 0
+                  ? AppColors.primaryColor.withOpacity(0.08)
+                  : Colors.grey.shade100;
+              final Color badgeBorder = ordersCount > 0
+                  ? AppColors.primaryColor.withOpacity(0.25)
+                  : Colors.grey.shade300;
+              final Color badgeText = ordersCount > 0
+                  ? AppColors.primaryColor
+                  : AppColors.textSecondaryColor;
+
+              final ordersBadge = Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: badgeBg,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: badgeBorder),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      ordersCount > 0
+                          ? Icons.shopping_bag
+                          : Icons.shopping_bag_outlined,
+                      size: 14,
+                      color: badgeText,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '$ordersCount',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: badgeText,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      ArabicText.orders,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: badgeText,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Top row: avatar + details
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundColor: isActive
+                            ? AppColors.primaryColor
+                            : Colors.grey.shade300,
+                        child: Text(
+                          (() {
+                            final String fullName =
+                                (user['full_name']?.toString() ?? '').trim();
+                            if (fullName.isEmpty) return 'U';
+                            final String first = fullName.substring(0, 1);
+                            return first.toUpperCase();
+                          })(),
+                          style: TextStyle(
+                            color:
+                                isActive ? Colors.white : Colors.grey.shade600,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      // Details
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    user['full_name'] ?? ArabicText.unnamedUser,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.adminTextPrimary,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: isActive
+                                        ? AppColors.successColor
+                                        : Colors.grey.shade300,
+                                    borderRadius: BorderRadius.circular(4),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 3,
+                                        offset: const Offset(0, 1),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Text(
+                                    isActive
+                                        ? ArabicText.active
+                                        : ArabicText.inactive,
+                                    style: TextStyle(
+                                      color: isActive
+                                          ? Colors.white
+                                          : Colors.grey.shade600,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(Icons.phone,
+                                    size: 12, color: Colors.grey.shade600),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    user['phone'] ?? ArabicText.noPhone,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                if (isPhoneVerified)
+                                  const Icon(Icons.verified,
+                                      size: 12, color: AppColors.successColor),
+                              ],
+                            ),
+                            if (user['company_name'] != null &&
+                                (user['company_name'] as String)
+                                    .isNotEmpty) ...[
+                              const SizedBox(height: 2),
+                              Row(
+                                children: [
+                                  Icon(Icons.business,
+                                      size: 12, color: Colors.grey.shade600),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      user['company_name'],
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Second row: actions on the left, orders badge on the FAR RIGHT
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      actionsRow,
+                      const Spacer(),
+                      ordersBadge,
+                    ],
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),

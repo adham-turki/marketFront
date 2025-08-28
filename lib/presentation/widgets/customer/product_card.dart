@@ -95,28 +95,6 @@ class ProductCard extends StatelessWidget {
                     ),
                   ),
 
-                // Price Label (ILS, creative green)
-                Positioned(
-                  bottom: 8,
-                  left: 8,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      '${product.price.toStringAsFixed(2)} ₪',
-                      style: TextStyle(
-                        color: AppColors.successColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-
                 // Add to Cart Button
                 Positioned(
                   bottom: 8,
@@ -170,7 +148,7 @@ class ProductCard extends StatelessWidget {
                     Text(
                       product.name,
                       style: TextStyle(
-                        color: AppColors.primaryText,
+                        color: AppColors.customerTextPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         height: 1.2,

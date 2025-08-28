@@ -561,8 +561,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
   Widget _buildOrderCard(Map<String, dynamic> order) {
     final orderId = order['id']?.toString() ?? 'N/A';
     final status = order['status']?.toString() ?? ArabicText.unknownStatus;
-    final paymentStatus =
-        order['payment_status']?.toString() ?? ArabicText.unknownPaymentStatus;
+    // Payment status removed per requirements
     final totalAmount = order['total_amount']?.toString() ?? '0.00';
     final customerName =
         order['customer_name']?.toString() ?? ArabicText.unknownCustomer;
@@ -628,44 +627,22 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                       ],
                     ),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: _getStatusColor(status),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          status.toUpperCase(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(status),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      status.toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
                       ),
-                      const SizedBox(height: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: _getPaymentStatusColor(paymentStatus),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Text(
-                          paymentStatus.toUpperCase(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
@@ -1005,12 +982,12 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen>
                               const SizedBox(width: 6),
                               Expanded(
                                 child: TextField(
-                                  
                                   controller: _searchController,
                                   onChanged: _filterOrders,
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
+                                    color: AppColors.adminTextPrimary,
                                   ),
                                   decoration: InputDecoration(
                                     hintText: ArabicText.searchPlaceholder,

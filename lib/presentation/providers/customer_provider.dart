@@ -33,21 +33,30 @@ class Product {
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
+    if (kDebugMode) {
+      print('Parsing product JSON: $json');
+    }
+
     return Product(
       id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
-      name: json['name']?.toString() ?? '',
-      description: json['description'],
+      name: json['name']?.toString() ?? 'Unknown Product',
+      description: json['description'] ?? 'No description available',
       price: double.tryParse(json['price']?.toString() ?? '') ?? 0.0,
       stockQuantity:
           int.tryParse(json['stock_quantity']?.toString() ?? '0') ?? 0,
-      unit: json['unit']?.toString(),
-      imageUrl: json['image_url']?.toString(),
+      unit: json['unit']?.toString() ?? 'piece',
+      // Handle both image_url and image_urls/featured_image_url
+      imageUrl: json['image_url']?.toString() ??
+          json['featured_image_url']?.toString() ??
+          (json['image_urls'] is List && (json['image_urls'] as List).isNotEmpty
+              ? (json['image_urls'] as List).first.toString()
+              : null),
       categoryId: int.tryParse(json['category_id']?.toString() ?? '') ?? 0,
-      categoryName: json['category_name']?.toString() ?? '',
+      categoryName: json['category_name']?.toString() ?? 'Uncategorized',
       isActive: json['is_active'] ?? true,
       isFeatured: json['is_featured'] ?? false,
       discountPercentage: json['discount_percentage'] != null
-          ? double.parse(json['discount_percentage'].toString())
+          ? double.tryParse(json['discount_percentage'].toString()) ?? 0.0
           : null,
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'].toString())
@@ -187,7 +196,7 @@ class Promotion {
 }
 
 class CustomerProvider extends ChangeNotifier {
-  final ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService()..init();
 
   List<Product> _products = [];
   List<Category> _categories = [];
@@ -289,10 +298,46 @@ class CustomerProvider extends ChangeNotifier {
   // Load product details
   Future<void> loadProductDetails(int productId) async {
     try {
+      if (kDebugMode) {
+        print('Loading product details for ID: $productId');
+        print('API Service initialized: ${_apiService != null}');
+      }
       final response = await _apiService.get('/products/$productId');
+      if (kDebugMode) {
+        print('Product details response: ${response.data}');
+      }
       if (response.statusCode == 200) {
         final data = response.data['data'];
-        _currentProduct = Product.fromJson(data);
+        // The API returns data.data.product structure
+        final productData = data['product'] ?? data;
+        if (kDebugMode) {
+          print('Product data to parse: $productData');
+        }
+
+        // Handle different API response structures
+        Map<String, dynamic> finalProductData;
+        if (productData is Map<String, dynamic>) {
+          finalProductData = productData;
+        } else if (data is Map<String, dynamic> &&
+            data.containsKey('product')) {
+          finalProductData = data['product'] as Map<String, dynamic>;
+        } else {
+          throw Exception(
+              'Unexpected API response structure: ${response.data}');
+        }
+
+        try {
+          _currentProduct = Product.fromJson(finalProductData);
+          if (kDebugMode) {
+            print('Parsed product: $_currentProduct');
+          }
+        } catch (parseError) {
+          if (kDebugMode) {
+            print('Error parsing product data: $parseError');
+            print('Product data that failed to parse: $finalProductData');
+          }
+          rethrow;
+        }
         notifyListeners();
       }
     } catch (e) {

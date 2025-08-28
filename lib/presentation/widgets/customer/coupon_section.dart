@@ -1,8 +1,23 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 
-class CouponSection extends StatelessWidget {
+class CouponSection extends StatefulWidget {
   const CouponSection({super.key});
+
+  @override
+  State<CouponSection> createState() => _CouponSectionState();
+}
+
+class _CouponSectionState extends State<CouponSection> {
+  final TextEditingController _couponController = TextEditingController();
+  String? _appliedCoupon;
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _couponController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,244 +32,243 @@ class CouponSection extends StatelessWidget {
           width: 1,
         ),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Coupon Icon
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.successColor.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              Icons.local_offer,
-              color: AppColors.successColor,
-              size: 24,
-            ),
-          ),
-
-          const SizedBox(width: 12),
-
-          // Coupon Text
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'لديك 3 كوبونات',
-                  style: TextStyle(
-                    color: AppColors.successColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+          // Header
+          Row(
+            children: [
+              // Coupon Icon
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.successColor.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                Text(
-                  'يمكنك تطبيقها على طلبك',
-                  style: TextStyle(
-                    color: AppColors.successColor.withOpacity(0.8),
-                    fontSize: 12,
-                  ),
+                child: Icon(
+                  Icons.local_offer,
+                  color: AppColors.successColor,
+                  size: 24,
                 ),
-              ],
-            ),
-          ),
-
-          // Apply Button
-          ElevatedButton(
-            onPressed: () {
-              _showCouponDialog(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.successColor,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            ),
-            child: const Text(
-              'تطبيق',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  void _showCouponDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          'الكوبونات المتاحة',
-          style: TextStyle(
-            color: AppColors.primaryText,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildCouponItem(
-              context,
-              code: 'WELCOME20',
-              discount: 'خصم 20%',
-              description: 'خصم على أول طلب',
-              isActive: true,
-            ),
-            _buildCouponItem(
-              context,
-              code: 'FREESHIP',
-              discount: 'توصيل مجاني',
-              description: 'للطلبات أكثر من 100 ريال',
-              isActive: true,
-            ),
-            _buildCouponItem(
-              context,
-              code: 'SAVE50',
-              discount: 'خصم 50 ريال',
-              description: 'للطلبات أكثر من 200 ريال',
-              isActive: true,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'إغلاق',
-              style: TextStyle(
-                color: AppColors.primaryText,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+              const SizedBox(width: 12),
 
-  Widget _buildCouponItem(
-    BuildContext context, {
-    required String code,
-    required String discount,
-    required String description,
-    required bool isActive,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: isActive
-            ? AppColors.successColor.withOpacity(0.1)
-            : AppColors.textSecondaryColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isActive
-              ? AppColors.successColor.withOpacity(0.3)
-              : AppColors.textSecondaryColor.withOpacity(0.3),
-        ),
-      ),
-      child: Row(
-        children: [
-          // Coupon Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+              // Coupon Text
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      code,
+                      _appliedCoupon != null ? 'كوبون مطبق' : 'أضف كوبون',
                       style: TextStyle(
-                        color: isActive
-                            ? AppColors.successColor
-                            : AppColors.textSecondaryColor,
+                        color: AppColors.successColor,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        fontFamily: 'monospace',
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: isActive
-                            ? AppColors.successColor
-                            : AppColors.textSecondaryColor,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        discount,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    Text(
+                      _appliedCoupon != null
+                          ? 'تم تطبيق الكوبون بنجاح'
+                          : 'أدخل رمز الكوبون للحصول على خصم',
+                      style: TextStyle(
+                        color: AppColors.successColor.withOpacity(0.8),
+                        fontSize: 12,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: TextStyle(
-                    color: isActive
-                        ? AppColors.successColor.withOpacity(0.8)
-                        : AppColors.textSecondaryColor.withOpacity(0.8),
-                    fontSize: 12,
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Coupon Input and Apply Button
+          if (_appliedCoupon == null) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _couponController,
+                    style: const TextStyle(
+                      color: AppColors.customerTextPrimary,
+                      fontSize: 16,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'أدخل رمز الكوبون',
+                      hintStyle: const TextStyle(
+                        color: AppColors.textSecondaryColor,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: AppColors.successColor.withOpacity(0.3),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: AppColors.successColor,
+                          width: 2,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
+                      ),
+                    ),
                   ),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _applyCoupon,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.successColor,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
+                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Text(
+                          'تطبيق',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ],
             ),
-          ),
-
-          // Apply Button
-          if (isActive)
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _applyCoupon(context, code);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.successColor,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+          ] else ...[
+            // Applied Coupon Display
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.successColor.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: AppColors.successColor.withOpacity(0.5),
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
-              child: const Text(
-                'تطبيق',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.check_circle,
+                    color: AppColors.successColor,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'الكوبون $_appliedCoupon مطبق بنجاح',
+                      style: TextStyle(
+                        color: AppColors.successColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: _removeCoupon,
+                    child: Text(
+                      'إزالة',
+                      style: TextStyle(
+                        color: AppColors.errorColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
+          ],
         ],
       ),
     );
   }
 
-  void _applyCoupon(BuildContext context, String code) {
-    // TODO: Implement coupon application logic
+  Future<void> _applyCoupon() async {
+    final couponCode = _couponController.text.trim();
+    if (couponCode.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('يرجى إدخال رمز الكوبون'),
+          backgroundColor: AppColors.errorColor,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // TODO: Implement actual coupon validation API call
+      // For now, simulate API call
+      await Future.delayed(const Duration(seconds: 1));
+
+      // Simulate validation (replace with actual API call)
+      if (couponCode.toUpperCase() == 'WELCOME20' ||
+          couponCode.toUpperCase() == 'FREESHIP' ||
+          couponCode.toUpperCase() == 'SAVE50') {
+        setState(() {
+          _appliedCoupon = couponCode.toUpperCase();
+          _couponController.clear();
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('تم تطبيق الكوبون $couponCode بنجاح'),
+            backgroundColor: AppColors.successColor,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('رمز الكوبون غير صحيح'),
+            backgroundColor: AppColors.errorColor,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('خطأ في تطبيق الكوبون: $e'),
+          backgroundColor: AppColors.errorColor,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _removeCoupon() {
+    setState(() {
+      _appliedCoupon = null;
+    });
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('تم تطبيق الكوبون $code بنجاح'),
+      const SnackBar(
+        content: Text('تم إزالة الكوبون'),
         backgroundColor: AppColors.successColor,
-        duration: const Duration(seconds: 2),
       ),
     );
   }

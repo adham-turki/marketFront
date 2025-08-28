@@ -393,8 +393,8 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                             labelText: ArabicText.promotionType,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  const BorderSide(color: AppColors.primaryText),
+                              borderSide: const BorderSide(
+                                  color: AppColors.primaryText),
                             ),
                           ),
                           items: const [
@@ -710,8 +710,15 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
         controller: controller,
         maxLines: maxLines,
         keyboardType: keyboardType,
+        style: const TextStyle(
+          color: AppColors.adminTextPrimary,
+          fontSize: 16,
+        ),
         decoration: InputDecoration(
           labelText: label,
+          labelStyle: const TextStyle(
+            color: AppColors.adminTextSecondary,
+          ),
           prefixIcon: Icon(icon, color: AppColors.primaryText),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
@@ -744,8 +751,15 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
         TextFormField(
           controller: dateController,
           readOnly: true,
+          style: const TextStyle(
+            color: AppColors.adminTextPrimary,
+            fontSize: 16,
+          ),
           decoration: InputDecoration(
             hintText: ArabicText.selectDate,
+            hintStyle: const TextStyle(
+              color: AppColors.textSecondaryColor,
+            ),
             suffixIcon: IconButton(
               icon: const Icon(Icons.calendar_today,
                   color: AppColors.primaryText),
@@ -1408,7 +1422,10 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: const TabBar(
+                  child: TabBar(
+                    labelColor: AppColors.adminTextPrimary,
+                    unselectedLabelColor: AppColors.textSecondaryColor,
+                    indicatorColor: AppColors.adminTextPrimary,
                     tabs: [
                       Tab(text: ArabicText.promotions),
                       Tab(text: ArabicText.coupons),
@@ -1461,6 +1478,10 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                 child: TextField(
                   controller: _searchController,
                   onChanged: _filterPromotions,
+                  style: const TextStyle(
+                    color: AppColors.adminTextPrimary,
+                    fontSize: 16,
+                  ),
                   decoration: InputDecoration(
                     hintText: ArabicText.searchPromotions,
                     border: InputBorder.none,
@@ -1895,6 +1916,10 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                   onChanged: (q) {
                     _filterCoupons(q);
                   },
+                  style: const TextStyle(
+                    color: AppColors.adminTextPrimary,
+                    fontSize: 16,
+                  ),
                   decoration: InputDecoration(
                     hintText: '${ArabicText.search} ${ArabicText.coupons}...',
                     border: InputBorder.none,
@@ -2340,8 +2365,15 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                       _buildFormSection(ArabicText.discountSettings, [
                         DropdownButtonFormField<String>(
                           value: _couponDiscountType,
+                          style: const TextStyle(
+                            color: AppColors.adminTextPrimary,
+                            fontSize: 16,
+                          ),
                           decoration: InputDecoration(
                             labelText: ArabicText.discountType,
+                            labelStyle: const TextStyle(
+                              color: AppColors.adminTextSecondary,
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: const BorderSide(
@@ -2387,8 +2419,15 @@ class _AdminPromotionsScreenState extends State<AdminPromotionsScreen> {
                         const SizedBox(height: 15),
                         DropdownButtonFormField<String>(
                           value: _couponTargetAudience,
+                          style: const TextStyle(
+                            color: AppColors.adminTextPrimary,
+                            fontSize: 16,
+                          ),
                           decoration: InputDecoration(
                             labelText: ArabicText.targetAudience,
+                            labelStyle: const TextStyle(
+                              color: AppColors.adminTextSecondary,
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: const BorderSide(

@@ -296,7 +296,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen>
                   Text(
                     category.name,
                     style: TextStyle(
-                      color: AppColors.primaryText,
+                      color: AppColors.customerTextPrimary,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -308,7 +308,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen>
                     child: Text(
                       'عرض الكل',
                       style: TextStyle(
-                        color: AppColors.primaryText,
+                        color: AppColors.customerTextPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -372,7 +372,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen>
               Text(
                 category.name,
                 style: TextStyle(
-                  color: AppColors.primaryText,
+                  color: AppColors.customerTextPrimary,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
@@ -33,9 +34,18 @@ class _CustomerProductDetailsScreenState
     // Auth guard: redirect to login if not authenticated
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final auth = context.read<AuthProvider>();
+      if (kDebugMode) {
+        print('Auth state: isAuthenticated=${auth.isAuthenticated}');
+      }
       if (!auth.isAuthenticated) {
+        if (kDebugMode) {
+          print('User not authenticated, redirecting to login');
+        }
         context.go('/login');
         return;
+      }
+      if (kDebugMode) {
+        print('User authenticated, loading product details');
       }
       _loadProductDetails();
     });
@@ -44,9 +54,15 @@ class _CustomerProductDetailsScreenState
   Future<void> _loadProductDetails() async {
     setState(() => _isLoading = true);
     try {
+      if (kDebugMode) {
+        print('Loading product details for ID: ${widget.productId}');
+      }
       final provider = context.read<CustomerProvider>();
       await provider.loadProductDetails(int.parse(widget.productId));
       await provider.loadRecommendedProducts(int.parse(widget.productId));
+      if (kDebugMode) {
+        print('Product loaded: ${provider.currentProduct}');
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -67,7 +83,17 @@ class _CustomerProductDetailsScreenState
       _quantity,
     );
 
-    // No snackbar per request
+    // Show success message and navigate back to home
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('تمت إضافة المنتج إلى السلة بنجاح'),
+        backgroundColor: AppColors.successColor,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+
+    // Navigate back to customer home screen
+    context.go('/customer/home');
   }
 
   void _toggleFavorite() {
@@ -83,12 +109,38 @@ class _CustomerProductDetailsScreenState
     return Scaffold(
       backgroundColor: AppColors.white,
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(),
+                  if (kDebugMode) ...[
+                    const SizedBox(height: 16),
+                    Text('Loading product ID: ${widget.productId}'),
+                  ],
+                ],
+              ),
+            )
           : Consumer<CustomerProvider>(
               builder: (context, provider, child) {
                 final product = provider.currentProduct;
+                if (kDebugMode) {
+                  print('Building product details screen. Product: $product');
+                }
                 if (product == null) {
-                  return const Center(child: Text('المنتج غير موجود'));
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('المنتج غير موجود'),
+                        if (kDebugMode) ...[
+                          const SizedBox(height: 16),
+                          Text('Product ID: ${widget.productId}'),
+                          Text('Provider state: ${provider.toString()}'),
+                        ],
+                      ],
+                    ),
+                  );
                 }
 
                 return CustomScrollView(
@@ -172,9 +224,9 @@ class _CustomerProductDetailsScreenState
 
                             // Price
                             Text(
-                              '${product.price.toStringAsFixed(2)} ريال / ${product.unit ?? 'قطعة'}',
+                              '${product.price.toStringAsFixed(2)} ₪ / ${product.unit ?? 'قطعة'}',
                               style: TextStyle(
-                                color: AppColors.primaryText,
+                                color: AppColors.customerTextPrimary,
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -187,7 +239,7 @@ class _CustomerProductDetailsScreenState
                                 Text(
                                   'الكمية:',
                                   style: TextStyle(
-                                    color: AppColors.textSecondaryColor,
+                                    color: AppColors.customerTextPrimary,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -319,7 +371,7 @@ class _CustomerProductDetailsScreenState
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'السعر الإجمالي ${totalPrice.toStringAsFixed(2)} ريال',
+                      'السعر الإجمالي ${totalPrice.toStringAsFixed(2)} ₪',
                       style: TextStyle(
                         color: AppColors.primaryText,
                         fontSize: 16,

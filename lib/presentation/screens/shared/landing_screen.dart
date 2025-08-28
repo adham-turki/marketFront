@@ -21,13 +21,13 @@ class LandingScreen extends StatelessWidget {
               const Icon(
                 Icons.shopping_cart,
                 size: 80,
-                color: AppTheme.primaryColor,
+                color: AppColors.primaryColor,
               ),
               const SizedBox(height: 16),
               Text(
                 ArabicText.appTitle,
                 style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                      color: AppTheme.primaryColor,
+                      color: AppColors.primaryColor,
                       fontWeight: FontWeight.bold,
                     ),
               ),
@@ -35,7 +35,7 @@ class LandingScreen extends StatelessWidget {
               Text(
                 'منصة الجملة والتجزئة B2B/B2C',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: AppTheme.textSecondaryColor,
+                      color: AppColors.textSecondaryColor,
                     ),
                 textAlign: TextAlign.center,
               ),
@@ -48,7 +48,7 @@ class LandingScreen extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () => context.go('/register/customer'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryColor,
+                    backgroundColor: AppColors.primaryColor,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -80,7 +80,7 @@ class LandingScreen extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () => context.go('/register/supermarket'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.secondaryColor,
+                    backgroundColor: AppColors.secondaryColor,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -132,9 +132,9 @@ class LandingScreen extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: () => context.go('/login'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppTheme.primaryColor,
+                    foregroundColor: AppColors.primaryColor,
                     side: const BorderSide(
-                        color: AppTheme.primaryColor, width: 2),
+                        color: AppColors.primaryColor, width: 2),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -147,7 +147,7 @@ class LandingScreen extends StatelessWidget {
                       Text(
                         'تسجيل الدخول إلى الحساب الموجود',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: AppTheme.primaryColor,
+                              color: AppColors.primaryColor,
                               fontWeight: FontWeight.w600,
                             ),
                       ),

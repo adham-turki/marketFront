@@ -28,6 +28,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _apiService.init();
     _loadOrderDetails();
   }
 
@@ -44,18 +45,29 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
 
     try {
       final response = await _apiService.get('/orders/${widget.order['id']}');
-      if (response.statusCode == 200 && response.data['success']) {
-        final updatedOrder = response.data['data'];
-        setState(() {
-          _orderDetails = updatedOrder;
-        });
+      if (response.statusCode == 200 &&
+          (response.data['success'] == true ||
+              response.data['success'] == 'true')) {
+        final rawData = response.data['data'];
+        // Some backends wrap the entity under a specific key, e.g., { data: { order: {...} } }
+        final Map<String, dynamic>? updatedOrder =
+            (rawData is Map<String, dynamic>)
+                ? (rawData['order'] is Map<String, dynamic>
+                    ? rawData['order'] as Map<String, dynamic>
+                    : rawData)
+                : null;
+        if (updatedOrder != null) {
+          setState(() {
+            _orderDetails = updatedOrder;
+          });
 
-        // Update the widget.order with the latest data from API
-        widget.order.addAll(updatedOrder);
+          // Update the widget.order with the latest data from API (only if map)
+          widget.order.addAll(updatedOrder);
 
-        // Notify parent screen about the update
-        if (widget.onOrderUpdated != null) {
-          widget.onOrderUpdated!(widget.order);
+          // Notify parent screen about the update
+          if (widget.onOrderUpdated != null) {
+            widget.onOrderUpdated!(widget.order);
+          }
         }
       }
     } catch (e) {
@@ -222,46 +234,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
       ),
       child: Column(
         children: [
-          // Back button and title
-          Row(
-            children: [
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 5,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.arrow_back,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              const Expanded(
-                child: Text(
-                  ArabicText.orderDetails,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 70),
 
           // Order ID and Status
           Row(
@@ -295,14 +268,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: _getStatusColor(status),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white.withOpacity(0.3)),
                 ),
                 child: Text(
-                  status.toUpperCase(),
-                  style: TextStyle(
-                    color: _getStatusColor(status),
+                  ' ${_getStatusDisplayText(status)}',
+                  style: const TextStyle(
+                    color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.5,
@@ -406,6 +378,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
+                    color: AppColors.primaryText,
                   ),
                 ),
               ],
@@ -551,6 +524,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
+                    color: AppColors.primaryText,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -753,8 +727,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
   Widget _buildActions() {
     final order = _orderDetails ?? widget.order;
     final currentStatus = order['status']?.toString() ?? 'pending';
-    final currentPaymentStatus =
-        order['payment_status']?.toString() ?? 'pending';
 
     return Container(
       margin: const EdgeInsets.all(20),
@@ -809,14 +781,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
           ),
           const SizedBox(height: 12),
 
-          // Payment Status Update
-          _buildActionButton(
-            ArabicText.updatePaymentStatus,
-            Icons.payment,
-            () => _showPaymentStatusUpdateDialog(),
-            AppColors.secondaryBackground,
-          ),
-          const SizedBox(height: 12),
+          // Payment status flow removed per requirements
 
           // Cancel Order (if not already cancelled)
           if (currentStatus != 'cancelled' && currentStatus != 'delivered')
@@ -912,64 +877,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen>
     );
   }
 
-  void _showPaymentStatusUpdateDialog() {
-    final order = _orderDetails ?? widget.order;
-    String selectedPaymentStatus = order['payment_status'] ?? 'pending';
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(ArabicText.updatePaymentStatus),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(ArabicText.selectNewPaymentStatus),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              value: selectedPaymentStatus,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              ),
-              items: [
-                'pending',
-                'paid',
-                'failed',
-                'refunded',
-                'partially_refunded'
-              ]
-                  .map((status) => DropdownMenuItem(
-                        value: status,
-                        child: Text(_getStatusDisplayText(status)),
-                      ))
-                  .toList(),
-              onChanged: (value) {
-                if (value != null) selectedPaymentStatus = value;
-              },
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(ArabicText.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _updatePaymentStatus(selectedPaymentStatus);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryText,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text(ArabicText.update),
-          ),
-        ],
-      ),
-    );
-  }
+  // Payment status dialog removed per requirements
 
   void _showCancelOrderDialog() {
     showDialog(

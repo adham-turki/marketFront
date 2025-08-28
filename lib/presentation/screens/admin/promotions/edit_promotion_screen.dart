@@ -61,6 +61,7 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
   void _populateForm() {
     final promotion = widget.promotion;
 
+    // Controllers update instantly; for fields that affect UI (dropdowns, toggles), wrap in setState
     _nameController.text = promotion['name'] ?? '';
     _descriptionController.text = promotion['description'] ?? '';
     _discountPercentageController.text =
@@ -76,44 +77,46 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
         promotion['usage_limit_per_product']?.toString() ?? '';
     _priorityController.text = promotion['priority']?.toString() ?? '';
 
-    // Set promotion type
-    switch (promotion['promotion_type']) {
-      case 'percentage':
-        _selectedType = 'نسبة مئوية';
-        break;
-      case 'fixed_amount':
-        _selectedType = 'مبلغ ثابت';
-        break;
-      case 'free_shipping':
-        _selectedType = 'شحن مجاني';
-        break;
-      default:
-        _selectedType = 'نسبة مئوية';
-    }
+    setState(() {
+      // Set promotion type
+      switch (promotion['promotion_type']) {
+        case 'percentage':
+          _selectedType = 'نسبة مئوية';
+          break;
+        case 'fixed_amount':
+          _selectedType = 'مبلغ ثابت';
+          break;
+        case 'free_shipping':
+          _selectedType = 'شحن مجاني';
+          break;
+        default:
+          _selectedType = 'نسبة مئوية';
+      }
 
-    // Set dates
-    if (promotion['start_date'] != null) {
-      _startDate = DateTime.parse(promotion['start_date']);
-    }
-    if (promotion['end_date'] != null) {
-      _endDate = DateTime.parse(promotion['end_date']);
-    }
+      // Set dates
+      _startDate = promotion['start_date'] != null
+          ? DateTime.parse(promotion['start_date'])
+          : _startDate;
+      _endDate = promotion['end_date'] != null
+          ? DateTime.parse(promotion['end_date'])
+          : _endDate;
 
-    // Set scope type
-    _scopeType = promotion['scope_type'] ?? 'all_products';
+      // Set scope type
+      _scopeType = promotion['scope_type'] ?? 'all_products';
 
-    // Set selected IDs
-    if (promotion['category_ids'] != null) {
-      _selectedCategoryIds = List<int>.from(promotion['category_ids']);
-    }
-    if (promotion['product_ids'] != null) {
-      _selectedProductIds = List<int>.from(promotion['product_ids']);
-    }
+      // Set selected IDs
+      if (promotion['category_ids'] != null) {
+        _selectedCategoryIds = List<int>.from(promotion['category_ids']);
+      }
+      if (promotion['product_ids'] != null) {
+        _selectedProductIds = List<int>.from(promotion['product_ids']);
+      }
 
-    // Set boolean values
-    _isFeatured = promotion['is_featured'] ?? false;
-    _isStackable = promotion['is_stackable'] ?? false;
-    _isActive = (promotion['status'] ?? 'active') == 'active';
+      // Set boolean values
+      _isFeatured = promotion['is_featured'] ?? false;
+      _isStackable = promotion['is_stackable'] ?? false;
+      _isActive = (promotion['status'] ?? 'active') == 'active';
+    });
   }
 
   @override
@@ -330,14 +333,22 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                     color: AppColors.primaryText),
               ),
               const SizedBox(height: 20),
-              const Text(ArabicText.promotionName),
+              const Text(
+                ArabicText.promotionName,
+                style: TextStyle(color: AppColors.primaryText),
+              ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _nameController,
+                style: const TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   filled: true,
                   fillColor: Colors.white,
+                  labelStyle: TextStyle(
+                    color: Colors.black,
+                  ),
+                  hintStyle: TextStyle(color: AppColors.textSecondaryColor),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -347,15 +358,20 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                 },
               ),
               const SizedBox(height: 20),
-              const Text(ArabicText.promotionDescription),
+              const Text(
+                ArabicText.promotionDescription,
+                style: TextStyle(color: AppColors.primaryText),
+              ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 3,
+                style: const TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   filled: true,
                   fillColor: Colors.white,
+                  hintStyle: TextStyle(color: AppColors.textSecondaryColor),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -365,32 +381,57 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                 },
               ),
               const SizedBox(height: 20),
-              const Text(ArabicText.promotionType),
+              const Text(
+                ArabicText.promotionType,
+                style: TextStyle(color: AppColors.primaryText),
+              ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: _selectedType,
+                style: const TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   filled: true,
                   fillColor: Colors.white,
+                  hintStyle: TextStyle(color: AppColors.textSecondaryColor),
                 ),
+                dropdownColor: Colors.white,
+                iconEnabledColor: Colors.black,
+                iconDisabledColor: AppColors.textSecondaryColor,
+                selectedItemBuilder: (context) => _typeOptions
+                    .map((type) => Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Text(
+                            type,
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                        ))
+                    .toList(),
                 items: _typeOptions
-                    .map((type) =>
-                        DropdownMenuItem(value: type, child: Text(type)))
+                    .map((type) => DropdownMenuItem(
+                          value: type,
+                          child: Text(type,
+                              style: const TextStyle(color: Colors.black)),
+                        ))
                     .toList(),
                 onChanged: (value) => setState(() => _selectedType = value),
               ),
               const SizedBox(height: 20),
-              const Text(ArabicText.discountPercentage),
+              const Text(
+                ArabicText.discountPercentage,
+                style: TextStyle(color: AppColors.primaryText),
+              ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _discountPercentageController,
                 keyboardType: TextInputType.number,
+                style: const TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   filled: true,
                   fillColor: Colors.white,
                   suffixText: '%',
+                  hintStyle: TextStyle(color: AppColors.textSecondaryColor),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -406,7 +447,8 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(ArabicText.startDate),
+                        const Text(ArabicText.startDate,
+                            style: TextStyle(color: AppColors.primaryText)),
                         const SizedBox(height: 8),
                         InkWell(
                           onTap: () => _selectDate(context, true),
@@ -416,9 +458,12 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                               border: Border.all(color: Colors.grey),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(_startDate != null
-                                ? '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'
-                                : 'اختر التاريخ'),
+                            child: Text(
+                              _startDate != null
+                                  ? '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'
+                                  : 'اختر التاريخ',
+                              style: const TextStyle(color: Colors.black),
+                            ),
                           ),
                         ),
                       ],
@@ -429,7 +474,8 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(ArabicText.endDate),
+                        const Text(ArabicText.endDate,
+                            style: TextStyle(color: AppColors.primaryText)),
                         const SizedBox(height: 8),
                         InkWell(
                           onTap: () => _selectDate(context, false),
@@ -439,9 +485,12 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                               border: Border.all(color: Colors.grey),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(_endDate != null
-                                ? '${_endDate!.day}/${_endDate!.month}/${_endDate!.year}'
-                                : 'اختر التاريخ'),
+                            child: Text(
+                              _endDate != null
+                                  ? '${_endDate!.day}/${_endDate!.month}/${_endDate!.year}'
+                                  : 'اختر التاريخ',
+                              style: const TextStyle(color: Colors.black),
+                            ),
                           ),
                         ),
                       ],
@@ -450,24 +499,28 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              const Text('نطاق التطبيق'),
+              const Text('نطاق التطبيق',
+                  style: TextStyle(color: AppColors.primaryText)),
               const SizedBox(height: 8),
               Column(
                 children: [
                   RadioListTile<String>(
-                    title: const Text('جميع المنتجات'),
+                    title: const Text('جميع المنتجات',
+                        style: TextStyle(color: Colors.black)),
                     value: 'all_products',
                     groupValue: _scopeType,
                     onChanged: (value) => setState(() => _scopeType = value!),
                   ),
                   RadioListTile<String>(
-                    title: const Text('منتجات محددة'),
+                    title: const Text('منتجات محددة',
+                        style: TextStyle(color: Colors.black)),
                     value: 'specific_products',
                     groupValue: _scopeType,
                     onChanged: (value) => setState(() => _scopeType = value!),
                   ),
                   RadioListTile<String>(
-                    title: const Text('فئات محددة'),
+                    title: const Text('فئات محددة',
+                        style: TextStyle(color: Colors.black)),
                     value: 'category',
                     groupValue: _scopeType,
                     onChanged: (value) => setState(() => _scopeType = value!),
@@ -476,7 +529,8 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
               ),
               const SizedBox(height: 20),
               if (_scopeType == 'category') ...[
-                const Text('اختر الفئات'),
+                const Text('اختر الفئات',
+                    style: TextStyle(color: AppColors.primaryText)),
                 const SizedBox(height: 8),
                 InkWell(
                   onTap: _showCategorySelectionPage,
@@ -491,9 +545,12 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                         const Icon(Icons.checklist),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: Text(_selectedCategoryIds.isEmpty
-                              ? 'اختر الفئات'
-                              : 'تم اختيار ${_selectedCategoryIds.length} فئة'),
+                          child: Text(
+                            _selectedCategoryIds.isEmpty
+                                ? 'اختر الفئات'
+                                : 'تم اختيار ${_selectedCategoryIds.length} فئة',
+                            style: const TextStyle(color: Colors.black),
+                          ),
                         ),
                         const Icon(Icons.arrow_drop_down),
                       ],
@@ -503,7 +560,8 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                 const SizedBox(height: 20),
               ],
               if (_scopeType == 'specific_products') ...[
-                const Text('اختر المنتجات'),
+                const Text('اختر المنتجات',
+                    style: TextStyle(color: AppColors.primaryText)),
                 const SizedBox(height: 8),
                 InkWell(
                   onTap: _showProductSelectionPage,
@@ -518,9 +576,12 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                         const Icon(Icons.checklist),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: Text(_selectedProductIds.isEmpty
-                              ? 'اختر المنتجات'
-                              : 'تم اختيار ${_selectedProductIds.length} منتج'),
+                          child: Text(
+                            _selectedProductIds.isEmpty
+                                ? 'اختر المنتجات'
+                                : 'تم اختيار ${_selectedProductIds.length} منتج',
+                            style: const TextStyle(color: Colors.black),
+                          ),
                         ),
                         const Icon(Icons.arrow_drop_down),
                       ],
@@ -544,16 +605,20 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('الحد الأدنى للطلب'),
+                        const Text('الحد الأدنى للطلب',
+                            style: TextStyle(color: AppColors.primaryText)),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _minimumOrderController,
                           keyboardType: TextInputType.number,
+                          style: const TextStyle(color: Colors.black),
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             filled: true,
                             fillColor: Colors.white,
                             suffixText: '₪',
+                            hintStyle:
+                                TextStyle(color: AppColors.textSecondaryColor),
                           ),
                           validator: (value) {
                             if (value != null && value.isNotEmpty) {
@@ -573,16 +638,20 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('الحد الأقصى للخصم'),
+                        const Text('الحد الأقصى للخصم',
+                            style: TextStyle(color: AppColors.primaryText)),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _maxDiscountController,
                           keyboardType: TextInputType.number,
+                          style: const TextStyle(color: Colors.black),
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             filled: true,
                             fillColor: Colors.white,
                             suffixText: '₪',
+                            hintStyle:
+                                TextStyle(color: AppColors.textSecondaryColor),
                           ),
                           validator: (value) {
                             if (value != null && value.isNotEmpty) {
@@ -606,15 +675,19 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('حد الاستخدام الإجمالي'),
+                        const Text('حد الاستخدام الإجمالي',
+                            style: TextStyle(color: AppColors.primaryText)),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _usageLimitController,
                           keyboardType: TextInputType.number,
+                          style: const TextStyle(color: Colors.black),
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             filled: true,
                             fillColor: Colors.white,
+                            hintStyle:
+                                TextStyle(color: AppColors.textSecondaryColor),
                           ),
                           validator: (value) {
                             if (value != null && value.isNotEmpty) {
@@ -634,15 +707,19 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('حد الاستخدام لكل منتج'),
+                        const Text('حد الاستخدام لكل منتج',
+                            style: TextStyle(color: AppColors.primaryText)),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _maxQuantityPerProductController,
                           keyboardType: TextInputType.number,
+                          style: const TextStyle(color: Colors.black),
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             filled: true,
                             fillColor: Colors.white,
+                            hintStyle:
+                                TextStyle(color: AppColors.textSecondaryColor),
                           ),
                           validator: (value) {
                             if (value != null && value.isNotEmpty) {
@@ -666,15 +743,19 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('حد الاستخدام لكل منتج'),
+                        const Text('حد الاستخدام لكل منتج',
+                            style: TextStyle(color: AppColors.primaryText)),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _usageLimitPerProductController,
                           keyboardType: TextInputType.number,
+                          style: const TextStyle(color: Colors.black),
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             filled: true,
                             fillColor: Colors.white,
+                            hintStyle:
+                                TextStyle(color: AppColors.textSecondaryColor),
                           ),
                           validator: (value) {
                             if (value != null && value.isNotEmpty) {
@@ -694,15 +775,19 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('الأولوية'),
+                        const Text('الأولوية',
+                            style: TextStyle(color: AppColors.primaryText)),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _priorityController,
                           keyboardType: TextInputType.number,
+                          style: const TextStyle(color: Colors.black),
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             filled: true,
                             fillColor: Colors.white,
+                            hintStyle:
+                                TextStyle(color: AppColors.textSecondaryColor),
                           ),
                           validator: (value) {
                             if (value != null && value.isNotEmpty) {
@@ -723,7 +808,8 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(ArabicText.isFeatured),
+                  const Text(ArabicText.isFeatured,
+                      style: TextStyle(color: Colors.black)),
                   Switch(
                     value: _isFeatured,
                     onChanged: (value) => setState(() => _isFeatured = value),
@@ -733,7 +819,8 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(ArabicText.isStackable),
+                  const Text(ArabicText.isStackable,
+                      style: TextStyle(color: Colors.black)),
                   Switch(
                     value: _isStackable,
                     onChanged: (value) => setState(() => _isStackable = value),
@@ -743,7 +830,8 @@ class _EditPromotionScreenState extends State<EditPromotionScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(ArabicText.isActive),
+                  const Text(ArabicText.isActive,
+                      style: TextStyle(color: Colors.black)),
                   Switch(
                     value: _isActive,
                     onChanged: (value) => setState(() => _isActive = value),

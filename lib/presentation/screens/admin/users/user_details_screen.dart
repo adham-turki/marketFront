@@ -181,9 +181,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
       children: [
         _buildInfoRow(
             ArabicText.fullName, widget.user['full_name'] ?? ArabicText.none),
-        _buildInfoRow(
-            ArabicText.userName, widget.user['username'] ?? ArabicText.none),
-        _buildInfoRow(
+       _buildInfoRow(
             ArabicText.email, widget.user['email'] ?? ArabicText.none),
         _buildInfoRow(
             ArabicText.phoneNumber, widget.user['phone'] ?? ArabicText.none),

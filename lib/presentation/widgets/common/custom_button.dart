@@ -108,7 +108,7 @@ class CustomTextButton extends StatelessWidget {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        foregroundColor: foregroundColor ?? AppTheme.primaryColor,
+        foregroundColor: foregroundColor ?? AppColors.primaryColor,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),

@@ -2,24 +2,12 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 
 class AppTheme {
-  // Colors - Now using AppColors constants
-  static const Color primaryColor = AppColors.primaryColor;
-  static const Color secondaryColor = AppColors.secondaryColor;
-  static const Color accentColor = AppColors.accentColor;
-  static const Color backgroundColor = AppColors.backgroundColor;
-  static const Color surfaceColor = AppColors.surfaceColor;
-  static const Color errorColor = AppColors.errorColor;
-  static const Color successColor = AppColors.successColor;
-  static const Color warningColor = AppColors.warningColor;
-  static const Color textPrimaryColor = AppColors.textPrimaryColor;
-  static const Color textSecondaryColor = AppColors.textSecondaryColor;
-
   // Light Theme
   static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: primaryColor,
+      seedColor: AppColors.primaryColor,
       brightness: Brightness.light,
     ),
     scaffoldBackgroundColor: AppColors.white,
@@ -43,7 +31,7 @@ class AppTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: primaryColor,
+        backgroundColor: AppColors.primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -59,8 +47,8 @@ class AppTheme {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: primaryColor,
-        side: const BorderSide(color: primaryColor),
+        foregroundColor: AppColors.primaryColor,
+        side: const BorderSide(color: AppColors.primaryColor),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
@@ -74,7 +62,7 @@ class AppTheme {
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: primaryColor,
+        foregroundColor: AppColors.primaryColor,
         textStyle: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
@@ -95,11 +83,11 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: primaryColor, width: 2),
+        borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: errorColor),
+        borderSide: const BorderSide(color: AppColors.errorColor),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       labelStyle: const TextStyle(
@@ -189,7 +177,7 @@ class AppTheme {
     useMaterial3: true,
     brightness: Brightness.dark,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: primaryColor,
+      seedColor: AppColors.primaryColor,
       brightness: Brightness.dark,
     ),
     scaffoldBackgroundColor: AppColors.white, // Main background is white
@@ -214,7 +202,7 @@ class AppTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: primaryColor,
+        backgroundColor: AppColors.primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -230,8 +218,8 @@ class AppTheme {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: primaryColor,
-        side: const BorderSide(color: primaryColor),
+        foregroundColor: AppColors.primaryColor,
+        side: const BorderSide(color: AppColors.primaryColor),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
@@ -245,7 +233,7 @@ class AppTheme {
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: primaryColor,
+        foregroundColor: AppColors.primaryColor,
         textStyle: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
@@ -266,11 +254,11 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: primaryColor, width: 2),
+        borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: errorColor),
+        borderSide: const BorderSide(color: AppColors.errorColor),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       labelStyle: const TextStyle(
@@ -287,13 +275,13 @@ class AppTheme {
       ),
       displayMedium: TextStyle(
         fontSize: 28,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w600,
         color: AppColors.primaryText,
         fontFamily: 'Cairo',
       ),
       displaySmall: TextStyle(
         fontSize: 24,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w600,
         color: AppColors.primaryText,
         fontFamily: 'Cairo',
       ),

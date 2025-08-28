@@ -476,8 +476,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildEnhancedFormSection(
-                            ArabicText.basicInformation, [
+                        _buildEnhancedFormSection(ArabicText.basicInformation, [
                           _buildEnhancedTextField(ArabicText.productName,
                               _nameController, Icons.inventory_2),
                           _buildEnhancedTextField(ArabicText.description,
@@ -485,8 +484,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                               maxLines: 3),
                           _buildEnhancedCategoryDropdown(),
                         ]),
-                        _buildEnhancedFormSection(
-                            ArabicText.productDetails, [
+                        _buildEnhancedFormSection(ArabicText.productDetails, [
                           _buildEnhancedTextField(
                               ArabicText.sku, _skuController, Icons.qr_code),
                           _buildEnhancedTextField(ArabicText.barcode,
@@ -755,8 +753,15 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
         controller: controller,
         maxLines: maxLines,
         keyboardType: keyboardType,
+        style: const TextStyle(
+          color: AppColors.adminTextPrimary,
+          fontSize: 16,
+        ),
         decoration: InputDecoration(
           labelText: label,
+          labelStyle: const TextStyle(
+            color: AppColors.adminTextSecondary,
+          ),
           prefixIcon: Icon(icon, color: AppColors.primaryText),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
@@ -764,7 +769,8 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: AppColors.primaryText, width: 2),
+            borderSide:
+                const BorderSide(color: AppColors.primaryText, width: 2),
           ),
         ),
       ),
@@ -821,6 +827,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
+                color: AppColors.adminTextPrimary,
               ),
               decoration: InputDecoration(
                 hintText: 'Enter $label',
@@ -1001,7 +1008,8 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: AppColors.primaryText, width: 2),
+            borderSide:
+                const BorderSide(color: AppColors.primaryText, width: 2),
           ),
         ),
         items: _categories.map((category) {
@@ -1826,6 +1834,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Color.fromARGB(255, 255, 255, 255),
         title: Text(
             isEditing ? ArabicText.editCategory : ArabicText.addNewCategory),
         content: Column(
@@ -1833,16 +1842,30 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
           children: [
             TextField(
               controller: nameController,
+              style: const TextStyle(
+                color: AppColors.adminTextPrimary,
+                fontSize: 16,
+              ),
               decoration: const InputDecoration(
                 labelText: ArabicText.categoryName,
+                labelStyle: TextStyle(
+                  color: AppColors.adminTextSecondary,
+                ),
                 border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: descriptionController,
+              style: const TextStyle(
+                color: AppColors.adminTextPrimary,
+                fontSize: 16,
+              ),
               decoration: const InputDecoration(
                 labelText: ArabicText.description,
+                labelStyle: TextStyle(
+                  color: AppColors.adminTextSecondary,
+                ),
                 border: OutlineInputBorder(),
               ),
               maxLines: 3,
@@ -1850,8 +1873,15 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
             const SizedBox(height: 16),
             TextField(
               controller: imageUrlController,
+              style: const TextStyle(
+                color: AppColors.adminTextPrimary,
+                fontSize: 16,
+              ),
               decoration: const InputDecoration(
                 labelText: ArabicText.imageUrl,
+                labelStyle: TextStyle(
+                  color: AppColors.adminTextSecondary,
+                ),
                 border: OutlineInputBorder(),
               ),
             ),
@@ -2005,7 +2035,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.primaryText,
+                      color: Color.fromARGB(255, 86, 85, 85),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -2167,7 +2197,6 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                           horizontal: 10, vertical: 4),
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 4),
-                     
                       child: Row(
                         children: [
                           Expanded(
@@ -2177,6 +2206,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
+                                color: AppColors.adminTextPrimary,
                               ),
                               decoration: const InputDecoration(
                                 hintText:
@@ -2474,7 +2504,7 @@ class _AdminProductsScreenState extends State<AdminProductsScreen>
                             style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.primaryText,
+                              color: AppColors.adminTextPrimary,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

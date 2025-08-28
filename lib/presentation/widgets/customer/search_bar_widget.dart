@@ -51,6 +51,10 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
               controller: widget.controller,
               textDirection: TextDirection.rtl,
               textAlign: TextAlign.right,
+              style: const TextStyle(
+                color: AppColors.customerTextPrimary,
+                fontSize: 16,
+              ),
               decoration: InputDecoration(
                 hintText: 'ابحث عن الخضروات والفواكه والمزيد...',
                 hintStyle: TextStyle(

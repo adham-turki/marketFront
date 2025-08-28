@@ -209,7 +209,7 @@ class _CustomerCartScreenState extends State<CustomerCartScreen> {
                 ),
               ),
               Text(
-                '${cartSummary.subtotal.toStringAsFixed(2)} ريال',
+                '${cartSummary.subtotal.toStringAsFixed(2)} ₪',
                 style: TextStyle(
                   color: AppColors.primaryText,
                   fontSize: 16,
@@ -232,7 +232,7 @@ class _CustomerCartScreenState extends State<CustomerCartScreen> {
                 ),
               ),
               Text(
-                '${cartSummary.deliveryFee.toStringAsFixed(2)} ريال',
+                '${cartSummary.deliveryFee.toStringAsFixed(2)} ₪',
                 style: TextStyle(
                   color: AppColors.primaryText,
                   fontSize: 16,
@@ -260,7 +260,7 @@ class _CustomerCartScreenState extends State<CustomerCartScreen> {
                 ),
               ),
               Text(
-                '${cartSummary.total.toStringAsFixed(2)} ريال',
+                '${cartSummary.total.toStringAsFixed(2)} ₪',
                 style: TextStyle(
                   color: AppColors.primaryText,
                   fontSize: 20,

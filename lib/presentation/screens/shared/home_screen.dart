@@ -16,7 +16,7 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: AppColors.white,
       appBar: AppBar(
         title: const Text(ArabicText.appTitle),
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppColors.primaryColor,
         foregroundColor: Colors.white,
         actions: [
           IconButton(
@@ -28,7 +28,7 @@ class HomeScreen extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('تحقق من وحدة التحكم لنتائج اختبار الاتصال'),
-                    backgroundColor: AppTheme.primaryColor,
+                    backgroundColor: AppColors.primaryColor,
                   ),
                 );
               }
@@ -191,7 +191,7 @@ class HomeScreen extends StatelessWidget {
             Text(
               title,
               style: const TextStyle(
-                color: AppTheme.textPrimaryColor,
+                color: AppColors.textPrimaryColor,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
@@ -201,7 +201,7 @@ class HomeScreen extends StatelessWidget {
             Text(
               subtitle,
               style: const TextStyle(
-                color: AppTheme.textSecondaryColor,
+                color: AppColors.textSecondaryColor,
                 fontSize: 12,
               ),
               textAlign: TextAlign.center,
